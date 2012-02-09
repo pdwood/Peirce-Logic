@@ -2,21 +2,22 @@
 #define WINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
 
 namespace Ui {
-    class window;
+    class Window;
 }
 
-class window : public QMainWindow
-{
+class Window : public QMainWindow {
     Q_OBJECT
 
-public:
-    explicit window(QWidget *parent = 0);
-    ~window();
+    public:
+        explicit Window(QWidget *parent = 0);
+        ~Window();
 
-private:
-    Ui::window *ui;
+    private:
+        Ui::Window *ui;
+        QGraphicsScene canvas;
 };
 
 #endif // WINDOW_H
