@@ -2,6 +2,7 @@
 #define EXISTENTIALTREE_H
 
 #include <vector>
+#include <list>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 
@@ -12,22 +13,23 @@ class Node {
         Node* parent;
 };
 
+class Variable:public Node, public QGraphicsTextItem {
+    public:
+        Variable();
+        ~Variable();
+
+};
+
+
 class Cut:public Node, public QGraphicsItem {
     public:
         Cut();
         ~Cut();
-        addChild(Node* n) {children.push_back(n);}
+        void addChild(Node* n) {this->children.push_back(n);}
 
-        list<Node*> children;
-        list<Variable*> items;
+        std::list<Node*> children;
+        std::list<Variable*> items;
 };
-
-class Variable:public Node, public QGraphicsTextItem {
-    public:
-
-
-};
-
 class ExistentialTree {
     public:
         ExistentialTree();

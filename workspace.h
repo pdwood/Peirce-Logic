@@ -1,6 +1,8 @@
 #ifndef WORKSPACE_H
 #define WORKSPACE_H
 
+#include "existentialtree.h"
+
 class Workspace {
     public:
         Workspace();
