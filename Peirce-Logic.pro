@@ -12,10 +12,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         window.cpp \
     workspace.cpp \
-    existentialtree.cpp
+    existentialtree.cpp \
+    proofscene.cpp
 
 HEADERS  += window.h \
     workspace.h \
-    existentialtree.h
+    existentialtree.h \
+    graphnode.h \
+    proofscene.h
 
 FORMS    += window.ui
+
