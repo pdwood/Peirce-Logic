@@ -13,13 +13,29 @@ SOURCES += main.cpp\
         window.cpp \
     workspace.cpp \
     existentialtree.cpp \
-    proofscene.cpp
+    proofscene.cpp \
+    node.cpp \
+    variable.cpp \
+    cut.cpp
 
 HEADERS  += window.h \
     workspace.h \
     existentialtree.h \
     graphnode.h \
-    proofscene.h
+    proofscene.h \
+    node.h \
+    cut.h \
+    variable.h
 
 FORMS    += window.ui
+
+
+
+
+
+
+
+
+
+
 
