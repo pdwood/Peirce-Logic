@@ -4,5 +4,5 @@ ExistentialTree::ExistentialTree() {
 }
 ExistentialTree::~ExistentialTree()
 {
-    delete *root;
+    delete root;
 }
