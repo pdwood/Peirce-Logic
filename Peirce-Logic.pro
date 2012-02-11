@@ -16,7 +16,6 @@ SOURCES +=  sources\main.cpp \
 HEADERS  += headers\window.h \
             headers\workspace.h \
             headers\existentialtree.h \
-            headers\graphnode.h \
             headers\proofscene.h \
             headers\node.h \
             headers\cut.h \
