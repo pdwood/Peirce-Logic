@@ -8,6 +8,21 @@ Cut::Cut(int node_level, Node* node_parent, QMenu* menu, QGraphicsItem* parent, 
     setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
+Cut::~Cut() //frees children + variables
+{
+    std::list<Cut *>::iterator itr;
+    std::list<Variable *>::iterator itr2;
+
+    for(itr = children.begin();itr != children.end();itr++)
+    {
+        delete *itr;
+    }
+    for(itr2 = items.begin();itr2 != items.end();itr2++)
+    {
+        delete *itr2;
+    }
+}
+
 void Cut::contextMenuEvent(QGraphicsSceneContextMenuEvent* event) {
     scene()->clearSelection();
     setSelected(true);

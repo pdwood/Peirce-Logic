@@ -2,3 +2,7 @@
 
 ExistentialTree::ExistentialTree() {
 }
+ExistentialTree::~ExistentialTree()
+{
+    delete *root;
+}
