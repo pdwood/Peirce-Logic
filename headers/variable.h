@@ -1,7 +1,7 @@
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
-#include <list>
+#include <string>
 #include <QGraphicsItem>
 #include <QPainter>
 #include <QMenu>
@@ -12,7 +12,12 @@
 
 class Variable:public Node, public QGraphicsTextItem {
     public:
-        Variable();
+        Variable(std::string s, Node *p, int l):label(s),parent(p),level(l) {}
+		const std::string &name() {return s;}
+		void rename(std::string &s) { label = s; }
+		
+	private:
+		std::string label;
 
 };
 
