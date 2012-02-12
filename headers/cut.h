@@ -8,14 +8,12 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <QGraphicsScene>
 
-#include "node.h"
-#include "variable.h"
+#include "headers/node.h"
+#include "headers/variable.h"
 
 class Cut:public Node, public QGraphicsItem {
     public:
         Cut(int node_level, Node* node_parent, QMenu* menu, QGraphicsItem* parent=0, QGraphicsScene* scene=0);
-        ~Cut();
-        void addChild(Cut* n) ;//{this->children.push_back(n);}
 
         //bool advance();
         QRectF boundingRect() const;

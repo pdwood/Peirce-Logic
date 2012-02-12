@@ -2,7 +2,7 @@
 #define PROOFSCENE_H
 
 #include <iostream>
-#include "workspace.h"
+#include "headers/workspace.h"
 #include <QGraphicsScene>
 
 class ProofScene : public QGraphicsScene {

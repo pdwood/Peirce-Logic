@@ -1,9 +1,9 @@
 #ifndef EXISTENTIALTREE_H
 #define EXISTENTIALTREE_H
 
-#include "node.h"
-#include "cut.h"
-#include "variable.h"
+#include "headers/node.h"
+#include "headers/cut.h"
+#include "headers/variable.h"
 
 class ExistentialTree {
     public:

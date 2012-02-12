@@ -1,8 +1,4 @@
-#include "existentialtree.h"
+#include "headers/existentialtree.h"
 
 ExistentialTree::ExistentialTree() {
-}
-ExistentialTree::~ExistentialTree()
-{
-    delete root;
 }

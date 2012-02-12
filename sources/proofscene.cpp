@@ -1,4 +1,4 @@
-#include "proofscene.h"
+#include "headers/proofscene.h"
 
 ProofScene::ProofScene(Workspace* work_space, QMenu* menu, QObject* parent) : QGraphicsScene(parent) {
      workspace = work_space;

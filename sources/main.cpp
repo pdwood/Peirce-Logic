@@ -1,5 +1,5 @@
 #include <QtGui/QApplication>
-#include "window.h"
+#include "headers/window.h"
 
 int main(int argc, char *argv[])
 {

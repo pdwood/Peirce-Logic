@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 
-#include "proofscene.h"
+#include "headers/proofscene.h"
 
 namespace Ui {
     class Window;
