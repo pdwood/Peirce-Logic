@@ -66,6 +66,7 @@ List.prototype.pop_front = function ()
 	var ret = this.head.val;
 	this.head = this.head.next;
 	this.length--;
+	return ret;
 }
 List.prototype.erase = function(p) //returns pointer to next in list
 {
