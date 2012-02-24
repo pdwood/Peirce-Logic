@@ -13,8 +13,8 @@ function Level(parent,x,y) {
 	var level_init = (!parent)?0:parent.level+1;
 	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,level_init);
 	
-	this.children = [];
-	this.variables = [];
+	this.children = new List();
+	this.variables = new List();
 	this.shape;
 	
 	this.DEFAULT_CHILD_WIDTH = 50;
@@ -52,29 +52,68 @@ function Level(parent,x,y) {
 	this.shape.dblclick(this.onDoubleClick);
 };
 
-Level.prototype.expand = function() {
-		D(this);
+Level.prototype.expand = function(cx,cy,cw,ch) {
+	//D(this);
 	if(this.parent) {
-		this.shape.transform("s1.5");
-		this.parent.expand();
+		var sc = 20;
+		var x = this.shape.attrs.x; var y = this.shape.attrs.y;
+		var w = this.shape.attrs.width; var h = this.shape.attrs.height;
+		var new_x = x; var new_y = y;
+		if(x > cx-sc) {
+			new_x = cx-sc;
+			w += x-new_x;
+		}
+		if(y > cy-sc) {
+			new_y = cy-sc;
+			h += y-new_y;
+		}
+		var new_width = (x+w < cx+cw+sc) ? cx+cw+sc-x: w;
+		var new_height = (y+h < cy+ch+sc) ? cy+ch+sc-y: h;
+		var expanded_att = {
+			x: new_x,
+			y: new_y,
+			width: new_width,
+			height: new_height};
+		this.shape.animate(expanded_att,200,">");
+		this.parent.expand(new_x,new_y,new_width,new_height);
 	}
 }
 
 Level.prototype.addChild = function(x,y) {
 	var child = new Level(this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
 	//D(this);
-	this.children.push(child);
-	this.expand();
+	this.children.push_back(child);
+	this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height);
+};
+
+Level.prototype.dragMove = function(dx, dy) {
+	var new_x = this.ox + dx;
+	var new_y = this.oy + dy;
+	this.shape.attr({x: new_x, y: new_y});
+	this.parent.expand(new_x,new_y,this.shape.attrs.width,this.shape.attrs.height);
+	var itr = this.children.begin();
+	while(itr!=this.children.end()) {
+		itr.val.dragMove(dx,dy);
+		itr = itr.next;
+	}
 };
 
 Level.prototype.onDragMove = function(dx, dy) {
-	var att = {x: this.ox + dx, y: this.oy + dy};
-	this.attr(att);
+	this.parent.dragMove(dx,dy);
+};
+
+Level.prototype.dragStart = function() {
+	this.ox = this.shape.attr("x");
+	this.oy = this.shape.attr("y");
+	var itr = this.children.begin();
+	while(itr!=this.children.end()) {
+		itr.val.dragStart();
+		itr = itr.next;
+	}
 };
 
 Level.prototype.onDragStart = function() {
-	this.ox = this.attr("x");
-	this.oy = this.attr("y");
+	this.parent.dragStart();
 	this.animate({"fill-opacity": .2}, 500);
 	//this.scale(3,3);
 };
