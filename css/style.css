@@ -142,16 +142,29 @@ svg:not(:root)
 	width: 100%;
 	
 	z-index: 1;
-	height: 100%;
+	height: 95%;
 }
 
 header
 {
+	z-index: 30;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	width: 100%;
 	height: auto;
-	background-color: #586fb2;
+	background-image: linear-gradient(bottom, #C9C9C9 36%, #999799 68%);
+	background-image: -o-linear-gradient(bottom, #C9C9C9 36%, #999799 68%);
+	background-image: -moz-linear-gradient(bottom, #C9C9C9 36%, #999799 68%);
+	background-image: -webkit-linear-gradient(bottom, #C9C9C9 36%, #999799 68%);
+	background-image: -ms-linear-gradient(bottom, #C9C9C9 36%, #999799 68%);
+	
+	background-image: -webkit-gradient(
+	    linear,
+	    left bottom,
+	    left top,
+	    color-stop(0.36, #C9C9C9),
+	    color-stop(0.68, #999799)
+	);
 }
 
 #spacer
@@ -183,24 +196,22 @@ header
 	padding: 0;
 	list-style: none;
 	float: left;
-	font: bold 11px arial
+	font: bold 11px arial;
+	z-index: 30;
 }
 
 #menu li a
 {	display: block;
 	padding: 4px 10px;
 	width: auto;
-	background: #5970B2;
 	color: #FFF;
 	text-align: center;
 	text-decoration: nonemargin-top: 0;
 	margin-bottom: 0;
 	margin-right: 1px;
 	margin-left: 5px;
+	z-index: 30;
 }
-
-#menu li a:hover
-{	background: #49A3FF}
 
 #menu div
 {	position: absolute;
@@ -208,7 +219,9 @@ header
 	margin: 0;
 	padding: 0;
 	background: #EAEBD8;
-	border: 1px solid #5970B2}
+	border: 1px solid #5970B2;
+	z-index: 30;
+}
 
 	#menu div a
 	{	position: relative;
@@ -221,8 +234,12 @@ header
 		text-decoration: none;
 		background: #EAEBD8;
 		color: #2875DE;
-		font: 11px arial}
+		font: 11px arial;
+		z-index: 30;
+	}
 
 	#menu div a:hover
 	{	background: #49A3FF;
-		color: #FFF}
+		color: #FFF;
+		z-index: 30;
+	}
