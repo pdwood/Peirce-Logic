@@ -43,8 +43,6 @@ nav ul, nav ol { list-style: none; list-style-image: none; margin: 0; padding: 0
 
 img { border: 0; -ms-interpolation-mode: bicubic; vertical-align: middle; }
 
-svg:not(:root) { overflow: hidden; }
-
 figure { margin: 0; }
 
 form { margin: 0; }
@@ -124,3 +122,107 @@ td { vertical-align: top; }
   p, h2, h3 { orphans: 3; widows: 3; }
   h2, h3 { page-break-after: avoid; }
 }
+
+/* Main Styles */
+
+body {
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border: solid 1px #333;
+	width: 100%;
+	height: 100%;
+}
+p {
+	text-align: center;
+}
+
+
+svg:not(:root) 
+{ 
+	width: 100%;
+	
+	z-index: 1;
+	height: 100%;
+}
+
+header
+{
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	width: 100%;
+	height: auto;
+	background-color: #586fb2;
+}
+
+#spacer
+{
+	color: #5970B2;
+}
+
+#spacer::selection 
+{
+	background-color: rgba(0, 0, 0, 0);
+}
+#spacer::-moz-selection 
+{
+	background-color: rgba(0, 0, 0, 0);
+}
+
+
+/* Menu Styles */
+
+#menu
+{	margin: 0;
+	padding: 0;
+	z-index: 30;
+}
+
+#menu li
+{	
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	float: left;
+	font: bold 11px arial
+}
+
+#menu li a
+{	display: block;
+	padding: 4px 10px;
+	width: auto;
+	background: #5970B2;
+	color: #FFF;
+	text-align: center;
+	text-decoration: nonemargin-top: 0;
+	margin-bottom: 0;
+	margin-right: 1px;
+	margin-left: 5px;
+}
+
+#menu li a:hover
+{	background: #49A3FF}
+
+#menu div
+{	position: absolute;
+	visibility: hidden;
+	margin: 0;
+	padding: 0;
+	background: #EAEBD8;
+	border: 1px solid #5970B2}
+
+	#menu div a
+	{	position: relative;
+		display: block;
+		margin: 0;
+		padding: 5px 10px;
+		width: auto;
+		white-space: nowrap;
+		text-align: left;
+		text-decoration: none;
+		background: #EAEBD8;
+		color: #2875DE;
+		font: 11px arial}
+
+	#menu div a:hover
+	{	background: #49A3FF;
+		color: #FFF}

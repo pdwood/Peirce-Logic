@@ -22,19 +22,10 @@
 	<script src="js/list.js"></script>
 	<script src="js/tree.js"></script>
 	<script src="js/Peirce.js"></script>
+	<script src="js/Menu.js"></script>
 	<script src="js/libs/jquery-1.7.1.min.js"></script>
 	<script src="http://documentcloud.github.com/underscore/underscore-min.js"></script>
-	
-	<style type="text/css" media="screen">
-		#paper {
-			-moz-border-radius: 10px;
-			-webkit-border-radius: 10px;
-			border: solid 1px #333;
-		}
-		p {
-			text-align: center;
-		}
-	</style>
+
 </head>
 
 
@@ -42,8 +33,28 @@
 <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
 
 <header>
+<!-- To modify the menu the div id must match the argument to mopen -->
 
+	<ul id="menu" onmouseout="mclosetime()">
+		<li><a href="#" onmouseover="mopen('m1')">Menu Name</a>
+			<div id="m1" onmouseover="mcancelclosetime()">
+			<a href="#">Command</a>
+			<a href="#">Another command</a>
+			</div>
+		</li>
+		<li><a href="#" onmouseover="mopen('m2')" >Menu 2</a>
+			<div id="m2" onmouseover="mcancelclosetime()">
+			<!--Example command menu item-->
+			<!--<a href="#" onclick="commandname('arguments)">Do Something</a>-->
+			<a href="#">African Swallow</a>
+			</div>
+		</li>
+	</ul>
+	<div id="spacer">
+	 &nbsp
+	</div>
 </header>
+
 
 <div role="main">
 	<div id="paper"></div>  
