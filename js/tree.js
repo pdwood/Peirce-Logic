@@ -98,9 +98,9 @@ Level.prototype.expand = function(cx,cy,cw,ch) {
 		}
 		//expanded width,height
 		//child is out of bounds on right
-		var new_width = (x+w < cx+cw+sc) ? cx+cw+sc-x: w;
+		var new_width = (new_x+w < cx+cw+sc) ? cx+cw+sc-new_x: w;
 		//child is out of bounds on bottom
-		var new_height = (y+h < cy+ch+sc) ? cy+ch+sc-y: h;
+		var new_height = (new_y+h < cy+ch+sc) ? cy+ch+sc-new_y: h;
 		
 		//update shape
 		var expanded_att = {
@@ -167,6 +167,14 @@ Level.prototype.contract = function() {
 	}
 }
 
+/*
+Level.addChild
+~x: new child x
+~y: new child y
+
+Creates new child inside
+current level at x,y position
+*/
 Level.prototype.addChild = function(x,y) {
 	var child = new Level(this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
 	//D(this);
@@ -174,37 +182,64 @@ Level.prototype.addChild = function(x,y) {
 	this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height);
 };
 
-Level.prototype.dragMove = function(dx, dy) {
-	var new_x = this.ox + dx;
-	var new_y = this.oy + dy;
-	this.shape.attr({x: new_x, y: new_y});
-	var itr = this.children.begin();
-	while(itr!=this.children.end()) {
-		itr.val.dragMove(dx,dy);
-		itr = itr.next;
-	}
-	this.parent.expand(new_x,new_y,this.shape.attrs.width,this.shape.attrs.height);
-	this.parent.contract();
-};
+/*
+Level.dragStart
 
-Level.prototype.onDragMove = function(dx, dy) {
-	this.parent.dragMove(dx,dy);
-};
-
+Object level handler for 
+drag event initilization;
+Adds attributes of orignal
+coordinates to use for shifting
+the shape during drag
+*/
 Level.prototype.dragStart = function() {
+	//save orignal postions of children
 	var itr = this.children.begin();
 	while(itr!=this.children.end()) {
 		itr.val.dragStart();
 		itr = itr.next;
 	}
+	//save level's orignal position
 	this.ox = this.shape.attr("x");
 	this.oy = this.shape.attr("y");
 };
 
+//Level callback for drag initialization
 Level.prototype.onDragStart = function() {
 	this.parent.dragStart();
+	//highlight shape
 	this.animate({"fill-opacity": .2}, 500);
 	//this.scale(3,3);
+};
+
+/*
+Level.dragMove
+~dx: drag difference in x
+~dy: drag difference in y
+
+Object level handler for 
+drag event action; shifts
+shape based on drag difference
+then drags children.
+*/
+Level.prototype.dragMove = function(dx, dy) {
+	//shift shape
+	var new_x = this.ox + dx;
+	var new_y = this.oy + dy;
+	this.shape.attr({x: new_x, y: new_y});
+	//shift children
+	var itr = this.children.begin();
+	while(itr!=this.children.end()) {
+		itr.val.dragMove(dx,dy);
+		itr = itr.next;
+	}
+	//fit hull to new area
+	this.parent.expand(new_x,new_y,this.shape.attrs.width,this.shape.attrs.height);
+	this.parent.contract();
+};
+
+//Level callback for dragging
+Level.prototype.onDragMove = function(dx, dy) {
+	this.parent.dragMove(dx,dy);
 };
 
 Level.prototype.dragEnd = function() {
