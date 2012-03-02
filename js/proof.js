@@ -58,3 +58,16 @@ Proof.prototype.doublecut = function (treenode, x, y)
 	treenode.addChild(x,y);
 	treenode.children.rbegin().addChild(x,y); //might need to make new function to add child that returns new
 }
+Proof.prototype.rdoublecut = function (treenode)
+{
+	if(treenode.parent && !treenode.variables.length && treenode.children.length == 1)
+	{
+		var p = treenode.children.begin();
+		if(!p.variables.length && !p.children.length)
+		{
+			var itr = treenode.parent.children.begin();
+			while(;itr.val != treenode;itr = itr.next) {}
+			treenode.parent.children.erase(itr);
+		}
+	}
+}
