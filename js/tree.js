@@ -65,6 +65,7 @@ function Level(parent,x,y) {
 	this.shape.parent = this;
 	
 	this.shape.dblclick(this.onDoubleClick);
+	//this.shape.mouseup(this.onDoubleClick);
 };
 
 /*
@@ -182,6 +183,14 @@ Level.prototype.addChild = function(x,y) {
 	this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height);
 };
 
+/////////////////////////////
+Level.prototype.addVariable = function(x,y) {
+	var variable = new Variable(this,x,y);
+	//D(this);
+	this.variables.push_back(variable);
+	//this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height);
+};
+
 /*
 Level.dragStart
 
@@ -255,6 +264,35 @@ Level.prototype.onDragEnd = function() {
 Level.prototype.onDoubleClick = function(event) {
 	//D(event);
 	this.parent.addChild(event.offsetX,event.offsetY);
+	//this.parent.addVariable(event.offsetX,event.offsetY);
+	//var c = new Context(this.parent,this.parent.level,event.offsetX,event.offsetY);
+	
 };
 
 ////////////////////////////////////////////////////////////////////////
+
+Variable.prototype = Object.create(Node.prototype);
+
+function Variable(parent,x,y) {
+	//level is 0 if no parent, is main plane
+	var level_init = (!parent)?0:parent.level+1;
+	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,level_init);
+	
+	var text = R.text(x,y,"a");
+	this.text = text;
+	this.filled = false;
+	
+	var w=100,h=16;
+	var text_box = $('<div> <input style="height:' + h + 'px; width: ' + w + 'px;" type="text" name="textbox" value=""></div>');
+	text_box.css({"z-index" : 2, "position" : "absolute"});
+	text_box.css("left",text.getBBox().x-w/2+8);
+	text_box.css("top",text.getBBox().y+19);
+	text_box.focusout(function() {
+		D(this); 
+		var text_string = this.children[0].value.replace(/^\s+|\s+$/g,"");
+		this.filled = (text_string.lenght==0)?false:true;
+		text.attr({'text':text_string});
+		this.parentNode.removeChild(this);
+		});
+	$("body").append(text_box);
+}
