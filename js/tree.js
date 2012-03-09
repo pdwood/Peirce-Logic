@@ -263,9 +263,9 @@ Level.prototype.onDragEnd = function() {
 
 Level.prototype.onDoubleClick = function(event) {
 	//D(event);
-	this.parent.addChild(event.offsetX,event.offsetY);
+	//this.parent.addChild(event.offsetX,event.offsetY);
 	//this.parent.addVariable(event.offsetX,event.offsetY);
-	//var c = new Context(this.parent,this.parent.level,event.offsetX,event.offsetY);
+	var c = new Context(this.parent,this.parent.level,event.offsetX,event.offsetY);
 	
 };
 

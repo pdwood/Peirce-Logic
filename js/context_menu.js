@@ -17,22 +17,31 @@ function Context(node,level,x,y) {
 	this.x = x; this.y = y;
 	
 	this.items = {}
-	this.items['t1'] = test1;
-	this.items['t2'] = test2;
-	this.items['t3'] = test3;
+	this.num_items = 0;
+	this.addItem('t1',test1);
+	this.addItem('t2',test2);
+	this.addItem('t3',test3);
+	this.addItem('t32',test3);
 	
 	this.createMenu();
 };
 
+Context.prototype.addItem = function(name,func) {
+	this.items[name] = func;
+	this.num_items++;
+}
+
 Context.prototype.createMenu = function() {
-	var n = 8;
+	var n = this.num_items;
 	var partition = 2*Math.PI/n;
-	var radius = 30;
+	var radius = 30+Math.sqrt(n)*n;
 	for(var c=0; c<n; c++) {
-		R.path(
-					 'M'+this.x+','+this.y
-					+'l'+(radius*Math.cos(partition*c))
-						+','+(radius*Math.sin(partition*c))
-					).attr({stroke:"#000",fill: "none", "stroke-width": 2});
+		var x = (radius*Math.cos(partition*c));
+		var y = (radius*Math.sin(partition*c));
+		R.path('M'+this.x+','+this.y+'l'+x+','+y).attr(
+			{stroke:"#000",fill: "none", "stroke-width": 1.5});
+			
+		R.circle(this.x+x,this.y+y,30,20).attr(
+			{stroke:"#000",fill: "#aabbcc", "stroke-width": 1, "text":"asdf"});;
 	}
 };
