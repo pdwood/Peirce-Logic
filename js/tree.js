@@ -13,7 +13,7 @@ function Node(parent,level) {
 /*
 Level: Plane/Cut, inherits from Node
 ~children: list of child cuts/levels
-~varibles: list of variables on current level
+~variables: list of variables on current level
 ~shape: Raphael shape
 */
 Level.prototype = Object.create(Node.prototype);
@@ -54,6 +54,7 @@ function Level(parent,x,y) {
 		this.shape.mouseout(function () {
 			this.animate({"fill-opacity": .0}, 500); });
 		
+		//need to eventually make colors consistent
 		var color = Raphael.getColor();
 		this.shape.attr(
 			{fill: color, 
@@ -65,7 +66,6 @@ function Level(parent,x,y) {
 	this.shape.parent = this;
 	
 	this.shape.dblclick(this.onDoubleClick);
-	//this.shape.mouseup(this.onDoubleClick);
 };
 
 /*
@@ -121,39 +121,76 @@ Level.contract
 
 Takes level's shape and
 contracts its around all
-children like a hull;
+children and variables like a hull;
 */
 Level.prototype.contract = function() {
 	//D(this);
 	if(this.parent) {
 		var sc = 20; //slack
-		//intial hull around first child with slack
-		var itr = this.children.begin();
-		//child properties
-		var cx = itr.val.shape.attrs.x; var cy = itr.val.shape.attrs.y; 
-		var cw = itr.val.shape.attrs.width; var ch = itr.val.shape.attrs.height;
-		//contracted properties
-		var new_x = cx-sc; var new_y = cy-sc;
-		var new_width = cw+sc+sc; 
-		var new_height = ch+sc+sc;
-		itr = itr.next; //move to next child
-		//loop over children updating contracting hull
-		while(itr!=this.children.end()) {
-			cx = itr.val.shape.attrs.x; cy = itr.val.shape.attrs.y; 
-			cw = itr.val.shape.attrs.width; ch = itr.val.shape.attrs.height;
-			if(cx-sc <= new_x) {
-				new_width += new_x-(cx-sc);
-				new_x = cx-sc;
+		//state variables
+		var new_x = (this.shape.attrs.x+this.shape.attrs.width)/2;
+		var new_y = (this.shape.attrs.y+this.shape.attrs.height)/2;
+		var new_width = 0, new_height = 0;
+		var initial_hull_set_flag = false; //flag for hull initilization
+		
+		if(this.children.length) { //if children
+			//intial hull around first child with slack
+			var itr = this.children.begin();
+			var cx = itr.val.shape.attrs.x; var cy = itr.val.shape.attrs.y;
+			var cw = itr.val.shape.attrs.width; var ch = itr.val.shape.attrs.height;
+			//contracted properties
+			new_x = cx-sc; var new_y = cy-sc;
+			new_width = cw+sc+sc;
+			new_height = ch+sc+sc;
+			initial_hull_set_flag = true;
+			itr = itr.next; //move to next child
+			while(itr!=this.children.end()) {
+				//fit hull
+				var cx = itr.val.shape.attrs.x, cy = itr.val.shape.attrs.y; 
+				var cw = itr.val.shape.attrs.width, ch = itr.val.shape.attrs.height;
+				if(cx-sc <= new_x) {
+					new_width += new_x-(cx-sc);
+					new_x = cx-sc;
+				}
+				if(cy-sc <= new_y) {
+					new_height += new_y-(cy-sc);
+					new_y = cy-sc;
+				}
+				new_width = (cx+cw+sc<=new_x+new_width) ? new_width : cx+cw+sc-new_x;
+				new_height = (cy+ch+sc<=new_y+new_height) ? new_height : cy+ch+sc-new_y;
+				itr = itr.next;
 			}
-			if(cy-sc <= new_y) {
-				new_height += new_y-(cy-sc);
-				new_y = cy-sc;
-			}
-			new_width = (cx+cw+sc<=new_x+new_width) ? new_width : cx+cw+sc-new_x;
-			new_height = (cy+ch+sc<=new_y+new_height) ? new_height : cy+ch+sc-new_y;
-			itr = itr.next;
 		}
 		
+		if(this.variables.length) { //if variables
+			var itr = this.variables.begin();
+			if(!initial_hull_set_flag) { //if hull not initialized
+				//intial hull around first variable with slack
+				var cx = itr.val.text.getBBox().x, cy = itr.val.text.getBBox().y; 
+				var cw = itr.val.text.getBBox().width, ch = itr.val.text.getBBox().height;
+				//contracted properties
+				new_x = cx-sc, new_y = cy-sc;
+				new_width = cw+sc+sc;
+				new_height = ch+sc+sc;
+				itr = itr.next; //move to next variable
+			}
+			while(itr!=this.variables.end()) {
+				//fit hull
+				var cx = itr.val.text.getBBox().x, cy = itr.val.text.getBBox().y; 
+				var cw = itr.val.text.getBBox().width, ch = itr.val.text.getBBox().height;
+				if(cx-sc <= new_x) {
+					new_width += new_x-(cx-sc);
+					new_x = cx-sc;
+				}
+				if(cy-sc <= new_y) {
+					new_height += new_y-(cy-sc);
+					new_y = cy-sc;
+				}
+				new_width = (cx+cw+sc<=new_x+new_width) ? new_width : cx+cw+sc-new_x;
+				new_height = (cy+ch+sc<=new_y+new_height) ? new_height : cy+ch+sc-new_y;
+				itr = itr.next;
+			}
+		}
 		//update shape
 		var expanded_att = {
 			x: new_x,
@@ -178,17 +215,25 @@ current level at x,y position
 */
 Level.prototype.addChild = function(x,y) {
 	var child = new Level(this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
-	//D(this);
 	this.children.push_back(child);
+	//expand self to new child
 	this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height);
 };
 
-/////////////////////////////
+/*
+Level.addChild
+~x: new variable x
+~y: new variable y
+
+Creates new variable inside
+current level at x,y position
+*/
 Level.prototype.addVariable = function(x,y) {
 	var variable = new Variable(this,x,y);
-	//D(this);
-	this.variables.push_back(variable);
-	//this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height);
+	//this creates variable, but not adds it
+	//first variable's text box pops up
+	//if valid text used to initialize variable
+	//then variable pushes itself into this level
 };
 
 /*
@@ -201,9 +246,15 @@ coordinates to use for shifting
 the shape during drag
 */
 Level.prototype.dragStart = function() {
-	//save orignal postions of children
+	//save orignal positions of children
 	var itr = this.children.begin();
 	while(itr!=this.children.end()) {
+		itr.val.dragStart();
+		itr = itr.next;
+	}
+	//save orignal positions of variables
+	var itr = this.variables.begin();
+	while(itr!=this.variables.end()) {
 		itr.val.dragStart();
 		itr = itr.next;
 	}
@@ -217,7 +268,6 @@ Level.prototype.onDragStart = function() {
 	this.parent.dragStart();
 	//highlight shape
 	this.animate({"fill-opacity": .2}, 500);
-	//this.scale(3,3);
 };
 
 /*
@@ -228,7 +278,7 @@ Level.dragMove
 Object level handler for 
 drag event action; shifts
 shape based on drag difference
-then drags children.
+then drags children/variables
 */
 Level.prototype.dragMove = function(dx, dy) {
 	//shift shape
@@ -238,6 +288,12 @@ Level.prototype.dragMove = function(dx, dy) {
 	//shift children
 	var itr = this.children.begin();
 	while(itr!=this.children.end()) {
+		itr.val.dragMove(dx,dy);
+		itr = itr.next;
+	}
+	//shift variables
+	var itr = this.variables.begin();
+	while(itr!=this.variables.end()) {
 		itr.val.dragMove(dx,dy);
 		itr = itr.next;
 	}
@@ -251,48 +307,137 @@ Level.prototype.onDragMove = function(dx, dy) {
 	this.parent.dragMove(dx,dy);
 };
 
+/*
+Level.dragEnd
+
+Object level handler for 
+drag end event action; 
+Does final contraction of level
+*/
 Level.prototype.dragEnd = function() {
 	this.parent.contract();
 }
 
+//Level callback for drag ending
 Level.prototype.onDragEnd = function() {
 	this.parent.dragEnd();
 	this.animate({"fill-opacity": 0}, 500);
-	//this.scale(1/3,1/3);
 };
 
+/*
+Level.onDoubleClick
+~event: mouse event
+
+Object level handler for 
+mouse double click action; 
+Creates context menu on node;
+*/
 Level.prototype.onDoubleClick = function(event) {
-	//D(event);
-	//this.parent.addChild(event.offsetX,event.offsetY);
-	//this.parent.addVariable(event.offsetX,event.offsetY);
-	var c = new Context(this.parent,this.parent.level,event.offsetX,event.offsetY);
-	
+	//Menu intialized with node,node's level, and mouse x/y
+	ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
 };
 
 ////////////////////////////////////////////////////////////////////////
 
+/*
+Variable: Propostional variable, inherits from Node
+~text: Raphael text
+*/
 Variable.prototype = Object.create(Node.prototype);
 
 function Variable(parent,x,y) {
-	//level is 0 if no parent, is main plane
-	var level_init = (!parent)?0:parent.level+1;
-	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,level_init);
+	//variable level is parent level
+	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent,parent.level);
 	
-	var text = R.text(x,y,"a");
-	this.text = text;
-	this.filled = false;
+	//initial text, can't be empty or else it defaults to 0,0 origin
+	this.text = R.text(x,y,"~"); 
+	text = this.text;
+	this.text.parent = this;
 	
-	var w=100,h=16;
+	//setup text initialization
+	var w=100,h=16; //dimensions of text box
+	//create div with inner text box
 	var text_box = $('<div> <input style="height:' + h + 'px; width: ' + w + 'px;" type="text" name="textbox" value=""></div>');
+	//center over text area
 	text_box.css({"z-index" : 2, "position" : "absolute"});
-	text_box.css("left",text.getBBox().x-w/2+8);
-	text_box.css("top",text.getBBox().y+19);
-	text_box.focusout(function() {
-		D(this); 
+	text_box.css("left",this.text.getBBox().x-w/2+8);
+	text_box.css("top",this.text.getBBox().y+19);
+	//text creation function
+	var text_evaluate = function() {
+		//get rid extraneous pre/post white space
 		var text_string = this.children[0].value.replace(/^\s+|\s+$/g,"");
-		this.filled = (text_string.lenght==0)?false:true;
-		text.attr({'text':text_string});
-		this.parentNode.removeChild(this);
-		});
-	$("body").append(text_box);
+		this.parentNode.removeChild(this); //remove div
+		if(text_string.length) { //if valid string, not just white space
+			//initialize and add variable to parent
+			text.attr({'text':text_string});
+			text.parent.parent.variables.push_back(text.parent);
+			text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height);
+		}
+		else { //else remove text and don't add to parent
+			text.remove();
+		}
+	}
+	text_box.focusout( text_evaluate ); //evaluate text on focus out of text box
+	//need to enter based evaluation
+	$("body").append(text_box); //insert text box into page
+	$(text_box).children()[0].focus(); //focus on text box
+	
+	this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 }
+
+/*
+Variable.dragStart
+
+Object variable handler for 
+drag event initilization;
+Adds attributes of orignal
+coordinates to use for shifting
+the text during drag
+*/
+Variable.prototype.dragStart = function() {
+	//save Variable's orignal position
+	this.ox = this.text.attr("x");
+	this.oy = this.text.attr("y");
+};
+//Variable callback for drag initialization
+Variable.prototype.onDragStart = function() {
+	this.parent.dragStart();
+};
+
+/*
+Variable.dragMove
+~dx: drag difference in x
+~dy: drag difference in y
+
+Object variable handler for 
+drag event action; shifts
+text based on drag difference
+*/
+Variable.prototype.dragMove = function(dx, dy) {
+	//shift text
+	var new_x = this.ox + dx;
+	var new_y = this.oy + dy;
+	this.text.attr({x: new_x, y: new_y});
+	//fit parent hull to new area
+	this.parent.expand(this.text.getBBox().x,this.text.getBBox().y,this.text.getBBox().width,this.text.getBBox().height);
+	this.parent.contract();
+};
+//Variable callback for dragging
+Variable.prototype.onDragMove = function(dx, dy) {
+	this.parent.dragMove(dx,dy);
+};
+
+/*
+Variable.dragEnd
+
+Object variable handler for 
+drag end event action; 
+Does final contraction of Variable
+*/
+Variable.prototype.dragEnd = function() {
+	this.parent.contract();
+}
+//Variable callback for drag ending
+Variable.prototype.onDragEnd = function() {
+	this.parent.dragEnd();
+};

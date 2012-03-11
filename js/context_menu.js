@@ -1,29 +1,40 @@
-function test1() {
-	alert("foo");
+function ContextHandler() {
+	this.context = undefined;
+	$(document).click(
+		(function(ch) {
+			return function() {ch.CloseContext(); }
+		})(this)
+	);
 }
 
-function test2() {
-	alert("bar");
+ContextHandler.prototype.NewContext = function(node,x,y) {
+	if(this.context) {
+		this.context.close();
+		delete this.context;
+	}
+	this.context = new Context(node,x,y);
 }
 
-function test3() {
-	alert("foobar");
+ContextHandler.prototype.CloseContext = function() {
+	if(this.context) {
+		this.context.close();
+		delete this.context;
+	}
 }
 
+////////////////////////////////////////////////////////////////////////
 
-function Context(node,level,x,y) {
+function Context(node,x,y) {
 	this.node = node || null;
-	this.level = level;
+	this.level = node.level;
 	this.x = x; this.y = y;
 	
+	this.menu_items = R.set();
 	this.items = {}
 	this.num_items = 0;
-	this.addItem('t1',test1);
-	this.addItem('t2',test2);
-	this.addItem('t3',test3);
-	this.addItem('t32',test3);
 	
-	this.createMenu();
+	this.setup()
+	this.show();
 };
 
 Context.prototype.addItem = function(name,func) {
@@ -31,17 +42,67 @@ Context.prototype.addItem = function(name,func) {
 	this.num_items++;
 }
 
-Context.prototype.createMenu = function() {
-	var n = this.num_items;
-	var partition = 2*Math.PI/n;
-	var radius = 30+Math.sqrt(n)*n;
-	for(var c=0; c<n; c++) {
-		var x = (radius*Math.cos(partition*c));
-		var y = (radius*Math.sin(partition*c));
-		R.path('M'+this.x+','+this.y+'l'+x+','+y).attr(
-			{stroke:"#000",fill: "none", "stroke-width": 1.5});
-			
-		R.circle(this.x+x,this.y+y,30,20).attr(
-			{stroke:"#000",fill: "#aabbcc", "stroke-width": 1, "text":"asdf"});;
+Context.prototype.setup = function() {
+	this.addItem('insertion:cut',Proof.prototype.insertion_cut);
+	this.addItem('insertion:variable',Proof.prototype.insertion_variable);
+	this.addItem('empty double cut',Proof.prototype.empty_double_cut);
+}
+
+Context.prototype.show = function() {
+	var n = this.num_items; //shorthand variable
+	//get longest menu item name length
+	var max_length = 0;
+	for(x in this.items) {
+		max_length = Math.max(max_length,x.length);
+	}
+	
+	//set default menu properties
+	var font_size = 10;
+  //var text_prop = {font: ""+font_size+"px Helvetica, Arial", fill: "#fff"}
+	var partition = font_size+8; //height of item box
+	var width = font_size*max_length; //width of item box
+	var tol = 5, offset = 3; //tolerance of window bounds; offset from mouse
+	
+	//set correct initial x and y values
+	//fit overflow from width
+	var ox = (this.x+offset+width+tol > window.innerWidth)? this.x-(width+tol)+offset : this.x+offset; 
+	//fit overflow from height
+	var oy = (this.y+offset+partition*n+tol > window.innerHeight-R.canvas.offsetTop) ? this.y-(partition*n+tol)+offset : this.y+offset;	
+	
+	
+	var c=0; //item counter
+	for(x in this.items) {
+		var menu_item = R.set() //menu button set
+		var y = oy+partition*c; //start y at correct distance
+		//construct menu box
+		menu_item.push( 
+			R.rect(ox,y,width,partition).attr(
+				{stroke:"#000",fill: "#aabbcc", "stroke-width": 1, "text":"asdf"})
+		);
+		//construct menu text
+		menu_item.push(
+			R.text((ox+ox+width)/2, (y+y+partition)/2, x)
+		);
+		
+		//set up menu button click function
+		menu_item.click( 
+			//closure that creates function that executes button function at mouse event
+			//then closes menu
+			(function(f,n,x,y,c) {
+				return function() { f(n,x,y); c(); }
+			})(this.items[x],this.node,this.x,this.y,Context.prototype.makeClose(this))
+		);
+		
+		this.menu_items.push(menu_item); //push button into menu_items set
+		c++;
 	}
 };
+
+Context.prototype.close = function() {
+	this.menu_items.remove();
+	this.menu_items.clear();
+}
+
+Context.prototype.makeClose = function (menu) {
+	return function(){menu.close()}
+}

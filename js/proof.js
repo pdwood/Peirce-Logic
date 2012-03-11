@@ -43,6 +43,7 @@ ProofNode.prototype.duplicate = function ()
 function Proof()
 {
 	this.current = new ProofNode(this);//current node displayed
+	this.current.plane = new Level(null)
 }
 Proof.prototype.addnode = function () //all nodes after current will be removed
 {
@@ -52,13 +53,20 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.current.plane = this.current.plane.duplicate();
 	this.current = this.current.next;
 }
-Proof.prototype.doublecut = function (treenode, x, y)
+
+Proof.prototype.empty_double_cut = function (treenode, x, y)
 {
-	this.addnode();
 	treenode.addChild(x,y);
-	treenode.children.rbegin().addChild(x,y); //might need to make new function to add child that returns new
+	treenode.children.rbegin().val.addChild(x,y);
 }
-Proof.prototype.rdoublecut = function (treenode)
+
+Proof.prototype.double_cut = function (treenode, x, y)
+{
+	treenode.addChild(x,y);
+	treenode.children.rbegin().val.addChild(x,y); //might need to make new function to add child that returns new
+}
+
+Proof.prototype.r_double_cut = function (treenode)
 {
 	if(treenode.parent && !treenode.variables.length && treenode.children.length == 1)
 	{
@@ -66,8 +74,18 @@ Proof.prototype.rdoublecut = function (treenode)
 		if(!p.variables.length && !p.children.length)
 		{
 			var itr = treenode.parent.children.begin();
-			while(;itr.val != treenode;itr = itr.next) {}
+			while(itr.val != treenode) {itr = itr.next;}
 			treenode.parent.children.erase(itr);
 		}
 	}
+}
+
+Proof.prototype.insertion_cut = function(treenode,x,y)
+{
+	treenode.addChild(x,y);
+}
+
+Proof.prototype.insertion_variable = function(treenode,x,y)
+{
+	treenode.addVariable(x,y);
 }
