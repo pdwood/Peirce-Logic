@@ -45,6 +45,7 @@ function Proof()
 	this.current = new ProofNode(this);//current node displayed
 	this.current.plane = new Level(null)
 }
+//adds a node in the proof, must be called by all inference rules before tree is changed
 Proof.prototype.addnode = function () //all nodes after current will be removed
 {
 	this.current.next = new ProofNode(this);
@@ -53,33 +54,60 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.current.plane = this.current.plane.duplicate();
 	this.current = this.current.next;
 }
-
+//creates a empty doublecut at x,y
 Proof.prototype.empty_double_cut = function (treenode, x, y)
 {
-	treenode.addChild(x,y);
-	treenode.children.rbegin().val.addChild(x,y);
+	this.addnode();
+	var p = treenode.addChild(x,y);
+	p.addChild(x,y);
 }
-
-Proof.prototype.double_cut = function (treenode, x, y)
+//creates a doublecut around treenode(cut) variables to be added later
+Proof.prototype.double_cut = function (treenode)
 {
-	treenode.addChild(x,y);
-	treenode.children.rbegin().val.addChild(x,y); //might need to make new function to add child that returns new
+	if(treenode.parent)
+	{
+		this.addnode();
+		var itr = treenode.parent.children.begin();
+		for(;itr.val != treenode;itr=itr.next){} //finds where to add new cuts
+		//add doublecut
+		var p = itr.val.addChild(treenode.shape.attrs.x + (treenode.shape.attrs.width/2), treenode.shape.attrs.y + (treenode.shape.attrs.height/2));
+		p = p.addChild(treenode.shape.attrs.x + (treenode.shape.attrs.width/2), treenode.shape.attrs.y + (treenode.shape.attrs.height/2));
+		//changes parent
+		treenode.parent = p;
+		//if cut puts in children list
+		p.children.push_back(treenode);
+		//expands the doublecut
+		p.expand(treenode.shape.attrs.x,treenode.shape.attrs.y,treenode.shape.attrs.width,treenode.shape.attrs.height);
+	}
 }
 
 Proof.prototype.r_double_cut = function (treenode)
 {
+	
 	if(treenode.parent && !treenode.variables.length && treenode.children.length == 1)
 	{
-		var p = treenode.children.begin();
-		if(!p.variables.length && !p.children.length)
+		this.addnode();
+		var p = treenode.children.begin().val;
+		//change parent pointers
+		var itr = p.children.begin();
+		for(;itr != p.children.end();itr = itr.next)
 		{
-			var itr = treenode.parent.children.begin();
-			while(itr.val != treenode) {itr = itr.next;}
-			treenode.parent.children.erase(itr);
+			itr.val.parent = treenode.parent;
 		}
+		for(itr = p.variables; itr != p.variables.end(); itr = itr.next)
+		{
+			itr.val.parent = treenode.parent;
+		}
+		//append lists
+		treenode.parent.children.append(p.children);
+		treenode.parent.variables.append(p.variables);
+		//remove doublecut
+		for(itr = treenode.parent.children.begin();itr.val != treenode;itr = itr.next) {}
+		treenode.parent.children.erase(itr);
+		treenode.parent.contract();
 	}
 }
-
+//temp func for testing
 Proof.prototype.insertion_cut = function(treenode,x,y)
 {
 	treenode.addChild(x,y);

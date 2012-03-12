@@ -211,13 +211,15 @@ Level.addChild
 ~y: new child y
 
 Creates new child inside
-current level at x,y position
+current level at x,y position (x,y is center)
+returns child
 */
 Level.prototype.addChild = function(x,y) {
 	var child = new Level(this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
 	this.children.push_back(child);
 	//expand self to new child
 	this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height);
+	return child;
 };
 
 /*

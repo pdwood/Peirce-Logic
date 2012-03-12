@@ -110,3 +110,13 @@ List.prototype.end = function ()
 {
 	return null;
 }
+List.prototype.append = function (l)
+{
+	if(l.length)
+	{
+		this.tail.next = l.head;
+		l.head.prev = this.tail;
+		this.tail = l.tail;
+		this.length += l.length;
+	}
+}
