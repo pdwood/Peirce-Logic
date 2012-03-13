@@ -120,3 +120,97 @@ List.prototype.append = function (l)
 		this.length += l.length;
 	}
 }
+//merge sort function, pass the less then function, should presurve pointers to list (though it will change the order)
+List.prototype.sort = function (less_then_func)
+{
+	if(this.length == 0)
+		return;
+	
+	var merge_queue = new List();
+	var itr = this.head;
+	
+	//break list for merge sort and do the first step
+	while(itr != this.end())
+	{
+		if(itr.next == this.end())
+		{
+			itr.prev = itr.next = null;
+			merge_queue.push_back(itr);
+			break;
+		}
+		if(less_then_func(itr.val,itr.next.val))
+		{
+			merge_queue.push_back(itr);
+			itr.prev = null;
+			var p = itr.next.next;
+			itr.next.next = null;
+			itr = p;
+		}else{
+			var p = itr.next.next;
+			itr.prev = itr.next;
+			itr.next.next = itr;
+			itr.next.prev = null;
+			merge_queue.push_back(itr.next);
+			itr.next = null;
+			itr = p;
+		}
+	}
+	//merge sort the list
+	while(merge_queue.length != 1)
+	{
+		var merge_itr = merge_queue.head;
+		var temp_queue = new List();
+		while(merge_itr != merge_queue.end())
+		{
+			if(merge_itr.next == merge_queue.end())
+			{
+				temp_queue.push_back(merge_itr);
+				break;
+			}
+			var list1_itr = merge_itr.val;
+			var list2_itr = merge_itr.next.val;
+			var merged_list;
+			var merged_list_itr;
+			if(less_then_func(list1_itr.val, list2_itr.val))
+			{
+				merged_list =  merged_list_itr = list1_itr;
+				list1_itr = list1_itr.next;
+			}else{
+				merged_list = merged_list_itr = list2_itr;
+				list2_itr = list2_itr.next;
+			}
+			while(list1_itr && list2_itr)
+			{
+				if(less_then_func(list1_itr.val, list2_itr.val))
+				{
+					merged_list_itr.next = list1_itr;
+					list1_itr.prev = merged_list_itr;
+					merged_list_itr = list1_itr;
+					list1_itr = list1_itr.next;
+					merged_list_itr.next = null;
+				}else{
+					merged_list_itr.next = list2_itr;
+					list2_itr.prev = merged_list_itr;
+					merged_list_itr = list2_itr;
+					list2_itr = list2_itr.next;
+					merged_list_itr.next = null;
+				}
+			}
+			if(list1_itr)
+			{
+				merged_list_itr.next = list1_itr;
+				list1_itr.prev = merged_list_itr;
+			}else{
+				merged_list_itr.next = list2_itr;
+				list2_itr.prev = merged_list_itr;
+			}
+			temp_queue.push_back(merged_list);
+			merge_itr = merge_itr.next.next;
+		}
+		merge_queue = temp_queue;
+	}
+	//fix the head and tail of the sorted list
+	this.head = merge_queue.head.val;
+	for(itr = this.head;itr.next != this.end(); itr = itr.next) {}
+	this.tail = itr;
+}
