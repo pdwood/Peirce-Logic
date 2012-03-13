@@ -9,6 +9,10 @@ function List()
 	this.head = null;
 	this.tail = null;
 	this.length = 0;
+	for(var i = 0; i < arguments.length;i++)
+	{
+		this.push_back(arguments[i]);
+	}
 }
 List.prototype.push_back = function (x)
 {
@@ -164,7 +168,7 @@ List.prototype.sort = function (less_then_func)
 		{
 			if(merge_itr.next == merge_queue.end())
 			{
-				temp_queue.push_back(merge_itr);
+				temp_queue.push_back(merge_itr.val);
 				break;
 			}
 			var list1_itr = merge_itr.val;
