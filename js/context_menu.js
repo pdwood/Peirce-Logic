@@ -2,7 +2,7 @@ function ContextHandler() {
 	this.context = undefined;
 	$(document).click(
 		(function(ch) {
-			return function() {ch.CloseContext(); }
+			return function() {ch.CloseContext();}
 		})(this)
 	);
 }
@@ -12,6 +12,7 @@ ContextHandler.prototype.NewContext = function(node,x,y) {
 		this.context.close();
 		delete this.context;
 	}
+	mclose();
 	this.context = new Context(node,x,y);
 }
 
@@ -43,9 +44,9 @@ Context.prototype.addItem = function(name,func) {
 }
 
 Context.prototype.setup = function() {
-	this.addItem('insertion:cut',Proof.prototype.insertion_cut);
-	this.addItem('insertion:variable',Proof.prototype.insertion_variable);
-	this.addItem('empty double cut',Proof.prototype.empty_double_cut);
+	this.addItem('insertion:cut',TheProof.insertion_cut);
+	this.addItem('insertion:variable',TheProof.insertion_variable);
+	this.addItem('empty double cut',TheProof.empty_double_cut);
 }
 
 Context.prototype.show = function() {
@@ -89,7 +90,7 @@ Context.prototype.show = function() {
 			//closure that creates function that executes button function at mouse event
 			//then closes menu
 			(function(f,n,x,y,c) {
-				return function() { f(n,x,y); c(); }
+				return function() { f.call(TheProof,n,x,y); c(); }
 			})(this.items[x],this.node,this.x,this.y,Context.prototype.makeClose(this))
 		);
 		

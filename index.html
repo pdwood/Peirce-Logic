@@ -39,17 +39,17 @@
 <!-- To modify the menu the div id must match the argument to mopen -->
 
 	<ul id="menu">
-		<li><a href="#" onmouseover="mopen('m1')">Menu Name</a>
+		<li><a href="#" onclick="mopen('m1')">Menu Name</a>
 			<div id="m1">
-			<a href="#">Command</a>
-			<a href="#">Another command</a>
+			<a href="#" onclick="mclose()">Command</a>
+			<a href="#" onclick="mclose()">Another command</a>
 			</div>
 		</li>
-		<li><a href="#" onmouseover="mopen('m2')" >Menu 2</a>
+		<li><a href="#" onclick="mopen('m2')" >Menu 2</a>
 			<div id="m2">
 			<!--Example command menu item-->
-			<!--<a href="#" onclick="commandname('arguments)">Do Something</a>-->
-			<a href="#">Foo Bar</a>
+			<!--<a href="#" onclick="commandname(arguments)">Do Something</a>-->
+			<a href="#" onclick="mclose()">Foo Bar</a>
 			</div>
 		</li>
 	</ul>

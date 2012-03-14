@@ -51,7 +51,7 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.current.next = new ProofNode(this);
 	this.current.next.prev = this.current;
 	this.current.next.plane = this.current.plane;
-	this.current.plane = this.current.plane.duplicate();
+	this.current.plane = jQuery.extend(true, {}, this.current.plane);
 	this.current = this.current.next;
 }
 //creates a empty doublecut at x,y
