@@ -51,7 +51,8 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.current.next = new ProofNode(this);
 	this.current.next.prev = this.current;
 	this.current.next.plane = this.current.plane;
-	this.current.plane = jQuery.extend(true, {}, this.current.plane);
+	//this.current.plane = jQuery.extend(true, {}, this.current.plane);//dont think this copys the whole tree(according to the documentation i found, it would only copy the root)
+	this.current.plane = this.current.duplicate();//not yet implemented, should duplicate the tree in current
 	this.current = this.current.next;
 }
 //creates a empty doublecut at x,y
