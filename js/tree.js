@@ -31,41 +31,43 @@ function Level(parent,x,y) {
 	this.DEFAULT_CHILD_WIDTH = 50;
 	this.DEFAULT_CHILD_HEIGHT = 50;
 	
-	//plane constructor
-	if(!parent) {
-		this.shape = R.rect(0,0,2000,2000);
-		/*this.shape.mouseover(function () {
-			this.animate({"fill-opacity": .2}, 500); });
-		this.shape.mouseout(function () {
-			this.animate({"fill-opacity": .1}, 500); });*/
-		var color = '#888';
-		this.shape.attr({
-			fill: color, 
-			stroke: color, "fill-opacity": .1
-		});
+	if(x != -1) {
+		//plane constructor
+		if(!parent) {
+			this.shape = R.rect(0,0,2000,2000);
+			/*this.shape.mouseover(function () {
+				this.animate({"fill-opacity": .2}, 500); });
+			this.shape.mouseout(function () {
+				this.animate({"fill-opacity": .1}, 500); });*/
+			var color = '#888';
+			this.shape.attr({
+				fill: color, 
+				stroke: color, "fill-opacity": .1
+			});
+				
+		} 
+		//cut constructor
+		else {
+			this.shape = R.rect(x,y,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,20);
+			//mouseover effects
+			this.shape.mouseover(function () {
+				this.animate({"fill-opacity": .2}, 500); });
+			this.shape.mouseout(function () {
+				this.animate({"fill-opacity": .0}, 500); });
 			
-	} 
-	//cut constructor
-	else {
-		this.shape = R.rect(x,y,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,20);
-		//mouseover effects
-		this.shape.mouseover(function () {
-			this.animate({"fill-opacity": .2}, 500); });
-		this.shape.mouseout(function () {
-			this.animate({"fill-opacity": .0}, 500); });
+			//need to eventually make colors consistent
+			var color = Raphael.getColor();
+			this.shape.attr(
+				{fill: color, 
+				stroke: color, "fill-opacity": 0,});
+			this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+		}
+		//shape has parent pointer back to level
+		//allows for referencing in Raphael callbacks
+		this.shape.parent = this;
 		
-		//need to eventually make colors consistent
-		var color = Raphael.getColor();
-		this.shape.attr(
-			{fill: color, 
-			stroke: color, "fill-opacity": 0,});
-		this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+		this.shape.dblclick(this.onDoubleClick);
 	}
-	//shape has parent pointer back to level
-	//allows for referencing in Raphael callbacks
-	this.shape.parent = this;
-	
-	this.shape.dblclick(this.onDoubleClick);
 };
 
 /*
@@ -339,6 +341,25 @@ Level.prototype.onDoubleClick = function(event) {
 	ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
 };
 
+//Duplicates the entire tree.
+Level.prototype.duplicate = function() {
+	var dup = new level(this.parent, -1);
+	// Bharath will add shape duplication here
+	//dup.shape = ...
+	var itr = this.children.head;
+	while(itr != null) {
+		dup.children.push_back(itr.x.duplicate());
+		itr = itr.next;
+	}
+	itr = dup.variables.head;
+	while(itr != null) {
+		//variable duplicate not yet implemented.
+		dup.variables.push_back(itr.x.duplicate());
+		itr = itr.next;
+	}
+	return dup;
+};
+
 ////////////////////////////////////////////////////////////////////////
 
 /*
@@ -351,40 +372,42 @@ function Variable(parent,x,y) {
 	//variable level is parent level
 	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent,parent.level);
 	
-	//initial text, can't be empty or else it defaults to 0,0 origin
-	this.text = R.text(x,y,"~"); 
-	text = this.text;
-	this.text.parent = this;
-	
-	//setup text initialization
-	var w=100,h=16; //dimensions of text box
-	//create div with inner text box
-	var text_box = $('<div> <input style="height:' + h + 'px; width: ' + w + 'px;" type="text" name="textbox" value=""></div>');
-	//center over text area
-	text_box.css({"z-index" : 2, "position" : "absolute"});
-	text_box.css("left",this.text.getBBox().x-w/2+8);
-	text_box.css("top",this.text.getBBox().y+19);
-	//text creation function
-	var text_evaluate = function() {
-		//get rid extraneous pre/post white space
-		var text_string = this.children[0].value.replace(/^\s+|\s+$/g,"");
-		this.parentNode.removeChild(this); //remove div
-		if(text_string.length) { //if valid string, not just white space
-			//initialize and add variable to parent
-			text.attr({'text':text_string});
-			text.parent.parent.variables.push_back(text.parent);
-			text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height);
+	if(x != -1) {
+		//initial text, can't be empty or else it defaults to 0,0 origin
+		this.text = R.text(x,y,"~"); 
+		text = this.text;
+		this.text.parent = this;
+		
+		//setup text initialization
+		var w=100,h=16; //dimensions of text box
+		//create div with inner text box
+		var text_box = $('<div> <input style="height:' + h + 'px; width: ' + w + 'px;" type="text" name="textbox" value=""></div>');
+		//center over text area
+		text_box.css({"z-index" : 2, "position" : "absolute"});
+		text_box.css("left",this.text.getBBox().x-w/2+8);
+		text_box.css("top",this.text.getBBox().y+19);
+		//text creation function
+		var text_evaluate = function() {
+			//get rid extraneous pre/post white space
+			var text_string = this.children[0].value.replace(/^\s+|\s+$/g,"");
+			this.parentNode.removeChild(this); //remove div
+			if(text_string.length) { //if valid string, not just white space
+				//initialize and add variable to parent
+				text.attr({'text':text_string});
+				text.parent.parent.variables.push_back(text.parent);
+				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height);
+			}
+			else { //else remove text and don't add to parent
+				text.remove();
+			}
 		}
-		else { //else remove text and don't add to parent
-			text.remove();
-		}
+		text_box.focusout( text_evaluate ); //evaluate text on focus out of text box
+		//need to enter based evaluation
+		$("body").append(text_box); //insert text box into page
+		$(text_box).children()[0].focus(); //focus on text box
+		
+		this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 	}
-	text_box.focusout( text_evaluate ); //evaluate text on focus out of text box
-	//need to enter based evaluation
-	$("body").append(text_box); //insert text box into page
-	$(text_box).children()[0].focus(); //focus on text box
-	
-	this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 }
 
 /*
@@ -442,4 +465,10 @@ Variable.prototype.dragEnd = function() {
 //Variable callback for drag ending
 Variable.prototype.onDragEnd = function() {
 	this.parent.dragEnd();
+};
+
+Variable.prototype.duplicate = function() {
+	var dup = new Variable(this.parent, -1);
+	//dup.text = ...
+	return dup;
 };
