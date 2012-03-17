@@ -34,12 +34,6 @@ ProofNode.prototype.unserialize = function ()
 {
 	//to be added later once serialize is complete
 }
-ProofNode.prototype.duplicate = function ()
-{
-	//to be added when func to duplicate tree nodes is created
-	//returns pointer to new duplicate tree
-	return null;
-}
 function Proof()
 {
 	this.current = new ProofNode(this);//current node displayed
@@ -51,7 +45,7 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.current.next = new ProofNode(this);
 	this.current.next.prev = this.current;
 	this.current.next.plane = this.current.plane;
-	this.current.plane = this.current.duplicate();
+	this.current.plane = this.current.plane.duplicate();
 	this.current = this.current.next;
 }
 //creates a empty doublecut at x,y
