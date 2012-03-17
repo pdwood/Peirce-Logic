@@ -18,7 +18,7 @@ Level: Plane/Cut, inherits from Node
 */
 Level.prototype = Object.create(Node.prototype);
 
-function Level(parent,x,y) {
+function Level(parent,x,y,duplicate) {
 	//level is 0 if no parent, is main plane
 	var level_init = (!parent)?0:parent.level+1;
 	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,level_init);
@@ -26,15 +26,18 @@ function Level(parent,x,y) {
 	//members
 	this.children = new List();
 	this.variables = new List();
-	this.shape;
+	this.shape = null;
 	
+	this.DEFAULT_PLANE_WIDTH = 2000;
+	this.DEFAULT_PLANE_HEIGHT = 2000;
 	this.DEFAULT_CHILD_WIDTH = 50;
 	this.DEFAULT_CHILD_HEIGHT = 50;
 	
-	if(x != -1) {
+	//setup shape if not in duplication process
+	if(!duplicate) {
 		//plane constructor
 		if(!parent) {
-			this.shape = R.rect(0,0,2000,2000);
+			this.shape = R.rect(0,0,this.DEFAULT_PLANE_WIDTH,this.DEFAULT_PLANE_HEIGHT);
 			/*this.shape.mouseover(function () {
 				this.animate({"fill-opacity": .2}, 500); });
 			this.shape.mouseout(function () {
@@ -62,6 +65,7 @@ function Level(parent,x,y) {
 				stroke: color, "fill-opacity": 0,});
 			this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 		}
+		
 		//shape has parent pointer back to level
 		//allows for referencing in Raphael callbacks
 		this.shape.parent = this;
@@ -69,6 +73,159 @@ function Level(parent,x,y) {
 		this.shape.dblclick(this.onDoubleClick);
 	}
 };
+
+/*
+Level.renderShape
+~attr: Raphael attributes for rendering
+
+Remove old rapheal shape and 
+replace with new shape with 
+input attributes and setup
+handlers
+*/
+Level.prototype.renderShape = function(attr) {
+	//for plane
+	if(!this.parent) {
+		this.shape = R.rect(0,0,this.DEFAULT_PLANE_WIDTH,this.DEFAULT_PLANE_HEIGHT).attr(attr);
+		/*this.shape.mouseover(function () {
+			this.animate({"fill-opacity": .2}, 500); });
+		this.shape.mouseout(function () {
+			this.animate({"fill-opacity": .1}, 500); });*/
+	} 
+	//for cut
+	else {
+		this.shape = R.rect(0,0,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,20).attr(attr);
+		//mouseover effects
+		this.shape.mouseover(function () {
+			this.animate({"fill-opacity": .2}, 500); });
+		this.shape.mouseout(function () {
+			this.animate({"fill-opacity": .0}, 500); });
+		
+		this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+	}
+	
+	//shape has parent pointer back to level
+	//allows for referencing in Raphael callbacks
+	this.shape.parent = this;
+	
+	this.shape.dblclick(this.onDoubleClick);
+}
+
+/*
+Level.compress
+
+Save shape attributes
+and remove shape from 
+level and screen; 
+Used in saving a tree 
+for later use
+*/
+Level.prototype.compress = function() {
+	this.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
+	this.shape.remove();
+	this.shape = null;
+}
+
+/*
+Level.compressTree()
+
+Store rapahel objects from
+entire sub-tree from this 
+as the root; Used for later
+use
+*/
+Level.prototype.compressTree = function() {
+	//compress children first
+	var itr=this.children.begin(); 
+	while(itr!=this.children.end()) {
+		itr.val.compressTree();
+		itr = itr.next;
+	}
+	this.compress();
+	itr=this.variables.begin();
+	while(itr!=this.variables.end()) {
+		itr.val.compress();
+		itr = itr.next;
+	}
+}
+
+/*
+Level.restore
+
+Re-render shape from 
+saved shape attributes
+*/
+Level.prototype.restore = function() {
+	if(this.saved_attr) { //check if saved attributes exist
+		this.renderShape(this.saved_attr)
+	}
+}
+
+/*
+Level.restoreTree()
+
+Re-render rapahel objects from
+entire sub-tree from this 
+as the root
+*/
+Level.prototype.restoreTree = function() {
+	//show current level first
+	this.restore();
+	var itr=this.variables.begin();
+	while(itr!=this.variables.end()) {
+		itr.val.restore();
+		itr = itr.next;
+	}
+	itr=this.children.begin(); 
+	while(itr!=this.children.end()) {
+		itr.val.restoreTree();
+		itr = itr.next;
+	}
+}
+
+/*
+Level.hide
+
+Hide rapahel objects from
+entire sub-tree from this 
+as the root
+*/
+Level.prototype.hide = function() {
+	//hide children first
+	var itr=this.children.begin(); 
+	while(itr!=this.children.end()) {
+		itr.val.hide();
+		itr = itr.next;
+	}
+	this.shape.hide();
+	itr=this.variables.begin();
+	while(itr!=this.variables.end()) {
+		itr.val.text.hide();
+		itr = itr.next;
+	}
+}
+
+/*
+Level.show
+
+Show rapahel objects from
+entire sub-tree from this 
+as the root
+*/
+Level.prototype.show = function() {
+	//show current level first
+	this.shape.show();
+	var itr=this.variables.begin();
+	while(itr!=this.variables.end()) {
+		itr.val.text.show();
+		itr = itr.next;
+	}
+	itr=this.children.begin(); 
+	while(itr!=this.children.end()) {
+		itr.val.show();
+		itr = itr.next;
+	}
+}
 
 /*
 Level.expand(float cx, float cy, float cw, float ch)
@@ -343,18 +500,20 @@ Level.prototype.onDoubleClick = function(event) {
 
 //Duplicates the entire tree.
 Level.prototype.duplicate = function() {
-	var dup = new level(this.parent, -1);
-	// Bharath will add shape duplication here
-	//dup.shape = ...
-	var itr = this.children.head;
-	while(itr != null) {
-		dup.children.push_back(itr.x.duplicate());
+	var dup = new Level(null,0,0,true);
+	dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
+	var itr = this.children.begin();
+	while(itr != this.children.end()) {
+		child_dup = itr.val.duplicate();
+		child_dup.parent = dup;
+		dup.children.push_back(child_dup);
 		itr = itr.next;
 	}
-	itr = dup.variables.head;
-	while(itr != null) {
-		//variable duplicate not yet implemented.
-		dup.variables.push_back(itr.x.duplicate());
+	itr = this.variables.begin();
+	while(itr != this.variables.end()) {
+		variable_dup = itr.val.duplicate();
+		variable_dup.parent = dup;
+		dup.variables.push_back(variable_dup);
 		itr = itr.next;
 	}
 	return dup;
@@ -368,11 +527,13 @@ Variable: Propostional variable, inherits from Node
 */
 Variable.prototype = Object.create(Node.prototype);
 
-function Variable(parent,x,y) {
+function Variable(parent,x,y,duplicate) {
+	//level is 0 if no parent, is main plane
+	var level_init = (!parent)?0:parent.level;
 	//variable level is parent level
-	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent,parent.level);
+	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent,level_init);
 	
-	if(x != -1) {
+	if(!duplicate) {
 		//initial text, can't be empty or else it defaults to 0,0 origin
 		this.text = R.text(x,y,"~"); 
 		text = this.text;
@@ -407,6 +568,54 @@ function Variable(parent,x,y) {
 		$(text_box).children()[0].focus(); //focus on text box
 		
 		this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+	}
+}
+
+/*
+Variable.renderText
+~attr: Raphael attributes for rendering
+
+Remove old rapheal text and 
+replace with new text with 
+input attributes and setup
+handlers
+*/
+Variable.prototype.renderText = function(attr) {
+	if(this.text) {
+		this.text.remove();
+		this.text = null;
+	}
+	
+	this.text = R.text(0,0,"~").attr(attr);
+	this.text.parent = this;
+	
+	this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+}
+
+/*
+Variable.compress
+
+Save text attributes
+and remove text from 
+variable and screen; 
+Used in saving a tree 
+for later use
+*/
+Variable.prototype.compress = function() {
+	this.saved_attr = jQuery.extend(true, {}, this.text.attrs);
+	this.text.remove();
+	this.text = null;
+}
+
+/*
+Variable.restore
+
+Re-render text from 
+saved text attributes
+*/
+Variable.prototype.restore = function() {
+	if(this.saved_attr) { //check if saved attributes exist
+		this.renderText(this.saved_attr)
 	}
 }
 
@@ -468,7 +677,7 @@ Variable.prototype.onDragEnd = function() {
 };
 
 Variable.prototype.duplicate = function() {
-	var dup = new Variable(this.parent, -1);
-	//dup.text = ...
+	var dup = new Variable(null,0,0,true);
+	dup.saved_attr = jQuery.extend(true, {}, this.text.attrs);
 	return dup;
 };
