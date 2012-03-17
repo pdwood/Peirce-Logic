@@ -48,6 +48,36 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.current.plane = this.current.plane.duplicate();
 	this.current = this.current.next;
 }
+//moves proof to last step
+Proof.prototype.prev = function()
+{
+	if(this.current.prev)
+	{
+		this.current.plane.compressTree();
+		this.current = this.current.prev;
+		this.current.plane.restoreTree();
+	}
+}
+//moves proof to next step
+Proof.prototype.next = function ()
+{
+	if(this.current.next)
+	{
+		this.current.plane.compressTree();
+		this.current = this.current.next;
+		this.current.plane.restoreTree();
+	}
+}
+//swaps proof to the step pointed to by proof node
+Proof.prototype.swap = function (proof_node)
+{
+	if(proof_node)
+	{
+		this.current.plane.compressTree();
+		this.current = proof_node;
+		this.current.plane.restoreTree();
+	}
+}
 //creates a empty doublecut at x,y
 Proof.prototype.empty_double_cut = function (treenode, x, y)
 {
