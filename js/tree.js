@@ -5,9 +5,16 @@ Node: tree node
 */
 function Node(parent,level) {
 	this.parent = parent || null;
-	this.level = level;
+	this.level = level;//dont need, to expensive to keep updated
 };
 
+//Gets the level of the node
+Node.prototype.getLevel = function ()
+{
+	if(!this.parent)
+		return 0;
+	return this.parent.getLevel() + 1;
+}
 ////////////////////////////////////////////////////////////////////////
 
 /*
@@ -518,6 +525,20 @@ Level.prototype.duplicate = function() {
 	}
 	return dup;
 };
+
+//deletes a tree(removes raphiel obj, still need to remove references after)
+Level.prototype.deleteTree = function ()
+{
+	for(var itr = this.children.begin(); itr != this.children.end(); itr = itr.next)
+	{
+		itr.val.deleteTree();
+	}
+	for(var itr = this.variables.begin(); itr != this.variables.end(); itr = itr.next)
+	{
+		itr.val.text.remove();
+	}
+	this.shape.remove();
+}
 
 ////////////////////////////////////////////////////////////////////////
 
