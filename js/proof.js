@@ -156,7 +156,7 @@ Proof.prototype.insertion = function(treenode,plane)//merges plane at the locati
 }
 Proof.prototype.erasure = function (treenode)//treenode is object to erase
 {
-	if(!(treenode.parent.getLevel() % 2))
+	if(treenode.getLevel() % 2)
 	{
 		this.addnode();
 		if(treenode instanceof Variable)

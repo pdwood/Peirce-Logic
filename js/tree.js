@@ -15,6 +15,14 @@ Node.prototype.getLevel = function ()
 		return 0;
 	return this.parent.getLevel() + 1;
 }
+Node.prototype.isChild = function (node)
+{
+	if(!this.parent)
+		return false;
+	if(this.parent == node)
+		return true;
+	return this.parent.isChild(node);
+}
 ////////////////////////////////////////////////////////////////////////
 
 /*
