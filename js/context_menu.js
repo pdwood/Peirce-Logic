@@ -70,19 +70,24 @@ Context.prototype.show = function() {
 	//fit overflow from height
 	var oy = (this.y+offset+partition*n+tol > window.innerHeight-R.canvas.offsetTop) ? this.y-(partition*n+tol)+offset : this.y+offset;	
 	
-	
 	var c=0; //item counter
 	for(x in this.items) {
 		var menu_item = R.set() //menu button set
 		var y = oy+partition*c; //start y at correct distance
 		//construct menu box
 		menu_item.push( 
-			R.rect(ox,y,width,partition).attr(
-				{stroke:"#000",fill: "#aabbcc", "stroke-width": 1, "text":"asdf"})
+			R.rect(zoomOffset()[0]+ox*zoomScale()[0],
+							zoomOffset()[1]+y*zoomScale()[1],
+							width*zoomScale()[0],
+							partition*zoomScale()[1])
+			.attr({stroke:"#000",fill: "#aabbcc", "stroke-width": 1, "text":"asdf"})
 		);
 		//construct menu text
 		menu_item.push(
-			R.text((ox+ox+width)/2, (y+y+partition)/2, x)
+			R.text(zoomOffset()[0]+(ox+ox+width)/2*zoomScale()[0], 
+							zoomOffset()[1]+(y+y+partition)/2*zoomScale()[1], 
+							x)
+			.attr({"font-size":font_size*zoomScale()[0]})
 		);
 		
 		//set up menu button click function
@@ -91,7 +96,7 @@ Context.prototype.show = function() {
 			//then closes menu
 			(function(f,n,x,y,c) {
 				return function() { f.call(TheProof,n,x,y); c(); }
-			})(this.items[x],this.node,this.x,this.y,Context.prototype.makeClose(this))
+			})(this.items[x],this.node,this.x*zoomScale()[0],this.y*zoomScale()[1],Context.prototype.makeClose(this))
 		);
 		
 		this.menu_items.push(menu_item); //push button into menu_items set

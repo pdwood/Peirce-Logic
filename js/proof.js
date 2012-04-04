@@ -37,7 +37,12 @@ ProofNode.prototype.unserialize = function ()
 function Proof()
 {
 	this.current = new ProofNode(this);//current node displayed
-	this.current.plane = new Level(null)
+	this.current.plane = new Level(null);
+	this.setMasterPlane(this.current.plane);
+}
+//set Rapael's master plane
+Proof.prototype.setMasterPlane = function(p) {
+	R.plane = p;
 }
 //adds a node in the proof, must be called by all inference rules before tree is changed
 Proof.prototype.addnode = function () //all nodes after current will be removed
