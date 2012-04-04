@@ -16,6 +16,21 @@ Node.prototype.getID = function() {
 	return tid;
 }
 
+//Gets the level of the node
+Node.prototype.getLevel = function ()
+{
+	if(!this.parent)
+		return 0;
+	return this.parent.getLevel() + 1;
+}
+Node.prototype.isChild = function (node)
+{
+	if(!this.parent)
+		return false;
+	if(this.parent == node)
+		return true;
+	return this.parent.isChild(node);
+}
 ////////////////////////////////////////////////////////////////////////
 
 /*
@@ -604,6 +619,19 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 		}
 		child.visited = false;
 	}
+}
+//deletes a tree(removes raphiel obj, still need to remove references after)
+Level.prototype.deleteTree = function ()
+{
+	for(var itr = this.children.begin(); itr != this.children.end(); itr = itr.next)
+	{
+		itr.val.deleteTree();
+	}
+	for(var itr = this.variables.begin(); itr != this.variables.end(); itr = itr.next)
+	{
+		itr.val.text.remove();
+	}
+	this.shape.remove();
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -123,7 +123,7 @@ Proof.prototype.r_double_cut = function (treenode)
 		{
 			itr.val.parent = treenode.parent;
 		}
-		for(itr = p.variables; itr != p.variables.end(); itr = itr.next)
+		for(itr = p.variables.begin(); itr != p.variables.end(); itr = itr.next)
 		{
 			itr.val.parent = treenode.parent;
 		}
@@ -133,7 +133,50 @@ Proof.prototype.r_double_cut = function (treenode)
 		//remove doublecut
 		for(itr = treenode.parent.children.begin();itr.val != treenode;itr = itr.next) {}
 		treenode.parent.children.erase(itr);
+		treenode.shape.remove();
+		treenode.children.begin().val.shape.remove();
 		treenode.parent.contract();
+	}
+}
+Proof.prototype.insertion = function(treenode,plane)//merges plane at the location of treenode
+{
+	if(treenode.getLevel() % 2)//checks for odd level
+	{
+		this.addnode();
+		for(var itr = plane.children.begin(); itr != plane.children.end();itr = itr.next)
+		{
+			itr.val.parent = treenode;
+			//make sure that coordinates changed for full proof
+			treenode.expand(itr.val.shape.attrs.x,itr.val.shape.attrs.y,itr.val.shape.attrs.width,itr.val.shape.attrs.height);
+		}
+		treenode.children.append(plane.children);
+		for(var itr = plane.variables.begin(); itr != plane.variables.end();itr = itr.next)
+		{
+			itr.val.parent = treenode;
+			//make sure that coordinates changed for full proof
+			//may need to expand treenode
+		}
+		treenode.variables.append(plane.variables);
+	}
+}
+Proof.prototype.erasure = function (treenode)//treenode is object to erase
+{
+	if(treenode.getLevel() % 2)
+	{
+		this.addnode();
+		if(treenode instanceof Variable)
+		{
+			var itr = treenode.parent.variables.begin();
+			for(;itr.val != treenode;itr = itr.next) {}
+			treenode.parent.variables.erase(itr);
+			treenode.text.remove();
+		}else{
+			var itr = treenode.parent.children.begin();
+			for(;itr.val != treenode;itr = itr.next) {}
+			treenode.parent.children.erase(itr);
+			treenode.deleteTree();
+			treenode.parent.contract();
+		}
 	}
 }
 //temp func for testing
