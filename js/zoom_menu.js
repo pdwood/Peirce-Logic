@@ -16,7 +16,7 @@ var ZoomMenu = function (oR) {
 	menu_div.css("right",x);
 	menu_div.css("top",y);
 	$("#paper").parent().append(menu_div);
-	var height = 73;
+	var height = 133;
 	var zR = Raphael("zoom_menu",45,height);
 	
 	///////////////////////////////////////////////////
@@ -56,6 +56,37 @@ var ZoomMenu = function (oR) {
 		minButton.animate({opacity: .5}, 500);
 	});
 	
+	my += 30;
+	var leftButton = zR.set();
+	leftButton.push(
+		zR.text(mx-.5,my-1.3,"\u25C0").attr({"font-size":12,fill: "#bbb", stroke: "#bbb"})
+	);
+	leftButton.push(
+		zR.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
+	);
+	leftButton.attr({opacity: .5});
+	leftButton.mouseover(function () {
+		leftButton.animate({opacity: 1}, 500);
+	});
+	leftButton.mouseout(function () {
+		leftButton.animate({opacity: .5}, 500);
+	});
+	
+	my += 30;
+	var rightButton = zR.set();
+	rightButton.push(
+		zR.text(mx+1,my-1.3,"\u25B6").attr({"font-size":12,fill: "#bbb", stroke: "#bbb"})
+	);
+	rightButton.push(
+		zR.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
+	);
+	rightButton.attr({opacity: .5});
+	rightButton.mouseover(function () {
+		rightButton.animate({opacity: 1}, 500);
+	});
+	rightButton.mouseout(function () {
+		rightButton.animate({opacity: .5}, 500);
+	});
 	///////////////////////////////////////////////////
 	
 	OrignalViewBox = oR.setViewBox(oR.DEFAULT_PLANE_WIDTH/2-oR.width,oR.DEFAULT_PLANE_HEIGHT/2-oR.height,oR.width,oR.height);
@@ -80,9 +111,15 @@ var ZoomMenu = function (oR) {
 		oR.setViewBox(mx,my,mw,mh);
 	});
 	
+	
 	///////////////////////////////////////////////////
 	
-	
+	leftButton.mousedown(function() {
+		TheProof.prev();
+	});
+	rightButton.mousedown(function() {
+		TheProof.next();
+	});
 
 	///////////////////////////////////////////////////
 	

@@ -38,11 +38,6 @@ function Proof()
 {
 	this.current = new ProofNode(this);//current node displayed
 	this.current.plane = new Level(null);
-	this.setMasterPlane(this.current.plane);
-}
-//set Rapael's master plane
-Proof.prototype.setMasterPlane = function(p) {
-	R.plane = p;
 }
 //adds a node in the proof, must be called by all inference rules before tree is changed
 Proof.prototype.addnode = function () //all nodes after current will be removed
@@ -96,17 +91,46 @@ Proof.prototype.double_cut = function (treenode)
 	if(treenode.parent)
 	{
 		this.addnode();
-		var itr = treenode.parent.children.begin();
-		for(;itr.val != treenode;itr=itr.next){} //finds where to add new cuts
+		var parent_list = 0;
+		if(treenode instanceof Level) {
+			parent_list = treenode.parent.children; }
+		else {
+			parent_list = treenode.parent.variables; }		
+		var itr = parent_list.begin();
+		for(;itr.val != parent_list.end();itr=itr.next){
+			if(itr.val.id == treenode.id) break;
+		} 
+		parent_list.erase(itr);
 		//add doublecut
-		var p = itr.val.addChild(treenode.shape.attrs.x + (treenode.shape.attrs.width/2), treenode.shape.attrs.y + (treenode.shape.attrs.height/2));
-		p = p.addChild(treenode.shape.attrs.x + (treenode.shape.attrs.width/2), treenode.shape.attrs.y + (treenode.shape.attrs.height/2));
-		//changes parent
-		treenode.parent = p;
-		//if cut puts in children list
-		p.children.push_back(treenode);
-		//expands the doublecut
-		p.expand(treenode.shape.attrs.x,treenode.shape.attrs.y,treenode.shape.attrs.width,treenode.shape.attrs.height);
+		if(treenode instanceof Level) { 
+			r_attrs = treenode.shape.getBBox();
+			var p = treenode.parent.addChild(r_attrs.x + (r_attrs.width/2), r_attrs.y + (r_attrs.height/2));
+			p = p.addChild(r_attrs.x + (r_attrs.width/2), r_attrs.y + (r_attrs.height/2));
+			//changes parent
+			treenode.parent = p;
+			treenode.id = p.getNewID();
+			//if cut puts in children list
+			p.children.push_back(treenode);
+			treenode.updateLevel(); 
+			//expands the doublecut
+			p.expand(r_attrs.x,r_attrs.y,r_attrs.width,r_attrs.height);
+			//move collided nodes out of way
+			p.shiftAdjacent(treenode,treenode.shape.getBBox());
+		}
+		else if(treenode instanceof Variable) { 
+			r_attrs = treenode.text.attrs;
+			var p = treenode.parent.addChild(r_attrs.x , r_attrs.y);
+			p = p.addChild(r_attrs.x, r_attrs.y);
+			//changes parent
+			treenode.parent = p;
+			treenode.id = p.getNewID();
+			//if cut puts in variable list
+			p.variables.push_back(treenode);
+			//expands the doublecut
+			p.expand(treenode.text.getBBox().x,treenode.text.getBBox().y,treenode.text.getBBox().width,treenode.text.getBBox().height);
+			//move collided nodes out of way
+			p.shiftAdjacent(treenode,treenode.text.getBBox());
+		}
 	}
 }
 
@@ -180,12 +204,14 @@ Proof.prototype.erasure = function (treenode)//treenode is object to erase
 	}
 }
 //temp func for testing
-Proof.prototype.insertion_cut = function(treenode,x,y)
+Proof.prototype.premise_insertion_cut = function(treenode,x,y)
 {
+	this.addnode();
 	treenode.addChild(x,y);
 }
 
-Proof.prototype.insertion_variable = function(treenode,x,y)
+Proof.prototype.premise_insertion_variable = function(treenode,x,y)
 {
+	this.addnode();
 	treenode.addVariable(x,y);
 }

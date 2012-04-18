@@ -1,39 +1,4 @@
 /*
-Node: tree node
-~parent: parent pointer
-~level: node depth in tree
-*/
-function Node(parent,level,id) {
-	this.parent = parent || null;
-	this.level = level;
-	this.id = id;
-	this.id_gen = 1;
-	this.visited = false;
-};
-Node.prototype.getID = function() {
-	var tid = this.id;
-	this.id +=1;
-	return tid;
-}
-
-//Gets the level of the node
-Node.prototype.getLevel = function ()
-{
-	if(!this.parent)
-		return 0;
-	return this.parent.getLevel() + 1;
-}
-Node.prototype.isChild = function (node)
-{
-	if(!this.parent)
-		return false;
-	if(this.parent == node)
-		return true;
-	return this.parent.isChild(node);
-}
-////////////////////////////////////////////////////////////////////////
-
-/*
 Level: Plane/Cut, inherits from Node
 ~children: list of child cuts/levels
 ~variables: list of variables on current level
@@ -42,10 +7,8 @@ Level: Plane/Cut, inherits from Node
 Level.prototype = Object.create(Node.prototype);
 
 function Level(parent,x,y,duplicate) {
-	//level is 0 if no parent, is main plane
-	var level_init = (!parent)?0:parent.level+1;
-	var id_init = (!parent)?0:parent.getID();
-	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,level_init,id_init);
+	var id_init = (!parent)?0:parent.getNewID();
+	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,id_init);
 	
 	//members
 	this.children = new List();
@@ -88,7 +51,7 @@ function Level(parent,x,y,duplicate) {
 			
 			//color spectrum based on level
 			var color = 0; Raphael.getColor.reset();
-			for(var x =1; x<=this.level;x++){
+			for(var x =1; x<=this.getLevel();x++){
 				color = Raphael.getColor();
 			}
 			this.shape.attr(
@@ -142,6 +105,21 @@ Level.prototype.renderShape = function(attr) {
 	this.shape.dblclick(this.onDoubleClick);
 }
 
+Level.prototype.updateLevel = function() {
+	//color spectrum based on level
+	var color = 0; Raphael.getColor.reset();
+	for(var x =1; x<=this.getLevel();x++){
+		color = Raphael.getColor();
+	}
+	this.shape.attr(
+		{fill: color, 
+		stroke: color});
+	var itr=this.children.begin(); 
+	while(itr!=this.children.end()) {
+		itr.val.updateLevel();
+		itr = itr.next;
+	}	
+}
 /*
 Level.compress
 
@@ -409,7 +387,7 @@ current level at x,y position (x,y is center)
 returns child
 */
 Level.prototype.addChild = function(x,y) {
-	var child = new Level(this,zoomOffset()[0]+x-this.DEFAULT_CHILD_WIDTH/2,zoomOffset()[1]+y-this.DEFAULT_CHILD_HEIGHT/2);
+	var child = new Level(this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
 	this.children.push_back(child);
 	//move collided nodes out of way
 	this.shiftAdjacent(child,child.shape.getBBox());
@@ -547,10 +525,14 @@ Level.prototype.onDoubleClick = function(event) {
 //Duplicates the entire tree.
 Level.prototype.duplicate = function() {
 	var dup = new Level(null,0,0,true);
+	dup.id = this.id;
+	dup.id_gen = this.id_gen;
 	dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
 	var itr = this.children.begin();
 	while(itr != this.children.end()) {
 		child_dup = itr.val.duplicate();
+		child_dup.id = itr.val.id;
+		child_dup.id_gen = itr.val.id_gen;
 		child_dup.parent = dup;
 		dup.children.push_back(child_dup);
 		itr = itr.next;
@@ -558,6 +540,7 @@ Level.prototype.duplicate = function() {
 	itr = this.variables.begin();
 	while(itr != this.variables.end()) {
 		variable_dup = itr.val.duplicate();
+		variable_dup.id = itr.val.id;
 		variable_dup.parent = dup;
 		dup.variables.push_back(variable_dup);
 		itr = itr.next;
@@ -569,30 +552,6 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 	if(!child.visited){
 		child.visited = true;
 		var slack = 5;
-		var itr = this.children.begin();
-		while(itr!=this.children.end()){
-			var c = itr.val;
-			if(child.id != c.id && !(c.visited)) {
-				var bbox2 = c.shape.getBBox();
-				if(R.raphael.isBBoxIntersect(bbox,bbox2)) {
-					var sx = 0, sy = 0;
-					var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
-					var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
-					if(dx>=bbox.x2-bbox.x || dx>=bbox2.x2-bbox2.x) {
-						sy = (dy+slack)*(bbox2.y<=bbox.y ? -1:1); 
-					}
-					else if(dy>=bbox.y2-bbox.y || dy>=bbox2.y2-bbox2.y) {
-						sx = (dx+slack)*(bbox2.x<=bbox.x ? -1:1);
-					}
-					else {
-						if(dx<dy){ sx = (dx+slack)*(bbox2.x<=bbox.x ? -1:1); }
-						else{ sy = (dy+slack)*(bbox2.y<=bbox.y ? -1:1); }
-					}
-					c.drag(sx,sy);
-				}
-			}
-			itr = itr.next;
-		}
 		var itr = this.variables.begin();
 		while(itr!=this.variables.end()){
 			var c = itr.val;
@@ -617,228 +576,30 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 			}
 			itr = itr.next;
 		}
+		var itr = this.children.begin();
+		while(itr!=this.children.end()){
+			var c = itr.val;
+			if(child.id != c.id && !(c.visited)) {
+				var bbox2 = c.shape.getBBox();
+				if(R.raphael.isBBoxIntersect(bbox,bbox2)) {
+					var sx = 0, sy = 0;
+					var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
+					var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
+					if(dx>=bbox.x2-bbox.x || dx>=bbox2.x2-bbox2.x) {
+						sy = (dy+slack)*(bbox2.y<=bbox.y ? -1:1); 
+					}
+					else if(dy>=bbox.y2-bbox.y || dy>=bbox2.y2-bbox2.y) {
+						sx = (dx+slack)*(bbox2.x<=bbox.x ? -1:1);
+					}
+					else {
+						if(dx<dy){ sx = (dx+slack)*(bbox2.x<=bbox.x ? -1:1); }
+						else{ sy = (dy+slack)*(bbox2.y<=bbox.y ? -1:1); }
+					}
+					c.drag(sx,sy);
+				}
+			}
+			itr = itr.next;
+		}
 		child.visited = false;
 	}
 }
-//deletes a tree(removes raphiel obj, still need to remove references after)
-Level.prototype.deleteTree = function ()
-{
-	for(var itr = this.children.begin(); itr != this.children.end(); itr = itr.next)
-	{
-		itr.val.deleteTree();
-	}
-	for(var itr = this.variables.begin(); itr != this.variables.end(); itr = itr.next)
-	{
-		itr.val.text.remove();
-	}
-	this.shape.remove();
-}
-
-////////////////////////////////////////////////////////////////////////
-
-/*
-Variable: Propostional variable, inherits from Node
-~text: Raphael text
-*/
-Variable.prototype = Object.create(Node.prototype);
-
-function Variable(parent,x,y,duplicate) {
-	//level is 0 if no parent, is main plane
-	var level_init = (!parent)?0:parent.level;
-	var id_init = (!parent)?0:parent.getID();
-	//variable level is parent level
-	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent,level_init,id_init);
-	
-	if(!duplicate) {
-		//initial text, can't be empty or else it defaults to 0,0 origin
-		this.text = R.text(x,y,"~").attr({"font-size":20}); 
-		text = this.text;
-		this.text.parent = this;
-		
-		//setup text initialization
-		var w=100,h=16; //dimensions of text box
-		//create div with inner text box
-		var text_box = $('<div> <input style="height:' + h + 'px; width: ' + w + 'px;" type="text" name="textbox" value=""></div>');
-		//center over text area
-		text_box.css({"z-index" : 2, "position" : "absolute"});
-		//text_box.css("left",this.text.getBBox().x-w/2+8);
-		//text_box.css("top",this.text.getBBox().y+19);
-		text_box.css("left",(this.text.getBBox().x-(w/2)*zoomScale()[0]+8)/zoomScale()[0]);
-		text_box.css("top",(this.text.getBBox().y+19*zoomScale()[1])/zoomScale()[1]);
-		this.text.attr({x:zoomOffset()[0]+x, y:zoomOffset()[1]+y});
-		//text creation function
-		var text_evaluate = function() {
-			//get rid extraneous pre/post white space
-			var text_string = this.children[0].value.replace(/^\s+|\s+$/g,"");
-			try {
-				this.parentNode.removeChild(this); //remove div
-			}
-			catch(e){;} //catch all needed in case div removed before function finishes
-			if(text_string.length) { //if valid string, not just white space
-				//initialize and add variable to parent
-				text.attr({'text':text_string});
-				text.parent.parent.variables.push_back(text.parent);
-				//move collided nodes out of way
-				text.parent.parent.shiftAdjacent(text.parent,text.parent.text.getBBox());
-				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height);
-			}
-			else { //else remove text and don't add to parent
-				text.remove();
-			}
-		}
-		text_box.focusout( text_evaluate ); //evaluate text on focus out of text box
-		text_box.keyup(function(event){
-			if(event.keyCode == 13){
-				text_evaluate.apply(this);
-			}
-		});
-		//need to enter based evaluation
-		$("body").append(text_box); //insert text box into page
-		$(text_box).children()[0].focus(); //focus on text box
-		
-		this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
-		this.text.dblclick(this.onDoubleClick);
-	}
-}
-
-/*
-Variable.renderText
-~attr: Raphael attributes for rendering
-
-Remove old rapheal text and 
-replace with new text with 
-input attributes and setup
-handlers
-*/
-Variable.prototype.renderText = function(attr) {
-	if(this.text) {
-		this.text.remove();
-		this.text = null;
-	}
-	
-	this.text = R.text(0,0,"~").attr(attr);
-	this.text.parent = this;
-	
-	this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
-	this.text.dblclick(this.onDoubleClick);
-}
-
-/*
-Variable.compress
-
-Save text attributes
-and remove text from 
-variable and screen; 
-Used in saving a tree 
-for later use
-*/
-Variable.prototype.compress = function() {
-	this.saved_attr = jQuery.extend(true, {}, this.text.attrs);
-	this.text.remove();
-	this.text = null;
-}
-
-/*
-Variable.restore
-
-Re-render text from 
-saved text attributes
-*/
-Variable.prototype.restore = function() {
-	if(this.saved_attr) { //check if saved attributes exist
-		this.renderText(this.saved_attr)
-	}
-}
-
-Variable.prototype.drag = function(dx,dy) {
-	this.dragStart();
-	this.dragMove(dx,dy);
-	this.dragEnd();
-}
-
-Variable.prototype.dragStart = function(dx,dy) {
-	this.dragStart();
-	this.dragMove(dx,dy);
-	this.dragEnd();
-}
-
-
-/*
-Variable.dragStart
-
-Object variable handler for 
-drag event initilization;
-Adds attributes of orignal
-coordinates to use for shifting
-the text during drag
-*/
-Variable.prototype.dragStart = function() {
-	//save Variable's orignal position
-	this.ox = this.text.attr("x");
-	this.oy = this.text.attr("y");
-};
-//Variable callback for drag initialization
-Variable.prototype.onDragStart = function() {
-	this.parent.dragStart();
-};
-
-/*
-Variable.dragMove
-~dx: drag difference in x
-~dy: drag difference in y
-
-Object variable handler for 
-drag event action; shifts
-text based on drag difference
-*/
-Variable.prototype.dragMove = function(dx, dy) {
-	//shift text
-	var new_x = this.ox + dx*zoomScale()[0];
-	var new_y = this.oy + dy*zoomScale()[1];
-	this.text.attr({x: new_x, y: new_y});
-	//fit parent hull to new area
-	this.parent.expand(this.text.getBBox().x,this.text.getBBox().y,this.text.getBBox().width,this.text.getBBox().height);
-	this.parent.contract();
-	
-	//move collided nodes out of way
-	this.parent.shiftAdjacent(this,this.text.getBBox(),dx,dy);
-};
-//Variable callback for dragging
-Variable.prototype.onDragMove = function(dx, dy) {
-	this.parent.dragMove(dx,dy);
-	R.renderfix()
-};
-
-/*
-Variable.dragEnd
-
-Object variable handler for 
-drag end event action; 
-Does final contraction of Variable
-*/
-Variable.prototype.dragEnd = function() {
-	this.parent.contract();
-}
-//Variable callback for drag ending
-Variable.prototype.onDragEnd = function() {
-	this.parent.dragEnd();
-};
-
-/*
-Variable.onDoubleClick
-~event: mouse event
-
-Object variable handler for 
-mouse double click action; 
-Creates context menu on node;
-*/
-Variable.prototype.onDoubleClick = function(event) {
-	//Menu intialized with node,node's level, and mouse x/y
-	ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
-};
-
-Variable.prototype.duplicate = function() {
-	var dup = new Variable(null,0,0,true);
-	dup.saved_attr = jQuery.extend(true, {}, this.text.attrs);
-	return dup;
-};

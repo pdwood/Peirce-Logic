@@ -27,7 +27,7 @@ ContextHandler.prototype.CloseContext = function() {
 
 function Context(node,x,y) {
 	this.node = node || null;
-	this.level = node.level;
+	this.level = node.getLevel();
 	this.x = x; this.y = y;
 	
 	this.menu_items = R.set();
@@ -44,13 +44,42 @@ Context.prototype.addItem = function(name,func) {
 }
 
 Context.prototype.setup = function() {
-	this.addItem('insertion:cut',TheProof.insertion_cut);
-	this.addItem('insertion:variable',TheProof.insertion_variable);
-	this.addItem('empty double cut',TheProof.empty_double_cut);
+	if(CURRENT_MODE == LogicMode.PREMISE_MODE) {
+		if(this.node instanceof Level) {
+			this.addItem('premise insertion:cut',TheProof.premise_insertion_cut);
+			this.addItem('premise insertion:variable',TheProof.premise_insertion_variable);
+			this.addItem('double cut:empty',TheProof.empty_double_cut);
+			this.addItem('double cut:cut',TheProof.double_cut);
+			this.addItem('double cut:reverse',TheProof.empty_double_cut);
+		}
+		else if(this.node instanceof Variable) {
+			//this.addItem('deletion',TheProof.deletetion);
+			this.addItem('double cut:reverse',TheProof.double_cut);
+		}
+	}
+	if(CURRENT_MODE == LogicMode.PROOF_MODE) {
+		if(this.node instanceof Level) {
+			if(this.node.getLevel() % 2) { //odd level
+			
+			}
+			else {
+			
+			}
+		}
+		else if(this.node instanceof Variable) {
+			if(this.node.getLevel() % 2) { //odd level
+			
+			}
+			else {
+			
+			}
+		}
+	}
 }
 
 Context.prototype.show = function() {
 	var n = this.num_items; //shorthand variable
+	if(n==0) return; //return for no items
 	//get longest menu item name length
 	var max_length = 0;
 	for(x in this.items) {
@@ -95,7 +124,7 @@ Context.prototype.show = function() {
 			//closure that creates function that executes button function at mouse event
 			//then closes menu
 			(function(f,n,x,y,c) {
-				return function() { f.call(TheProof,n,x,y); c(); }
+				return function() { f.call(TheProof,n,x+zoomOffset()[0],y+zoomOffset()[1]); c(); }
 			})(this.items[x],this.node,this.x*zoomScale()[0],this.y*zoomScale()[1],Context.prototype.makeClose(this))
 		);
 		
