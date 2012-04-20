@@ -52,14 +52,16 @@ Context.prototype.setup = function() {
 			if(this.node.parent) {
 				this.addItem('double cut:cut',TheProof.double_cut);
 				this.addItem('double cut:reverse',TheProof.r_double_cut);
-				this.addItem('erasure',TheProof.erasure);
+				if(this.node.getLevel() % 2)
+					this.addItem('erasure',TheProof.erasure);
 			}
 		}
 		else if(this.node instanceof Variable) {
 			//this.addItem('deletion',TheProof.deletetion);
 			this.addItem('double cut:cut',TheProof.double_cut);
 			this.addItem('double cut:reverse',TheProof.r_double_cut);
-			this.addItem('erasure',TheProof.erasure);
+			if(this.node.getLevel() % 2)
+				this.addItem('erasure',TheProof.erasure);
 		}
 	}
 	if(CURRENT_MODE == LogicMode.PROOF_MODE) {
