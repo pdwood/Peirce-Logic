@@ -106,6 +106,7 @@ Level.prototype.renderShape = function(attr) {
 }
 
 Level.prototype.updateLevel = function() {
+	this.shape.toFront();
 	//color spectrum based on level
 	var color = 0; Raphael.getColor.reset();
 	for(var x =1; x<=this.getLevel();x++){
@@ -120,6 +121,7 @@ Level.prototype.updateLevel = function() {
 		itr = itr.next;
 	}	
 }
+
 /*
 Level.compress
 
@@ -388,6 +390,7 @@ returns child
 */
 Level.prototype.addChild = function(x,y) {
 	var child = new Level(this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
+	child.shape.toFront();
 	this.children.push_back(child);
 	//move collided nodes out of way
 	this.shiftAdjacent(child,child.shape.getBBox());
@@ -406,6 +409,7 @@ current level at x,y position
 */
 Level.prototype.addVariable = function(x,y) {
 	var variable = new Variable(this,x,y);
+	variable.text.toFront();
 	//this creates variable, but not adds it
 	//first variable's text box pops up
 	//if valid text used to initialize variable

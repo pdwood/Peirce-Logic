@@ -116,6 +116,7 @@ Proof.prototype.double_cut = function (treenode)
 			p.expand(r_attrs.x,r_attrs.y,r_attrs.width,r_attrs.height);
 			//move collided nodes out of way
 			p.shiftAdjacent(treenode,treenode.shape.getBBox());
+			p.contract();
 		}
 		else if(treenode instanceof Variable) { 
 			r_attrs = treenode.text.attrs;
@@ -126,42 +127,91 @@ Proof.prototype.double_cut = function (treenode)
 			treenode.id = p.getNewID();
 			//if cut puts in variable list
 			p.variables.push_back(treenode);
+			treenode.updateLevel(); 
 			//expands the doublecut
 			p.expand(treenode.text.getBBox().x,treenode.text.getBBox().y,treenode.text.getBBox().width,treenode.text.getBBox().height);
 			//move collided nodes out of way
 			p.shiftAdjacent(treenode,treenode.text.getBBox());
+			p.contract();
 		}
 	}
 }
 
 Proof.prototype.r_double_cut = function (treenode)
 {
-	
-	if(treenode.parent && !treenode.variables.length && treenode.children.length == 1)
+	if(treenode.parent.parent && (
+		(!treenode.parent.children.length && treenode instanceof Variable) || 
+		(!treenode.parent.variables.length && treenode.parent.children.length == 1)))
 	{
-		this.addnode();
-		var p = treenode.children.begin().val;
-		//change parent pointers
-		var itr = p.children.begin();
-		for(;itr != p.children.end();itr = itr.next)
+		tparent = treenode.parent;
+		if(tparent.parent.parent && !tparent.parent.variables.length && tparent.parent.children.length == 1)
 		{
-			itr.val.parent = treenode.parent;
+			this.addnode();
+			tgrandparent = tparent.parent;
+			
+			//changes parent
+			treenode.parent = tgrandparent.parent;
+			
+			//erase cuts
+			var parent_list = 0;
+			if(treenode instanceof Level) {
+				parent_list = tparent.children; }
+			else {
+				parent_list = tparent.variables; }	
+			var itr = parent_list.begin();
+			for(;itr.val != parent_list.end();itr=itr.next){
+				if(itr.val.id == treenode.id) break;
+			} 
+			parent_list.erase(itr);
+			
+			var itr = tgrandparent.children.begin();
+			for(;itr.val != tgrandparent.children.end();itr=itr.next){
+				if(itr.val.id == tparent.id) break;
+				//loop here for future use with multi nodes
+			} 
+			itr.val.compress();
+			tgrandparent.children.erase(itr);
+			
+			var itr = tgrandparent.parent.children.begin();
+			for(;itr.val != tgrandparent.parent.children.end();itr=itr.next){
+				if(itr.val.id == tgrandparent.id) break;
+				//loop here for future use with multi nodes
+			} 
+			itr.val.compress();
+			tgrandparent.parent.children.erase(itr);
+			
+			//gets new id
+			treenode.id = tgrandparent.parent.getNewID();
+			p = tgrandparent.parent;
+			if(treenode instanceof Level) { 
+				r_attrs = treenode.shape.getBBox();
+				//if cut puts in children list
+				p.children.push_back(treenode);
+				treenode.updateLevel(); 
+				//expands the doublecut
+				p.expand(r_attrs.x,r_attrs.y,r_attrs.width,r_attrs.height);
+				//move collided nodes out of way
+				p.shiftAdjacent(treenode,treenode.shape.getBBox());
+				p.contract();
+			}
+			else if(treenode instanceof Variable) { 
+				r_attrs = treenode.text.attrs;
+				//changes parent
+				treenode.parent = p;
+				treenode.id = p.getNewID();
+				//if cut puts in variable list
+				p.variables.push_back(treenode);
+				treenode.updateLevel(); 
+				//expands the doublecut
+				p.expand(treenode.text.getBBox().x,treenode.text.getBBox().y,treenode.text.getBBox().width,treenode.text.getBBox().height);
+				//move collided nodes out of way
+				p.shiftAdjacent(treenode,treenode.text.getBBox());
+				p.contract();
+			}
 		}
-		for(itr = p.variables.begin(); itr != p.variables.end(); itr = itr.next)
-		{
-			itr.val.parent = treenode.parent;
-		}
-		//append lists
-		treenode.parent.children.append(p.children);
-		treenode.parent.variables.append(p.variables);
-		//remove doublecut
-		for(itr = treenode.parent.children.begin();itr.val != treenode;itr = itr.next) {}
-		treenode.parent.children.erase(itr);
-		treenode.shape.remove();
-		treenode.children.begin().val.shape.remove();
-		treenode.parent.contract();
 	}
 }
+
 Proof.prototype.insertion = function(treenode,plane)//merges plane at the location of treenode
 {
 	if(treenode.getLevel() % 2)//checks for odd level
@@ -182,28 +232,34 @@ Proof.prototype.insertion = function(treenode,plane)//merges plane at the locati
 		}
 		treenode.variables.append(plane.variables);
 	}
-}
+
+	}
 Proof.prototype.erasure = function (treenode)//treenode is object to erase
 {
 	if(treenode.getLevel() % 2)
 	{
 		this.addnode();
-		if(treenode instanceof Variable)
-		{
-			var itr = treenode.parent.variables.begin();
-			for(;itr.val != treenode;itr = itr.next) {}
-			treenode.parent.variables.erase(itr);
-			treenode.text.remove();
-		}else{
-			var itr = treenode.parent.children.begin();
-			for(;itr.val != treenode;itr = itr.next) {}
-			treenode.parent.children.erase(itr);
-			treenode.deleteTree();
-			treenode.parent.contract();
+		var parent_list = 0;
+		if(treenode instanceof Level) {
+			parent_list = treenode.parent.children; }
+		else {
+			parent_list = treenode.parent.variables; }	
+			
+		var itr = parent_list.begin();
+		for(;itr.val != parent_list.end();itr=itr.next){
+			if(itr.val.id == treenode.id) break;
+		} 
+		if(treenode instanceof Level) {
+			itr.val.compressTree();
 		}
+		else {
+			itr.val.compress();
+		}
+		parent_list.erase(itr);
 	}
 }
-//temp func for testing
+
+//temp funcs for testing
 Proof.prototype.premise_insertion_cut = function(treenode,x,y)
 {
 	this.addnode();

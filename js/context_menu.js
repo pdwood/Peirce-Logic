@@ -49,12 +49,17 @@ Context.prototype.setup = function() {
 			this.addItem('premise insertion:cut',TheProof.premise_insertion_cut);
 			this.addItem('premise insertion:variable',TheProof.premise_insertion_variable);
 			this.addItem('double cut:empty',TheProof.empty_double_cut);
-			this.addItem('double cut:cut',TheProof.double_cut);
-			this.addItem('double cut:reverse',TheProof.empty_double_cut);
+			if(this.node.parent) {
+				this.addItem('double cut:cut',TheProof.double_cut);
+				this.addItem('double cut:reverse',TheProof.r_double_cut);
+				this.addItem('erasure',TheProof.erasure);
+			}
 		}
 		else if(this.node instanceof Variable) {
 			//this.addItem('deletion',TheProof.deletetion);
-			this.addItem('double cut:reverse',TheProof.double_cut);
+			this.addItem('double cut:cut',TheProof.double_cut);
+			this.addItem('double cut:reverse',TheProof.r_double_cut);
+			this.addItem('erasure',TheProof.erasure);
 		}
 	}
 	if(CURRENT_MODE == LogicMode.PROOF_MODE) {

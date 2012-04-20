@@ -79,6 +79,10 @@ Variable.prototype.renderText = function(attr) {
 	this.text.dblclick(this.onDoubleClick);
 }
 
+Variable.prototype.updateLevel = function() {
+	this.text.toFront();
+}
+
 /*
 Variable.compress
 
