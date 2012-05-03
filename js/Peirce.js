@@ -9,4 +9,6 @@ window.onload = function() {
 	TheProof = new Proof();
 	ContextMenu = new ContextHandler();
 	ZoomMenu(R);
+	Timeline = Raphael('timeline', window.screen.availWidth, 200);
+	timeline_f.draw.call(Timeline, TheProof);
 }

@@ -4,6 +4,8 @@ function ProofNode(p)
 	this.next = null;
 	this.prev = null;
 	this.proof = p;
+	this.id = 0;
+	this.name = 'undefined';
 }
 ProofNode.prototype.serialize = function ()
 {
@@ -38,6 +40,9 @@ function Proof()
 {
 	this.current = new ProofNode(this);//current node displayed
 	this.current.plane = new Level(null);
+	this.front = this.current;
+	this.back = this.current;
+	this.current.name = 'Start';
 }
 //adds a node in the proof, must be called by all inference rules before tree is changed
 Proof.prototype.addnode = function () //all nodes after current will be removed
@@ -47,6 +52,8 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.current.next.plane = this.current.plane;
 	this.current.plane = this.current.plane.duplicate();
 	this.current = this.current.next;
+	this.current.id = this.current.prev.id + 1;
+	this.back = this.current;
 }
 //moves proof to last step
 Proof.prototype.prev = function()
@@ -58,6 +65,18 @@ Proof.prototype.prev = function()
 		this.current.plane.restoreTree();
 	}
 }
+
+//selects step from timeline
+Proof.prototype.select = function(node)
+{
+	if(this.current != node)
+	{
+		this.current.plane.compressTree();
+		this.current = node;
+		this.current.plane.restoreTree();
+	}
+}
+
 //moves proof to next step
 Proof.prototype.next = function ()
 {
@@ -84,6 +103,7 @@ Proof.prototype.empty_double_cut = function (treenode, x, y)
 	this.addnode();
 	var p = treenode.addChild(x,y);
 	p.addChild(x,y);
+	this.current.name = 'Empty Double Cut';
 }
 //creates a doublecut around treenode(cut) variables to be added later
 Proof.prototype.double_cut = function (treenode)
@@ -135,6 +155,7 @@ Proof.prototype.double_cut = function (treenode)
 			p.contract();
 		}
 	}
+	this.current.name = 'Double Cut';
 }
 
 Proof.prototype.r_double_cut = function (treenode)
@@ -210,6 +231,7 @@ Proof.prototype.r_double_cut = function (treenode)
 			}
 		}
 	}
+	this.current.name = 'Reverse Double Cut';
 }
 
 Proof.prototype.insertion = function(treenode,plane)//merges plane at the location of treenode
@@ -232,11 +254,11 @@ Proof.prototype.insertion = function(treenode,plane)//merges plane at the locati
 		}
 		treenode.variables.append(plane.variables);
 	}
-
+		this.current.name = 'Insertion';
 	}
 Proof.prototype.erasure = function (treenode)//treenode is object to erase
 {
-	if(treenode.getLevel() % 2)
+	if(!(treenode.getLevel() % 2))
 	{
 		this.addnode();
 		var parent_list = 0;
@@ -257,6 +279,7 @@ Proof.prototype.erasure = function (treenode)//treenode is object to erase
 		}
 		parent_list.erase(itr);
 	}
+	this.current.name = 'Erasure';
 }
 
 //temp funcs for testing
@@ -264,10 +287,12 @@ Proof.prototype.premise_insertion_cut = function(treenode,x,y)
 {
 	this.addnode();
 	treenode.addChild(x,y);
+	this.current.name = 'Premise Insertion';
 }
 
 Proof.prototype.premise_insertion_variable = function(treenode,x,y)
 {
 	this.addnode();
 	treenode.addVariable(x,y);
+	this.current.name = 'Premise Insertion';
 }
