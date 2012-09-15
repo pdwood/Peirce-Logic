@@ -4,7 +4,7 @@ function ProofNode(p)
 	this.next = null;
 	this.prev = null;
 	this.proof = p;
-	this.id = 0;
+	this.id = 1;
 	this.name = 'undefined';
 }
 ProofNode.prototype.serialize = function ()
@@ -54,6 +54,7 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.current = this.current.next;
 	this.current.id = this.current.prev.id + 1;
 	this.back = this.current;
+	timeline_f.draw.call(Timeline, {proof:this});
 }
 //moves proof to last step
 Proof.prototype.prev = function()

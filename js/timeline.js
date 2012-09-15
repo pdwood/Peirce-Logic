@@ -22,7 +22,7 @@ var tokenRegex = /\{([^\}]+)\}/g,
         });
     };
     Raphael.fn.popup = function (X, Y, set, pos, ret) {
-        pos = String(pos || "top-middle").split("-");
+        pos = String(pos || "top-middle").split("-"); 
         pos[1] = pos[1] || "middle";
         var r = 5,
             bb = set.getBBox(),
@@ -134,7 +134,7 @@ timeline_f = {
 						select_index: options.select_index || 0
 						},
 			pixels_per_index = 100,
-			range = options.proof.last.id
+			range = options.proof.back.id
 			fclick = options.proof.select;
 		
 		
@@ -147,7 +147,8 @@ timeline_f = {
 			pixels_per_index = 100;
 		}
 
-		dots = timeline.draw_dots.call(this, options.proof, settings, {pixels_per_index: pixels_per_index, x_offset: 30, y_offset: this.height-70}, fclick);
+        dots_param = {pixels_per_index: pixels_per_index, x_offset: 30, y_offset: 70};
+		dots = timeline_f.draw_dots.call(this, options.proof, settings, dots_param, fclick);
 		TimelineHelper.highlight(dots, options.proof.current.id, settings);
 	},
 	
@@ -157,7 +158,7 @@ timeline_f = {
 			title = this.text(40, params.y_offset - 25, 'title').attr(settings.popup_text_attr).attr({'font-weight': 'bold', 'font-size': '12px'}),
 			label = this.set().push(title).hide(),
 			popup = ''
-			length = proof.last.id
+			length = proof.back.id
 			current = proof.front;
 						
 		for(var i=0;i<length;i++) {
@@ -171,7 +172,8 @@ timeline_f = {
 				this.path('M'+ last + ' ' + params.y_offset + 'L' + center + ' ' + params.y_offset).attr({stroke:settings.color, "stroke-width":3}).toBack();
 			}
 
-			dots[i] = this.circle(center, params.y_offset, settings.normal_r).attr({fill:settings.normal_fill, stroke:settings.color,"stroke-width":2});
+			dots[i] = this.circle(center, params.y_offset, settings.normal_r).attr(
+                {fill:settings.normal_fill, stroke:settings.color,"stroke-width":2});
 			
 			(function (canvas, proofnode) {
 				dots[i].hover(function() {
@@ -219,5 +221,5 @@ TimelineHelper.highlight = function(dots, index, settings) {
 	for(var j=0;j<dots.length;j++) {
 		dots[j].attr({fill:settings.normal_fill});
 	}
-	dots[index].attr({fill: settings.highlight_fill});
+	dots[index-1].attr({fill: settings.highlight_fill});
 };
