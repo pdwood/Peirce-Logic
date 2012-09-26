@@ -11,9 +11,13 @@ function mopen(id)
 	menuitem = document.getElementById(id);
 	menuitem.style.visibility = 'visible';
 
+
 }
+
 // close showed layer
 function mclose()
 {
 	if(menuitem) menuitem.style.visibility = 'hidden';
 }
+
+
