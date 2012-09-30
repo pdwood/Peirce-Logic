@@ -16,9 +16,9 @@
 	<link rel="stylesheet" href="css/normalize.css">
 	<link rel="stylesheet" href="css/style.css">
 	
-  <script src="js/libs/boilerplate/vendor/modernizr-2.6.1.min.js"></script>
+    <script src="js/libs/boilerplate/vendor/modernizr-2.6.1.min.js"></script>
 	<script src="js/libs/boilerplate/vendor/jquery-1.8.0.min.js"></script>
-  <script src="js/libs/boilerplate/plugins.js"></script>
+    <script src="js/libs/boilerplate/plugins.js"></script>
 	<script src="js/libs/raphael-min.js"></script>
 	
 	<script src="js/list.js"></script>
@@ -32,7 +32,16 @@
 	<script src="js/Menu.js"></script>
 	<script src="js/timeline.js"></script>
 
+	<!-- Slide menu JS -->
+	<!--<script src="js/libs/jquery-1.8.2.js" type="text/javascript"></script>-->
+	<script src="js/libs/jquery.tabSlideOut.v1.3.js"></script>
+    <script src="js/SlideMenu.js" type="text/javascript"></script>
+
+
+
 </head>
+
+
 
 
 <body>
@@ -40,36 +49,28 @@
     <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
 
+        
+        
+
+
+
 <header>
 <!-- To modify the menu the div id must match the argument to mopen -->
 
-	<ul id="menu">
-		<li><a href="#" onclick="mopen('m1')">Menu 1</a>
-			<div id="m1">
-			<a href="#" onclick="mclose()">Option 1</a>
-			<a href="#" onclick="mclose()">Option 2</a>
-			</div>
-		</li>
-		<li><a href="#" onclick="mopen('m2')" >Menu 2</a>
-			<div id="m2">
-			<!--Example command menu item-->
-			<!--<a href="#" onclick="commandname(arguments)">Do Something</a>-->
-			<a href="#" onclick="mclose()">Option 1</a>
-			</div>
-		</li>
-		<li><a href="#" onmouseover="mopen('m3')" onmouseout="mclose()">Menu 3</a>
-			<div id="m3">
-			<a href="#" onclick="mclose()">Option 1</a>
-		</div>
-	</li>
-	</ul>
-	<div id="spacer">
-	 &nbsp;
-	</div>
 </header>
 
 <div role="main">
-	<div id="paper"></div>  
+	<div id="paper"></div>
+	<div class="slideMenu">
+            <a class="handle" href="http://link-for-non-js-users.html">Content</a>
+            <h3>Menu Fill</h3>
+            <p>Lorem ipsum</p>
+            <p><input type="text" name="exampletext1" value="Example Text"/></p>
+            <p><input type="submit" value="Example Button" /></p>
+            <p><input type="checkbox" name="examplecheck1" checked /></p>
+            <p><input type="checkbox" name="examplecheck2" /></p>
+            <p>etc</p>
+        </div>
 	<div id ="timeline"></div>
 </div>
 
