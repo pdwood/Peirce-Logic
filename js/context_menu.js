@@ -1,4 +1,6 @@
-function ContextHandler() {
+function ContextHandler(R) {
+	this.paper = R;
+
 	this.context = undefined;
 	$(document).click(
 		(function(ch) {
@@ -12,8 +14,7 @@ ContextHandler.prototype.NewContext = function(node,x,y) {
 		this.context.close();
 		delete this.context;
 	}
-	mclose();
-	this.context = new Context(node,x,y);
+	this.context = new Context(this.paper,node,x,y);
 }
 
 ContextHandler.prototype.CloseContext = function() {
@@ -25,16 +26,17 @@ ContextHandler.prototype.CloseContext = function() {
 
 ////////////////////////////////////////////////////////////////////////
 
-function Context(node,x,y) {
+function Context(R,node,x,y) {
+	this.paper = R;
 	this.node = node || null;
 	this.level = node.getLevel();
 	this.x = x; this.y = y;
 	
-	this.menu_items = R.set();
-	this.items = {}
+	this.menu_items = this.paper.set();
+	this.items = {};
 	this.num_items = 0;
 	
-	this.setup()
+	this.setup();
 	this.show();
 };
 
@@ -44,7 +46,7 @@ Context.prototype.addItem = function(name,func) {
 }
 
 Context.prototype.setup = function() {
-	if(CURRENT_MODE == LogicMode.PREMISE_MODE) {
+	if(this.paper.CURRENT_MODE == this.paper.LogicMode.PREMISE_MODE) {
 		if(this.node instanceof Level) {
 			this.addItem('premise insertion:cut',TheProof.premise_insertion_cut);
 			this.addItem('premise insertion:variable',TheProof.premise_insertion_variable);
@@ -64,7 +66,7 @@ Context.prototype.setup = function() {
 				this.addItem('erasure',TheProof.erasure);
 		}
 	}
-	if(CURRENT_MODE == LogicMode.PROOF_MODE) {
+	if(this.paper.CURRENT_MODE == this.paper.LogicMode.PROOF_MODE) {
 		if(this.node instanceof Level) {
 			if(this.node.getLevel() % 2) { //odd level
 			
@@ -104,26 +106,26 @@ Context.prototype.show = function() {
 	//fit overflow from width
 	var ox = (this.x+offset+width+tol > window.innerWidth)? this.x-(width+tol)+offset : this.x+offset; 
 	//fit overflow from height
-	var oy = (this.y+offset+partition*n+tol > window.innerHeight-R.canvas.offsetTop) ? this.y-(partition*n+tol)+offset : this.y+offset;	
+	var oy = (this.y+offset+partition*n+tol > window.innerHeight-this.paper.canvas.offsetTop) ? this.y-(partition*n+tol)+offset : this.y+offset;	
 	
 	var c=0; //item counter
 	for(x in this.items) {
-		var menu_item = R.set() //menu button set
+		var menu_item = this.paper.set() //menu button set
 		var y = oy+partition*c; //start y at correct distance
 		//construct menu box
 		menu_item.push( 
-			R.rect(zoomOffset()[0]+ox*zoomScale()[0],
-							zoomOffset()[1]+y*zoomScale()[1],
-							width*zoomScale()[0],
-							partition*zoomScale()[1])
+			this.paper.rect(this.paper.zoomOffset()[0]+ox*this.paper.zoomScale()[0],
+							this.paper.zoomOffset()[1]+y*this.paper.zoomScale()[1],
+							width*this.paper.zoomScale()[0],
+							partition*this.paper.zoomScale()[1])
 			.attr({stroke:"#000",fill: "#aabbcc", "stroke-width": 1, "text":"asdf"})
 		);
 		//construct menu text
 		menu_item.push(
-			R.text(zoomOffset()[0]+(ox+ox+width)/2*zoomScale()[0], 
-							zoomOffset()[1]+(y+y+partition)/2*zoomScale()[1], 
+			this.paper.text(this.paper.zoomOffset()[0]+(ox+ox+width)/2*this.paper.zoomScale()[0], 
+							this.paper.zoomOffset()[1]+(y+y+partition)/2*this.paper.zoomScale()[1], 
 							x)
-			.attr({"font-size":font_size*zoomScale()[0]})
+			.attr({"font-size":font_size*this.paper.zoomScale()[0]})
 		);
 		
 		//set up menu button click function
@@ -131,8 +133,8 @@ Context.prototype.show = function() {
 			//closure that creates function that executes button function at mouse event
 			//then closes menu
 			(function(f,n,x,y,c) {
-				return function() { f.call(TheProof,n,x+zoomOffset()[0],y+zoomOffset()[1]); c(); }
-			})(this.items[x],this.node,this.x*zoomScale()[0],this.y*zoomScale()[1],Context.prototype.makeClose(this))
+				return function() { f.call(TheProof,n,x+this.paper.zoomOffset()[0],y+this.paper.zoomOffset()[1]); c(); }
+			})(this.items[x],this.node,this.x*this.paper.zoomScale()[0],this.y*this.paper.zoomScale()[1],Context.prototype.makeClose(this))
 		);
 		
 		this.menu_items.push(menu_item); //push button into menu_items set

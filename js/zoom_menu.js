@@ -1,36 +1,37 @@
-var zoomScale = function() {
-	return [R._viewBox[2]/R.width,R._viewBox[3]/R.height];
+var zoomScaleMixin = function(R) {
+	return function() {
+		return [R._viewBox[2]/R.width,R._viewBox[3]/R.height];
+	}
 }
 
-var zoomOffset = function() {
-	return [R._viewBox[0],R._viewBox[1]];
+var zoomOffsetMixin = function(R) {
+	return function() {
+		return [R._viewBox[0],R._viewBox[1]];
+	}
 }
 
-var ZoomMenu = function (oR) {
-	var bound = 10;
-	var x = bound;
-	var y = oR.canvas.offsetTop+bound;
+var ZoomMenu = function (R,R_overlay) {
+	//setup mixins
+	R.zoomScale = zoomScaleMixin(R);
+	R.zoomOffset = zoomOffsetMixin(R);
+	x = window.screen.availWidth - 70;
+	y = 12;
+	width = 37;
+	height = 130;
+	relief = 4;
+
+	R_overlay = induce_overlay('zoom_menu',x,y,width+relief,height+relief);
 	
-	menu_div = $('<div id="zoom_menu"> </div>');
-	menu_div.css({"z-index" : 2, "position" : "absolute"});
-	menu_div.css("right",x);
-	menu_div.css("top",y);
-	$("#paper").parent().append(menu_div);
-	var height = 133;
-	var zR = Raphael("zoom_menu",45,height);
-	
-	///////////////////////////////////////////////////
-	
-	var menu_box = zR.rect(3, 3, 37, height-4, 12).attr({fill: 'black', stroke: '#aaa', 'stroke-width': 2, opacity: 0.6});
+	var menu_box = R_overlay.rect(relief/2, relief/2, width, height, 12).attr({fill: 'black', stroke: '#aaa', 'stroke-width': 2, opacity: 0.6});
 	
 	var mx = menu_box.attrs.x + menu_box.attrs.width/2;
 	var my = menu_box.attrs.y + 20;
-	var maxButton = zR.set();
+	var maxButton = R_overlay.set();
 	maxButton.push(
-		zR.text(mx,my,"+").attr({"font-size":24,fill: "#bbb", stroke: "#bbb"})
+		R_overlay.text(mx,my,"+").attr({"font-size":24,fill: "#bbb", stroke: "#bbb"})
 	);
 	maxButton.push(
-		zR.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
+		R_overlay.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
 	);
 	maxButton.attr({opacity: .5});
 	maxButton.mouseover(function () {
@@ -41,12 +42,12 @@ var ZoomMenu = function (oR) {
 	});
 	
 	my += 30;
-	var minButton = zR.set();
+	var minButton = R_overlay.set();
 	minButton.push(
-		zR.text(mx,my-2.4,"-").attr({"font-size":30,fill: "#bbb", stroke: "#bbb"})
+		R_overlay.text(mx,my-2.4,"-").attr({"font-size":30,fill: "#bbb", stroke: "#bbb"})
 	);
 	minButton.push(
-		zR.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
+		R_overlay.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
 	);
 	minButton.attr({opacity: .5});
 	minButton.mouseover(function () {
@@ -57,12 +58,12 @@ var ZoomMenu = function (oR) {
 	});
 	
 	my += 30;
-	var leftButton = zR.set();
+	var leftButton = R_overlay.set();
 	leftButton.push(
-		zR.text(mx-.5,my-1.3,"\u25C0").attr({"font-size":12,fill: "#bbb", stroke: "#bbb"})
+		R_overlay.text(mx-.5,my-1.3,"\u25C0").attr({"font-size":12,fill: "#bbb", stroke: "#bbb"})
 	);
 	leftButton.push(
-		zR.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
+		R_overlay.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
 	);
 	leftButton.attr({opacity: .5});
 	leftButton.mouseover(function () {
@@ -73,12 +74,12 @@ var ZoomMenu = function (oR) {
 	});
 	
 	my += 30;
-	var rightButton = zR.set();
+	var rightButton = R_overlay.set();
 	rightButton.push(
-		zR.text(mx+1,my-1.3,"\u25B6").attr({"font-size":12,fill: "#bbb", stroke: "#bbb"})
+		R_overlay.text(mx+1,my-1.3,"\u25B6").attr({"font-size":12,fill: "#bbb", stroke: "#bbb"})
 	);
 	rightButton.push(
-		zR.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
+		R_overlay.circle(mx+.4,my,10).attr({fill: "#bbb", "fill-opacity":0, stroke: "#bbb", "stroke-width":4})
 	);
 	rightButton.attr({opacity: .5});
 	rightButton.mouseover(function () {
@@ -89,26 +90,26 @@ var ZoomMenu = function (oR) {
 	});
 	///////////////////////////////////////////////////
 	
-	OrignalViewBox = oR.setViewBox(oR.DEFAULT_PLANE_WIDTH/2-oR.width,oR.DEFAULT_PLANE_HEIGHT/2-oR.height,oR.width,oR.height);
+	OrignalViewBox = R.setViewBox(R.DEFAULT_PLANE_WIDTH/2-R.width,R.DEFAULT_PLANE_HEIGHT/2-R.height,R.width,R.height);
 	ZoomLevel = 1;
 	ZoomScale = .2;
 	ZoomMax = 1;
 	ZoomMin = 1.4;
 	maxButton.mousedown(function() {
 		ZoomLevel = Math.max(ZoomMax,ZoomLevel-ZoomScale);
-		mw = oR.width*ZoomLevel;
-		mh = oR.height*ZoomLevel;
-		mx = oR._viewBox[0] - (mw-oR._viewBox[2])/2;
-		my = oR._viewBox[1] - (mh-oR._viewBox[3])/2;
-		oR.setViewBox(mx,my,mw,mh);
+		mw = R.width*ZoomLevel;
+		mh = R.height*ZoomLevel;
+		mx = R._viewBox[0] - (mw-R._viewBox[2])/2;
+		my = R._viewBox[1] - (mh-R._viewBox[3])/2;
+		R.setViewBox(mx,my,mw,mh);
 	});
 	minButton.mousedown(function() {
 		ZoomLevel = Math.min(ZoomMin,ZoomLevel+ZoomScale);
-		mw = oR.width*ZoomLevel;
-		mh = oR.height*ZoomLevel;
-		mx = oR._viewBox[0] - (mw-oR._viewBox[2])/2;
-		my = oR._viewBox[1] - (mh-oR._viewBox[3])/2;
-		oR.setViewBox(mx,my,mw,mh);
+		mw = R.width*ZoomLevel;
+		mh = R.height*ZoomLevel;
+		mx = R._viewBox[0] - (mw-R._viewBox[2])/2;
+		my = R._viewBox[1] - (mh-R._viewBox[3])/2;
+		R.setViewBox(mx,my,mw,mh);
 	});
 	
 	

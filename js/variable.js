@@ -4,13 +4,15 @@ Variable: Propostional variable, inherits from Node
 */
 Variable.prototype = Object.create(Node.prototype);
 
-function Variable(parent,x,y,duplicate) {
+function Variable(R,parent,x,y,duplicate) {
 	var id_init = (!parent)?0:parent.getNewID();
-	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,id_init);
+	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent,id_init);
 	
+	this.paper = R;
+
 	if(!duplicate) {
 		//initial text, can't be empty or else it defaults to 0,0 origin
-		this.text = R.text(x,y,"~").attr({"font-size":20}); 
+		this.text = this.paper.text(x,y,"~").attr({"font-size":20}); 
 		text = this.text;
 		this.text.parent = this;
 		
@@ -22,8 +24,8 @@ function Variable(parent,x,y,duplicate) {
 		text_box.css({"z-index" : 2, "position" : "absolute"});
 		//text_box.css("left",this.text.getBBox().x-w/2+8);
 		//text_box.css("top",this.text.getBBox().y+19);
-		text_box.css("left",(this.text.getBBox().x-zoomOffset()[0]-(w/2)*zoomScale()[0]+8)/zoomScale()[0]);
-		text_box.css("top",(this.text.getBBox().y-zoomOffset()[1]+19*zoomScale()[1])/zoomScale()[1]);
+		text_box.css("left",(this.text.getBBox().x-this.paper.zoomOffset()[0]-(w/2)*this.paper.zoomScale()[0]+8)/this.paper.zoomScale()[0]);
+		text_box.css("top",(this.text.getBBox().y-this.paper.zoomOffset()[1]+6*this.paper.zoomScale()[1])/this.paper.zoomScale()[1]);
 		//text creation function
 		var text_evaluate = function() {
 			//get rid extraneous pre/post white space
@@ -72,7 +74,7 @@ Variable.prototype.renderText = function(attr) {
 		this.text = null;
 	}
 	
-	this.text = R.text(0,0,"~").attr(attr);
+	this.text = this.paper.text(0,0,"~").attr(attr);
 	this.text.parent = this;
 	
 	this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
@@ -146,8 +148,8 @@ text based on drag difference
 */
 Variable.prototype.dragMove = function(dx, dy) {
 	//shift text
-	var new_x = this.ox + dx*zoomScale()[0];
-	var new_y = this.oy + dy*zoomScale()[1];
+	var new_x = this.ox + dx*this.paper.zoomScale()[0];
+	var new_y = this.oy + dy*this.paper.zoomScale()[1];
 	this.text.attr({x: new_x, y: new_y});
 	//fit parent hull to new area
 	this.parent.expand(this.text.getBBox().x,this.text.getBBox().y,this.text.getBBox().width,this.text.getBBox().height);
@@ -159,7 +161,7 @@ Variable.prototype.dragMove = function(dx, dy) {
 //Variable callback for dragging
 Variable.prototype.onDragMove = function(dx, dy) {
 	this.parent.dragMove(dx,dy);
-	R.renderfix()
+	this.paper.renderfix()
 };
 
 /*
@@ -187,11 +189,17 @@ Creates context menu on node;
 */
 Variable.prototype.onDoubleClick = function(event) {
 	//Menu intialized with node,node's level, and mouse x/y
-	ContextMenu.NewContext(this.parent, (this.attrs.x-zoomOffset()[0])/zoomScale()[0], (this.attrs.y-zoomOffset()[1])/zoomScale()[1]);
+	ContextMenu.NewContext(this.parent, (this.attrs.x-this.paper.zoomOffset()[0])/this.paper.zoomScale()[0], 
+										(this.attrs.y-this.paper.zoomOffset()[1])/this.paper.zoomScale()[1]);
 };
 
+/*
+Variable.duplicate
+
+Variable deep copy
+*/
 Variable.prototype.duplicate = function() {
-	var dup = new Variable(null,0,0,true);
+	var dup = new Variable(this.paper,null,0,0,true);
 	dup.saved_attr = jQuery.extend(true, {}, this.text.attrs);
 	return dup;
 };
