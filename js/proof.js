@@ -1,52 +1,26 @@
-function ProofNode(p)
-{
+function ProofNode(p) {
 	this.plane = null;
 	this.next = null;
 	this.prev = null;
 	this.proof = p;
 	this.id = 1;
 	this.name = 'undefined';
+	this.isPremise = false;
 }
-ProofNode.prototype.serialize = function ()
-{
-	function recurse (treenode)
-	{
-		if(!treenode)
-			return "";
-		var data = "<Cut>";
-		//get metadata of cut
-		var p;
-		for(p=treenode.variables.begin();p!=treenode.variables.end();p=p.next)
-		{
-			data += "<Var>";
-			//get data out of variable
-			data += "</Var>";
-		}
-		for(p=treenode.children.begin();p!=treenode.children.end();p=p.next)
-		{
-			data += recurse(p.val);
-		}
-		data += "</Cut>";
-		return data;
-	}
-	var data = recurse(plane);
-	plane = data;
-}
-ProofNode.prototype.unserialize = function ()
-{
-	//to be added later once serialize is complete
-}
-function Proof()
-{
+
+function Proof(R) {
+	this.paper = R;
 	this.current = new ProofNode(this);//current node displayed
-	this.current.plane = new Level(null);
+	this.current.plane = new Level(R,null);
 	this.front = this.current;
 	this.back = this.current;
-	this.current.name = 'Start';
+	this.current.name = 'Premise Start';
 }
+
+
 //adds a node in the proof, must be called by all inference rules before tree is changed
-Proof.prototype.addnode = function () //all nodes after current will be removed
-{
+//all nodes after current will be removed
+Proof.prototype.addnode = function () {
 	this.current.next = new ProofNode(this);
 	this.current.next.prev = this.current;
 	this.current.next.plane = this.current.plane;
@@ -56,11 +30,10 @@ Proof.prototype.addnode = function () //all nodes after current will be removed
 	this.back = this.current;
 	timeline_f.draw.call(Timeline, {proof:this});
 }
+
 //moves proof to last step
-Proof.prototype.prev = function()
-{
-	if(this.current.prev)
-	{
+Proof.prototype.prev = function() {
+	if(this.current.prev) {
 		this.current.plane.compressTree();
 		this.current = this.current.prev;
 		this.current.plane.restoreTree();
@@ -68,10 +41,8 @@ Proof.prototype.prev = function()
 }
 
 //selects step from timeline
-Proof.prototype.select = function(node)
-{
-	if(this.current != node)
-	{
+Proof.prototype.select = function(node) {
+	if(this.current != node) {
 		this.current.plane.compressTree();
 		this.current = node;
 		this.current.plane.restoreTree();
@@ -79,46 +50,42 @@ Proof.prototype.select = function(node)
 }
 
 //moves proof to next step
-Proof.prototype.next = function ()
-{
-	if(this.current.next)
-	{
+Proof.prototype.next = function () {
+	if(this.current.next) {
 		this.current.plane.compressTree();
 		this.current = this.current.next;
 		this.current.plane.restoreTree();
 	}
 }
 //swaps proof to the step pointed to by proof node
-Proof.prototype.swap = function (proof_node)
-{
-	if(proof_node)
-	{
+Proof.prototype.swap = function (proof_node) {
+	if(proof_node) {
 		this.current.plane.compressTree();
 		this.current = proof_node;
 		this.current.plane.restoreTree();
 	}
 }
+
 //creates a empty doublecut at x,y
-Proof.prototype.empty_double_cut = function (treenode, x, y)
-{
+Proof.prototype.empty_double_cut = function (treenode, x, y) {
 	this.addnode();
 	var p = treenode.addChild(x,y);
 	p.addChild(x,y);
 	this.current.name = 'Empty Double Cut';
 }
 //creates a doublecut around treenode(cut) variables to be added later
-Proof.prototype.double_cut = function (treenode)
-{
-	if(treenode.parent)
-	{
+Proof.prototype.double_cut = function (treenode) {
+	if(treenode.parent)	{
 		this.addnode();
 		var parent_list = 0;
 		if(treenode instanceof Level) {
-			parent_list = treenode.parent.children; }
+			parent_list = treenode.parent.children; 
+		}
 		else {
-			parent_list = treenode.parent.variables; }		
+			parent_list = treenode.parent.variables; 
+		}		
 		var itr = parent_list.begin();
-		for(;itr.val != parent_list.end();itr=itr.next){
+		for(;itr.val != parent_list.end();itr=itr.next) {
 			if(itr.val.id == treenode.id) break;
 		} 
 		parent_list.erase(itr);
@@ -159,8 +126,7 @@ Proof.prototype.double_cut = function (treenode)
 	this.current.name = 'Double Cut';
 }
 
-Proof.prototype.r_double_cut = function (treenode)
-{
+Proof.prototype.r_double_cut = function (treenode) {
 	if(treenode.parent.parent && (
 		(!treenode.parent.children.length && treenode instanceof Variable) || 
 		(!treenode.parent.variables.length && treenode.parent.children.length == 1)))
@@ -235,20 +201,17 @@ Proof.prototype.r_double_cut = function (treenode)
 	this.current.name = 'Reverse Double Cut';
 }
 
-Proof.prototype.insertion = function(treenode,plane)//merges plane at the location of treenode
-{
-	if(treenode.getLevel() % 2)//checks for odd level
-	{
+//merges plane at the location of treenode
+Proof.prototype.insertion = function(treenode,plane) {
+	if(treenode.getLevel() % 2) {//checks for odd level
 		this.addnode();
-		for(var itr = plane.children.begin(); itr != plane.children.end();itr = itr.next)
-		{
+		for(var itr = plane.children.begin(); itr != plane.children.end();itr = itr.next) {
 			itr.val.parent = treenode;
 			//make sure that coordinates changed for full proof
 			treenode.expand(itr.val.shape.attrs.x,itr.val.shape.attrs.y,itr.val.shape.attrs.width,itr.val.shape.attrs.height);
 		}
 		treenode.children.append(plane.children);
-		for(var itr = plane.variables.begin(); itr != plane.variables.end();itr = itr.next)
-		{
+		for(var itr = plane.variables.begin(); itr != plane.variables.end();itr = itr.next) {
 			itr.val.parent = treenode;
 			//make sure that coordinates changed for full proof
 			//may need to expand treenode
@@ -256,20 +219,22 @@ Proof.prototype.insertion = function(treenode,plane)//merges plane at the locati
 		treenode.variables.append(plane.variables);
 	}
 		this.current.name = 'Insertion';
-	}
-Proof.prototype.erasure = function (treenode)//treenode is object to erase
-{
-	if(!(treenode.getLevel() % 2))
-	{
+}
+
+//treenode is object to erase
+Proof.prototype.erasure = function (treenode) {
+	if(!(treenode.getLevel() % 2)) {
 		this.addnode();
 		var parent_list = 0;
 		if(treenode instanceof Level) {
-			parent_list = treenode.parent.children; }
+			parent_list = treenode.parent.children; 
+		}
 		else {
-			parent_list = treenode.parent.variables; }	
+			parent_list = treenode.parent.variables; 
+		}	
 			
 		var itr = parent_list.begin();
-		for(;itr.val != parent_list.end();itr=itr.next){
+		for(;itr.val != parent_list.end();itr=itr.next) {
 			if(itr.val.id == treenode.id) break;
 		} 
 		if(treenode instanceof Level) {
@@ -284,15 +249,13 @@ Proof.prototype.erasure = function (treenode)//treenode is object to erase
 }
 
 //temp funcs for testing
-Proof.prototype.premise_insertion_cut = function(treenode,x,y)
-{
+Proof.prototype.premise_insertion_cut = function(treenode,x,y) {
 	this.addnode();
 	treenode.addChild(x,y);
 	this.current.name = 'Premise Insertion';
 }
 
-Proof.prototype.premise_insertion_variable = function(treenode,x,y)
-{
+Proof.prototype.premise_insertion_variable = function(treenode,x,y) {
 	this.addnode();
 	treenode.addVariable(x,y);
 	this.current.name = 'Premise Insertion';

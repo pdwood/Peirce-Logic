@@ -6,19 +6,21 @@ Level: Plane/Cut, inherits from Node
 */
 Level.prototype = Object.create(Node.prototype);
 
-function Level(parent,x,y,duplicate) {
+function Level(R,parent,x,y,duplicate) {
 	var id_init = (!parent)?0:parent.getNewID();
 	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,id_init);
 	
+	this.paper = R;
+
 	//members
 	this.children = new List();
 	this.variables = new List();
 	this.shape = null;
 	
-	this.DEFAULT_PLANE_WIDTH = R.width*6;
-	R.DEFAULT_PLANE_WIDTH = this.DEFAULT_PLANE_WIDTH;
-	this.DEFAULT_PLANE_HEIGHT = R.height*6;
-	R.DEFAULT_PLANE_HEIGHT = this.DEFAULT_PLANE_HEIGHT;
+	this.DEFAULT_PLANE_WIDTH = this.paper.width*6;
+	this.paper.DEFAULT_PLANE_WIDTH = this.DEFAULT_PLANE_WIDTH;
+	this.DEFAULT_PLANE_HEIGHT = this.paper.height*6;
+	this.paper.DEFAULT_PLANE_HEIGHT = this.DEFAULT_PLANE_HEIGHT;
 	this.DEFAULT_CHILD_WIDTH = 50;
 	this.DEFAULT_CHILD_HEIGHT = 50;
 	this.DEFAULT_CURVATURE = 20;
@@ -27,7 +29,7 @@ function Level(parent,x,y,duplicate) {
 	if(!duplicate) {
 		//plane constructor
 		if(!parent) {
-			this.shape = R.rect(0,0,this.DEFAULT_PLANE_WIDTH,this.DEFAULT_PLANE_HEIGHT);
+			this.shape = this.paper.rect(0,0,this.DEFAULT_PLANE_WIDTH,this.DEFAULT_PLANE_HEIGHT);
 			/*this.shape.mouseover(function () {
 				this.animate({"fill-opacity": .2}, 500); });
 			this.shape.mouseout(function () {
@@ -42,7 +44,7 @@ function Level(parent,x,y,duplicate) {
 		} 
 		//cut constructor
 		else {
-			this.shape = R.rect(x,y,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE);
+			this.shape = this.paper.rect(x,y,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE);
 			//mouseover effects
 			this.shape.mouseover(function () {
 				this.attr({"fill-opacity": .2}); });
@@ -69,6 +71,41 @@ function Level(parent,x,y,duplicate) {
 };
 
 /*
+Level.duplicate
+
+Level deep copy.
+Copies entire tree.
+*/
+Level.prototype.duplicate = function() {
+	var dup = new Level(this.paper,null,0,0,true);
+	dup.id = this.id;
+	dup.id_gen = this.id_gen;
+	dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
+	var itr = this.children.begin();
+	while(itr != this.children.end()) {
+		child_dup = itr.val.duplicate();
+		child_dup.id = itr.val.id;
+		child_dup.id_gen = itr.val.id_gen;
+		child_dup.parent = dup;
+		dup.children.push_back(child_dup);
+		itr = itr.next;
+	}
+	itr = this.variables.begin();
+	while(itr != this.variables.end()) {
+		variable_dup = itr.val.duplicate();
+		variable_dup.id = itr.val.id;
+		variable_dup.parent = dup;
+		dup.variables.push_back(variable_dup);
+		itr = itr.next;
+	}
+	return dup;
+};
+
+Level.prototype.equvilance = function(other) {
+
+}
+
+/*
 Level.renderShape
 ~attr: Raphael attributes for rendering
 
@@ -80,7 +117,7 @@ handlers
 Level.prototype.renderShape = function(attr) {
 	//for plane
 	if(!this.parent) {
-		this.shape = R.rect(0,0,this.DEFAULT_PLANE_WIDTH,this.DEFAULT_PLANE_HEIGHT).attr(attr);
+		this.shape = this.paper.rect(0,0,this.DEFAULT_PLANE_WIDTH,this.DEFAULT_PLANE_HEIGHT).attr(attr);
 		/*this.shape.mouseover(function () {
 			this.animate({"fill-opacity": .2}, 500); });
 		this.shape.mouseout(function () {
@@ -88,7 +125,7 @@ Level.prototype.renderShape = function(attr) {
 	} 
 	//for cut
 	else {
-		this.shape = R.rect(0,0,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE).attr(attr);
+		this.shape = this.paper.rect(0,0,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE).attr(attr);
 		//mouseover effects
 		this.shape.mouseover(function () {
 			this.attr({"fill-opacity": .2}); });
@@ -105,6 +142,12 @@ Level.prototype.renderShape = function(attr) {
 	this.shape.dblclick(this.onDoubleClick);
 }
 
+/*
+Level.updateLevel
+
+Update color of level and shift shape to front.
+Used when invalidating level's level
+*/
 Level.prototype.updateLevel = function() {
 	this.shape.toFront();
 	//color spectrum based on level
@@ -389,7 +432,7 @@ current level at x,y position (x,y is center)
 returns child
 */
 Level.prototype.addChild = function(x,y) {
-	var child = new Level(this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
+	var child = new Level(this.paper,this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
 	child.shape.toFront();
 	this.children.push_back(child);
 	//move collided nodes out of way
@@ -408,7 +451,7 @@ Creates new variable inside
 current level at x,y position
 */
 Level.prototype.addVariable = function(x,y) {
-	var variable = new Variable(this,x,y);
+	var variable = new Variable(this.paper,this,x,y);
 	variable.text.toFront();
 	//this creates variable, but not adds it
 	//first variable's text box pops up
@@ -468,8 +511,8 @@ then drags children/variables
 */
 Level.prototype.dragMove = function(dx, dy) {
 	//shift shape
-	var new_x = this.ox + dx*zoomScale()[0];
-	var new_y = this.oy + dy*zoomScale()[1];
+	var new_x = this.ox + dx*this.paper.zoomScale()[0];
+	var new_y = this.oy + dy*this.paper.zoomScale()[1];
 	this.shape.attr({x: new_x, y: new_y});
 	//shift children
 	var itr = this.children.begin();
@@ -493,7 +536,7 @@ Level.prototype.dragMove = function(dx, dy) {
 //Level callback for dragging
 Level.prototype.onDragMove = function(dx, dy) {
 	this.parent.dragMove(dx,dy);
-	R.renderfix();
+	this.paper.renderfix();
 };
 
 /*
@@ -526,31 +569,6 @@ Level.prototype.onDoubleClick = function(event) {
 	ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
 };
 
-//Duplicates the entire tree.
-Level.prototype.duplicate = function() {
-	var dup = new Level(null,0,0,true);
-	dup.id = this.id;
-	dup.id_gen = this.id_gen;
-	dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
-	var itr = this.children.begin();
-	while(itr != this.children.end()) {
-		child_dup = itr.val.duplicate();
-		child_dup.id = itr.val.id;
-		child_dup.id_gen = itr.val.id_gen;
-		child_dup.parent = dup;
-		dup.children.push_back(child_dup);
-		itr = itr.next;
-	}
-	itr = this.variables.begin();
-	while(itr != this.variables.end()) {
-		variable_dup = itr.val.duplicate();
-		variable_dup.id = itr.val.id;
-		variable_dup.parent = dup;
-		dup.variables.push_back(variable_dup);
-		itr = itr.next;
-	}
-	return dup;
-};
 
 Level.prototype.shiftAdjacent = function(child,bbox) {
 	if(!child.visited){
@@ -561,7 +579,7 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 			var c = itr.val;
 			if(child.id != c.id && !(c.visited)) {
 				var bbox2 = c.text.getBBox();
-				if(R.raphael.isBBoxIntersect(bbox,bbox2)) {
+				if(this.paper.raphael.isBBoxIntersect(bbox,bbox2)) {
 					var sx = 0, sy = 0;
 					var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
 					var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
@@ -585,7 +603,7 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 			var c = itr.val;
 			if(child.id != c.id && !(c.visited)) {
 				var bbox2 = c.shape.getBBox();
-				if(R.raphael.isBBoxIntersect(bbox,bbox2)) {
+				if(this.paper.raphael.isBBoxIntersect(bbox,bbox2)) {
 					var sx = 0, sy = 0;
 					var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
 					var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
