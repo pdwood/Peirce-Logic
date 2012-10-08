@@ -147,7 +147,7 @@ timeline_f = {
 			pixels_per_index = 100;
 		}
 
-        dots_param = {pixels_per_index: pixels_per_index, x_offset: 30, y_offset: 70};
+        dots_param = {pixels_per_index: pixels_per_index, x_offset: 30, y_offset: 50};
 		dots = timeline_f.draw_dots.call(this, options.proof, settings, dots_param, fclick);
 		TimelineHelper.highlight(dots, options.proof.current.id, settings);
 	},
