@@ -8,6 +8,8 @@ function Node(parent,id) {
 	this.id = id;
 	this.id_gen = 1;
 	this.visited = false;
+	this.subtrees = new List();
+	this.leaves = new List();
 };
 
 Node.prototype.getNewID = function() {
