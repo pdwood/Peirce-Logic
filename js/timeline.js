@@ -124,6 +124,7 @@ var tokenRegex = /\{([^\}]+)\}/g,
 
 timeline_f = {
 	draw: function(options) {
+        this.clear();
 		var settings = {color: options.color || '#f00',
 						normal_r: options.normal_r || 7,
 						highlight_r: options.highlight_r || 10,
