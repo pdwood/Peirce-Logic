@@ -37,7 +37,7 @@ function Variable(R,parent,x,y,duplicate) {
 				}
 				//initialize and add variable to parent
 				text.attr({'text':text_string});
-				text.parent.parent.variables.push_back(text.parent);
+				text.parent.parent.leaves.push_back(text.parent);
 				//move collided nodes out of way
 				text.parent.parent.shiftAdjacent(text.parent,text.parent.text.getBBox());
 				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height);

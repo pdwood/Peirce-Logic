@@ -56,6 +56,9 @@ Context.prototype.setup = function() {
 				this.addItem('double cut:reverse',TheProof.r_double_cut);
 				if(this.node.getLevel() % 2)
 					this.addItem('erasure',TheProof.erasure);
+				else
+					this.addItem('insertion',TheProof.insertion);
+
 			}
 		}
 		else if(this.node instanceof Variable) {
@@ -64,6 +67,8 @@ Context.prototype.setup = function() {
 			this.addItem('double cut:reverse',TheProof.r_double_cut);
 			if(this.node.getLevel() % 2)
 				this.addItem('erasure',TheProof.erasure);
+			else
+				this.addItem('insertion',TheProof.insertion);
 		}
 	}
 	if(this.paper.CURRENT_MODE == this.paper.LogicMode.PROOF_MODE) {

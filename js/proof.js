@@ -66,6 +66,10 @@ Proof.prototype.swap = function (proof_node) {
 	}
 }
 
+//////////////////////////////////
+//Inference Rules
+//////////////////////////////////
+
 //creates a empty doublecut at x,y
 Proof.prototype.empty_double_cut = function (treenode, x, y) {
 	this.addnode();
@@ -79,10 +83,10 @@ Proof.prototype.double_cut = function (treenode) {
 		this.addnode();
 		var parent_list = 0;
 		if(treenode instanceof Level) {
-			parent_list = treenode.parent.children; 
+			parent_list = treenode.parent.subtrees; 
 		}
 		else {
-			parent_list = treenode.parent.variables; 
+			parent_list = treenode.parent.leaves; 
 		}		
 		var itr = parent_list.begin();
 		for(;itr.val != parent_list.end();itr=itr.next) {
@@ -98,7 +102,7 @@ Proof.prototype.double_cut = function (treenode) {
 			treenode.parent = p;
 			treenode.id = p.getNewID();
 			//if cut puts in children list
-			p.children.push_back(treenode);
+			p.subtrees.push_back(treenode);
 			treenode.updateLevel(); 
 			//expands the doublecut
 			p.expand(r_attrs.x,r_attrs.y,r_attrs.width,r_attrs.height);
@@ -114,7 +118,7 @@ Proof.prototype.double_cut = function (treenode) {
 			treenode.parent = p;
 			treenode.id = p.getNewID();
 			//if cut puts in variable list
-			p.variables.push_back(treenode);
+			p.leaves.push_back(treenode);
 			treenode.updateLevel(); 
 			//expands the doublecut
 			p.expand(treenode.text.getBBox().x,treenode.text.getBBox().y,treenode.text.getBBox().width,treenode.text.getBBox().height);
@@ -128,11 +132,11 @@ Proof.prototype.double_cut = function (treenode) {
 
 Proof.prototype.r_double_cut = function (treenode) {
 	if(treenode.parent.parent && (
-		(!treenode.parent.children.length && treenode instanceof Variable) || 
-		(!treenode.parent.variables.length && treenode.parent.children.length == 1)))
+		(!treenode.parent.subtrees.length && treenode instanceof Variable) || 
+		(!treenode.parent.leaves.length && treenode.parent.subtrees.length == 1)))
 	{
 		tparent = treenode.parent;
-		if(tparent.parent.parent && !tparent.parent.variables.length && tparent.parent.children.length == 1)
+		if(tparent.parent.parent && !tparent.parent.leaves.length && tparent.parent.subtrees.length == 1)
 		{
 			this.addnode();
 			tgrandparent = tparent.parent;
@@ -143,30 +147,30 @@ Proof.prototype.r_double_cut = function (treenode) {
 			//erase cuts
 			var parent_list = 0;
 			if(treenode instanceof Level) {
-				parent_list = tparent.children; }
+				parent_list = tparent.subtrees; }
 			else {
-				parent_list = tparent.variables; }	
+				parent_list = tparent.leaves; }	
 			var itr = parent_list.begin();
 			for(;itr.val != parent_list.end();itr=itr.next){
 				if(itr.val.id == treenode.id) break;
 			} 
 			parent_list.erase(itr);
 			
-			var itr = tgrandparent.children.begin();
-			for(;itr.val != tgrandparent.children.end();itr=itr.next){
+			var itr = tgrandparent.subtrees.begin();
+			for(;itr.val != tgrandparent.subtrees.end();itr=itr.next){
 				if(itr.val.id == tparent.id) break;
 				//loop here for future use with multi nodes
 			} 
 			itr.val.compress();
-			tgrandparent.children.erase(itr);
+			tgrandparent.subtrees.erase(itr);
 			
-			var itr = tgrandparent.parent.children.begin();
-			for(;itr.val != tgrandparent.parent.children.end();itr=itr.next){
+			var itr = tgrandparent.parent.subtrees.begin();
+			for(;itr.val != tgrandparent.parent.subtrees.end();itr=itr.next){
 				if(itr.val.id == tgrandparent.id) break;
 				//loop here for future use with multi nodes
 			} 
 			itr.val.compress();
-			tgrandparent.parent.children.erase(itr);
+			tgrandparent.parent.subtrees.erase(itr);
 			
 			//gets new id
 			treenode.id = tgrandparent.parent.getNewID();
@@ -174,7 +178,7 @@ Proof.prototype.r_double_cut = function (treenode) {
 			if(treenode instanceof Level) { 
 				r_attrs = treenode.shape.getBBox();
 				//if cut puts in children list
-				p.children.push_back(treenode);
+				p.subtrees.push_back(treenode);
 				treenode.updateLevel(); 
 				//expands the doublecut
 				p.expand(r_attrs.x,r_attrs.y,r_attrs.width,r_attrs.height);
@@ -188,7 +192,7 @@ Proof.prototype.r_double_cut = function (treenode) {
 				treenode.parent = p;
 				treenode.id = p.getNewID();
 				//if cut puts in variable list
-				p.variables.push_back(treenode);
+				p.leaves.push_back(treenode);
 				treenode.updateLevel(); 
 				//expands the doublecut
 				p.expand(treenode.text.getBBox().x,treenode.text.getBBox().y,treenode.text.getBBox().width,treenode.text.getBBox().height);
@@ -203,34 +207,34 @@ Proof.prototype.r_double_cut = function (treenode) {
 
 //merges plane at the location of treenode
 Proof.prototype.insertion = function(treenode,plane) {
-	if(treenode.getLevel() % 2) {//checks for odd level
+	if(!(treenode.getLevel() % 2)) {//checks for odd level
 		this.addnode();
-		for(var itr = plane.children.begin(); itr != plane.children.end();itr = itr.next) {
+		for(var itr = plane.subtrees.begin(); itr != plane.subtrees.end();itr = itr.next) {
 			itr.val.parent = treenode;
 			//make sure that coordinates changed for full proof
 			treenode.expand(itr.val.shape.attrs.x,itr.val.shape.attrs.y,itr.val.shape.attrs.width,itr.val.shape.attrs.height);
 		}
-		treenode.children.append(plane.children);
-		for(var itr = plane.variables.begin(); itr != plane.variables.end();itr = itr.next) {
+		treenode.subtrees.append(plane.subtrees);
+		for(var itr = plane.leaves.begin(); itr != plane.leaves.end();itr = itr.next) {
 			itr.val.parent = treenode;
 			//make sure that coordinates changed for full proof
 			//may need to expand treenode
 		}
-		treenode.variables.append(plane.variables);
+		treenode.leaves.append(plane.leaves);
 	}
 		this.current.name = 'Insertion';
 }
 
 //treenode is object to erase
 Proof.prototype.erasure = function (treenode) {
-	if(!(treenode.getLevel() % 2)) {
+	if(treenode.getLevel() % 2) {
 		this.addnode();
 		var parent_list = 0;
 		if(treenode instanceof Level) {
-			parent_list = treenode.parent.children; 
+			parent_list = treenode.parent.subtrees; 
 		}
 		else {
-			parent_list = treenode.parent.variables; 
+			parent_list = treenode.parent.leaves; 
 		}	
 			
 		var itr = parent_list.begin();
