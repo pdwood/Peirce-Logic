@@ -131,6 +131,31 @@ List.prototype.append = function (l)
 		this.length += l.length;
 	}
 }
+
+//iterate applicator
+List.prototype.iterate = function (iterate_func)
+{
+	var itr = this.begin();
+	while(itr!=this.end()) {
+		iterate_func(itr.val);
+		itr = itr.next;
+	}
+}
+
+
+//iterate until condtion is true, return location or end
+List.prototype.skipUntil = function (cond_func)
+{
+	var itr = this.begin();
+	while(itr!=this.end()) {
+		if(cond_func(itr.va))
+			break;
+		itr = itr.next;
+	}
+	return itr;
+}
+
+
 //merge sort function, pass the less then function, should presurve pointers to list (though it will change the order)
 List.prototype.sort = function (less_then_func)
 {
