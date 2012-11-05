@@ -79,23 +79,20 @@ Level.prototype.duplicate = function() {
 	dup.id = this.id;
 	dup.id_gen = this.id_gen;
 	dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
-	var itr = this.subtrees.begin();
-	while(itr != this.subtrees.end()) {
-		child_dup = itr.val.duplicate();
-		child_dup.id = itr.val.id;
-		child_dup.id_gen = itr.val.id_gen;
+	
+	this.subtrees.iterate(function(x){ 
+		child_dup = x.duplicate();
+		child_dup.id = x.id;
+		child_dup.id_gen = x.id_gen;
 		child_dup.parent = dup;
 		dup.subtrees.push_back(child_dup);
-		itr = itr.next;
-	}
-	itr = this.leaves.begin();
-	while(itr != this.leaves.end()) {
-		variable_dup = itr.val.duplicate();
-		variable_dup.id = itr.val.id;
+	});
+	this.leaves.iterate(function(x){
+		variable_dup = x.duplicate();
+		variable_dup.id = x.id;
 		variable_dup.parent = dup;
 		dup.leaves.push_back(variable_dup);
-		itr = itr.next;
-	}
+	});
 	return dup;
 };
 
@@ -126,17 +123,9 @@ use
 */
 Level.prototype.compressTree = function() {
 	//compress children first
-	var itr=this.subtrees.begin(); 
-	while(itr!=this.subtrees.end()) {
-		itr.val.compressTree();
-		itr = itr.next;
-	}
+	this.leaves.iterate(function(x){ x.compress(); });
+	this.subtrees.iterate(function(x){ x.compressTree(); });
 	this.compress();
-	itr=this.leaves.begin();
-	while(itr!=this.leaves.end()) {
-		itr.val.compress();
-		itr = itr.next;
-	}
 }
 
 
@@ -163,16 +152,8 @@ as the root
 Level.prototype.restoreTree = function() {
 	//show current level first
 	this.restore();
-	var itr=this.leaves.begin();
-	while(itr!=this.leaves.end()) {
-		itr.val.restore();
-		itr = itr.next;
-	}
-	itr=this.subtrees.begin(); 
-	while(itr!=this.subtrees.end()) {
-		itr.val.restoreTree();
-		itr = itr.next;
-	}
+	this.leaves.iterate(function(x){ x.restore(); });
+	this.subtrees.iterate(function(x){ x.restoreTree(); });
 }
 
 
@@ -184,18 +165,10 @@ entire sub-tree from this
 as the root
 */
 Level.prototype.hide = function() {
-	//hide children first
-	var itr=this.subtrees.begin(); 
-	while(itr!=this.subtrees.end()) {
-		itr.val.hide();
-		itr = itr.next;
-	}
+	//show children
+	this.leaves.iterate(function(x){ x.hide(); });
+	this.subtrees.iterate(function(x){ x.hide(); });
 	this.shape.hide();
-	itr=this.leaves.begin();
-	while(itr!=this.leaves.end()) {
-		itr.val.text.hide();
-		itr = itr.next;
-	}
 }
 
 
@@ -209,16 +182,9 @@ as the root
 Level.prototype.show = function() {
 	//show current level first
 	this.shape.show();
-	var itr=this.leaves.begin();
-	while(itr!=this.leaves.end()) {
-		itr.val.text.show();
-		itr = itr.next;
-	}
-	itr=this.subtrees.begin(); 
-	while(itr!=this.subtrees.end()) {
-		itr.val.show();
-		itr = itr.next;
-	}
+	//show children
+	this.leaves.iterate(function(x){ x.show(); });
+	this.subtrees.iterate(function(x){ x.show(); });
 }
 
 
