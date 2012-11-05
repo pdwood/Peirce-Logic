@@ -1,7 +1,3 @@
-# The most annoying #
-#####################
-*.pyc
-
 # Compiled source #
 ###################
 *.com
@@ -10,6 +6,7 @@
 *.exe
 *.o
 *.so
+*.pyc
 
 # Packages #
 ############
