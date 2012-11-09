@@ -1,3 +1,22 @@
+var selectedNodes = new List();
+
+changeSelection = function(node) {
+	// Can't select the canvas | needs to befixed
+	if(node.parent == null) return;
+
+	// Get the location of the node in the list (if it exists)
+	var listItr = selectedNodes.begin();
+	while(listItr != null)
+		if(listItr.val === node) break;
+		else listItr = listItr.next;
+
+	// Remove or add the node
+	if(listItr == null) selectedNodes.push_back(node);
+	else selectedNodes.erase(listItr);
+}
+
+
+
 function ContextHandler(R) {
 	this.paper = R;
 
