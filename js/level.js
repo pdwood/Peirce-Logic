@@ -66,7 +66,7 @@ function Level(R,parent,x,y,duplicate) {
 		this.shape.dblclick(this.onDoubleClick);
 
 		//when click is released
-		KeyboardJS.on('ctrl' ,function(){},function(){D("released!");});
+		KeyboardJS.on('ctrl' ,function(){D("pressed");},function(){D("released!");});
 	}
 };
 
@@ -238,7 +238,7 @@ Level.prototype.onSingleClick = function(e) {
 			this.attr({"stroke-width": 1});
 		else
 			this.attr({"stroke-width": 3});
-		changeSelection(this);
+		changeSelection(this.parent);
 
 	}
 };

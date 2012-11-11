@@ -1,8 +1,8 @@
 var selectedNodes = new List();
 
 changeSelection = function(node) {
-	// Can't select the canvas | needs to befixed
-	if(node.parent == null) return;
+	// Can't select the top level
+	if(node.getLevel() == 0) return;
 
 	// Get the location of the node in the list (if it exists)
 	var listItr = selectedNodes.begin();
