@@ -7,8 +7,7 @@ Level: Plane/Cut, inherits from Node
 Level.prototype = Object.create(Node.prototype);
 
 function Level(R,parent,x,y,duplicate) {
-	var id_init = (!parent)?0:parent.getNewID();
-	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent,id_init);
+	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent);
 	
 	this.paper = R;
 
@@ -34,7 +33,7 @@ function Level(R,parent,x,y,duplicate) {
 			var color = '#888';
 			this.shape.attr({
 				fill: color, 
-				stroke: color, "fill-opacity": .1
+				stroke: color, "fill-opacity": 0.1
 			});
 			//start ids
 			this.id_count = 1;
@@ -44,9 +43,9 @@ function Level(R,parent,x,y,duplicate) {
 			this.shape = this.paper.rect(x,y,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE);
 			//mouseover effects
 				this.shape.mouseover(function () {
-					this.attr({"fill-opacity": .2}); });
+					this.attr({"fill-opacity": 0.2}); });
 				this.shape.mouseout(function () {
-					this.attr({"fill-opacity": .0}); });
+					this.attr({"fill-opacity": 0.0}); });
 			
 			//color spectrum based on level
 			var color = 0; Raphael.getColor.reset();
@@ -55,7 +54,7 @@ function Level(R,parent,x,y,duplicate) {
 			}
 			this.shape.attr(
 				{fill: color, 
-				stroke: color, "fill-opacity": 0,});
+				stroke: color, "fill-opacity": 0});
 			this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 		}
 		
@@ -68,7 +67,7 @@ function Level(R,parent,x,y,duplicate) {
 		//when click is released
 		KeyboardJS.on('ctrl' ,function(){D("pressed");},function(){D("released!");});
 	}
-};
+}
 
 
 /*
@@ -113,7 +112,7 @@ Level.prototype.compress = function() {
 	this.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
 	this.shape.remove();
 	this.shape = null;
-}
+};
 
 
 /*
@@ -129,7 +128,7 @@ Level.prototype.compressTree = function() {
 	this.leaves.iterate(function(x){ x.compress(); });
 	this.subtrees.iterate(function(x){ x.compressTree(); });
 	this.compress();
-}
+};
 
 
 /*
@@ -140,9 +139,9 @@ saved shape attributes
 */
 Level.prototype.restore = function() {
 	if(this.saved_attr) { //check if saved attributes exist
-		this.renderShape(this.saved_attr)
+		this.renderShape(this.saved_attr);
 	}
-}
+};
 
 
 /*
@@ -157,7 +156,7 @@ Level.prototype.restoreTree = function() {
 	this.restore();
 	this.leaves.iterate(function(x){ x.restore(); });
 	this.subtrees.iterate(function(x){ x.restoreTree(); });
-}
+};
 
 
 /*
@@ -172,7 +171,7 @@ Level.prototype.hide = function() {
 	this.leaves.iterate(function(x){ x.hide(); });
 	this.subtrees.iterate(function(x){ x.hide(); });
 	this.shape.hide();
-}
+};
 
 
 /*
@@ -188,7 +187,7 @@ Level.prototype.show = function() {
 	//show children
 	this.leaves.iterate(function(x){ x.show(); });
 	this.subtrees.iterate(function(x){ x.show(); });
-}
+};
 
 
 /*

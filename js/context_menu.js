@@ -2,18 +2,18 @@ var selectedNodes = new List();
 
 changeSelection = function(node) {
 	// Can't select the top level
-	if(node.getLevel() == 0) return;
+	if(node.getLevel() === 0) return;
 
 	// Get the location of the node in the list (if it exists)
 	var listItr = selectedNodes.begin();
-	while(listItr != null)
+	while(listItr !== null)
 		if(listItr.val === node) break;
 		else listItr = listItr.next;
 
 	// Remove or add the node
-	if(listItr == null) selectedNodes.push_back(node);
+	if(listItr === null) selectedNodes.push_back(node);
 	else selectedNodes.erase(listItr);
-}
+};
 
 
 
@@ -23,7 +23,7 @@ function ContextHandler(R) {
 	this.context = undefined;
 	$(document).click(
 		(function(ch) {
-			return function() {ch.CloseContext();}
+			return function() {ch.CloseContext();};
 		})(this)
 	);
 }
@@ -34,14 +34,14 @@ ContextHandler.prototype.NewContext = function(node,x,y) {
 		delete this.context;
 	}
 	this.context = new Context(this.paper,node,x,y);
-}
+};
 
 ContextHandler.prototype.CloseContext = function() {
 	if(this.context) {
 		this.context.close();
 		delete this.context;
 	}
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -57,65 +57,27 @@ function Context(R,node,x,y) {
 	
 	this.setup();
 	this.show();
-};
+}
 
 Context.prototype.addItem = function(name,func) {
 	this.items[name] = func;
 	this.num_items++;
-}
+};
 
 Context.prototype.setup = function() {
-	if(this.paper.CURRENT_MODE == this.paper.LogicMode.PREMISE_MODE) {
-		if(this.node instanceof Level) {
-			this.addItem('premise insertion:cut',TheProof.premise_insertion_cut);
-			this.addItem('premise insertion:variable',TheProof.premise_insertion_variable);
-			this.addItem('double cut:empty',TheProof.empty_double_cut);
-			if(this.node.parent) {
-				this.addItem('double cut:cut',TheProof.double_cut);
-				this.addItem('double cut:reverse',TheProof.r_double_cut);
-				if(this.node.getLevel() % 2)
-					this.addItem('erasure',TheProof.erasure);
-				else
-					this.addItem('insertion',TheProof.insertion);
-
-			}
-		}
-		else if(this.node instanceof Variable) {
-			//this.addItem('deletion',TheProof.deletetion);
-			this.addItem('double cut:cut',TheProof.double_cut);
-			this.addItem('double cut:reverse',TheProof.r_double_cut);
-			if(this.node.getLevel() % 2)
-				this.addItem('erasure',TheProof.erasure);
-			else
-				this.addItem('insertion',TheProof.insertion);
-		}
-	}
-	if(this.paper.CURRENT_MODE == this.paper.LogicMode.PROOF_MODE) {
-		if(this.node instanceof Level) {
-			if(this.node.getLevel() % 2) { //odd level
-			
-			}
-			else {
-			
-			}
-		}
-		else if(this.node instanceof Variable) {
-			if(this.node.getLevel() % 2) { //odd level
-			
-			}
-			else {
-			
-			}
-		}
-	}
-}
+	var inf = new InferenceRule();
+	var available_items = inf.AvailableRules(this.paper.Proof,this.nodes,this.paper.LogicMode,this.paper.CURRENT_MODE);
+	D(available_items);
+	for(var k in available_items)
+		this.addItem(k,available_items[k]);
+};
 
 Context.prototype.show = function() {
 	var n = this.num_items; //shorthand variable
-	if(n==0) return; //return for no items
+	if(n===0) return; //return for no items
 	//get longest menu item name length
 	var max_length = 0;
-	for(x in this.items) {
+	for(var x in this.items) {
 		max_length = Math.max(max_length,x.length);
 	}
 	
@@ -134,7 +96,7 @@ Context.prototype.show = function() {
 	
 	var c=0; //item counter
 	for(x in this.items) {
-		var menu_item = this.paper.set() //menu button set
+		var menu_item = this.paper.set(); //menu button set
 		var y = oy+partition*c; //start y at correct distance
 		//construct menu box
 		menu_item.push( 
@@ -157,7 +119,7 @@ Context.prototype.show = function() {
 			//closure that creates function that executes button function at mouse event
 			//then closes menu
 			(function(f,n,x,y,c) {
-				return function() { f.call(TheProof,n,x+this.paper.zoomOffset()[0],y+this.paper.zoomOffset()[1]); c(); }
+				return function() { f.call(TheProof,n,x+this.paper.zoomOffset()[0],y+this.paper.zoomOffset()[1]); c(); };
 			})(this.items[x],this.node,this.x*this.paper.zoomScale()[0],this.y*this.paper.zoomScale()[1],Context.prototype.makeClose(this))
 		);
 		
@@ -169,8 +131,8 @@ Context.prototype.show = function() {
 Context.prototype.close = function() {
 	this.menu_items.remove();
 	this.menu_items.clear();
-}
+};
 
 Context.prototype.makeClose = function (menu) {
-	return function(){menu.close()}
-}
+	return function(){menu.close();};
+};
