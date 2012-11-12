@@ -78,7 +78,12 @@ Level.prototype.duplicate = function() {
 	var dup = new Level(this.paper,null,0,0,true);
 	dup.id = this.id;
 	dup.id_gen = this.id_gen;
-	dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
+	if(!this.saved_attr){
+		dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
+	}
+	else{
+		dup.saved_attr = this.saved_attr;
+	}
 	
 	this.subtrees.iterate(function(x){ 
 		child_dup = x.duplicate();
