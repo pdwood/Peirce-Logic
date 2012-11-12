@@ -54,6 +54,8 @@ function Context(R,nodes,x,y) {
 	this.items = {};
 	this.num_items = 0;
 
+	this.inf = new InferenceRule();
+
 	this.setup();
 	this.show();
 }
@@ -64,10 +66,9 @@ Context.prototype.addItem = function(name,func) {
 };
 
 Context.prototype.setup = function() {
-	var inf = new InferenceRule();
-	var available_items = inf.AvailableRules(this.paper.Proof,this.nodes,
-												this.paper.LogicMode,
-												this.paper.CURRENT_MODE);
+	var available_items = this.inf.AvailableRules(this.paper.Proof,this.nodes,
+													this.paper.LogicMode,
+													this.paper.CURRENT_MODE);
 	D(available_items);
 	for(var k in available_items)
 		this.addItem(k,available_items[k]);
@@ -120,7 +121,12 @@ Context.prototype.show = function() {
 			//closure that creates function that executes button function at mouse event
 			//then closes menu
 			(function(f,n,x,y,c) {
-				return function() { f.call(TheProof,n,x+this.paper.zoomOffset()[0],y+this.paper.zoomOffset()[1]); c(); };
+				return function() { f.call(self.inf,
+											TheProof,
+											n,
+											x+this.paper.zoomOffset()[0],
+											y+this.paper.zoomOffset()[1]);
+									c(); };
 			})(this.items[x],this.nodes,this.x*this.paper.zoomScale()[0],this.y*this.paper.zoomScale()[1],Context.prototype.makeClose(this))
 		);
 
