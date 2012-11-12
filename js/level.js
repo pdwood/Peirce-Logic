@@ -43,10 +43,10 @@ function Level(R,parent,x,y,duplicate) {
 		else {
 			this.shape = this.paper.rect(x,y,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE);
 			//mouseover effects
-			this.shape.mouseover(function () {
-				this.attr({"fill-opacity": .2}); });
-			this.shape.mouseout(function () {
-				this.attr({"fill-opacity": .0}); });
+				this.shape.mouseover(function () {
+					this.attr({"fill-opacity": .2}); });
+				this.shape.mouseout(function () {
+					this.attr({"fill-opacity": .0}); });
 			
 			//color spectrum based on level
 			var color = 0; Raphael.getColor.reset();
@@ -62,8 +62,11 @@ function Level(R,parent,x,y,duplicate) {
 		//shape has parent pointer back to level
 		//allows for referencing in Raphael callbacks
 		this.shape.parent = this;
-		
+		this.shape.click(this.onSingleClick);
 		this.shape.dblclick(this.onDoubleClick);
+
+		//when click is released
+		KeyboardJS.on('ctrl' ,function(){D("pressed");},function(){D("released!");});
 	}
 };
 
@@ -226,6 +229,19 @@ Level.prototype.addVariable = function(x,y) {
 	//then variable pushes itself into this level
 };
 
+Level.prototype.onSingleClick = function(e) {
+		
+	//this.shape.mouseout(function () {
+	//	this.attr({"fill-opacity": .0}); });
+	if(event.ctrlKey) {
+		if(this.attr("stroke-width") === 3)
+			this.attr({"stroke-width": 1});
+		else
+			this.attr({"stroke-width": 3});
+		changeSelection(this.parent);
+
+	}
+};
 
 /*
 Level.onDoubleClick
