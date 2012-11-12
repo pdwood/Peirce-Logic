@@ -5,9 +5,8 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'backend.views.home', name='home'),
-    # url(r'^backend/', include('backend.foo.urls')),
+    # Frontend:
+    url(r'^$', 'peircelogic.views.index'),
 
     # CRUD
     url(r'^create_proof/', 'peircelogic.apps.proofs.views.create_proof'),

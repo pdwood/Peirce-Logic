@@ -1,7 +1,7 @@
 # Global settings
 
 import os
-PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 ADMINS = (
     ('Derek Schultz', 'schuld6@rpi.edu'),
@@ -31,6 +31,16 @@ USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
+
+TEMPLATE_DIRS = (
+    PROJECT_ROOT,
+)
+
+# Additional locations of static files
+STATICFILES_DIRS = (
+    # Add project container as staticfiles to get at the frontend stuff
+    os.path.join(PROJECT_ROOT, 'static'),
+)
 
 # List of finder classes that know how to find static files in
 # various locations.
