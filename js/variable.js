@@ -55,6 +55,7 @@ function Variable(R,parent,x,y,duplicate) {
 		$(text_box).children()[0].focus(); //focus on text box
 		
 		this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+		this.text.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
 		this.text.dblclick(this.onDoubleClick);
 	}
 }
