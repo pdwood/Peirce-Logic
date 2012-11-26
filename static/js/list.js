@@ -102,6 +102,16 @@ List.prototype.insert = function(p,x) //inserts x after p, returns where x was i
 	this.length++;
 	return add;
 }
+
+List.prototype.contains = function(value)
+{
+	var itr = this.skipUntil(function(x){return (x===value);});
+	if (itr==this.end())
+		return false;
+	else
+		return itr;
+}
+
 List.prototype.begin = function ()
 {
 	return this.head;
@@ -148,7 +158,7 @@ List.prototype.skipUntil = function (cond_func)
 {
 	var itr = this.begin();
 	while(itr!=this.end()) {
-		if(cond_func(itr.va))
+		if(cond_func(itr.val))
 			break;
 		itr = itr.next;
 	}
