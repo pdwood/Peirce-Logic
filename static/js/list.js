@@ -148,7 +148,7 @@ List.prototype.skipUntil = function (cond_func)
 {
 	var itr = this.begin();
 	while(itr!=this.end()) {
-		if(cond_func(itr.va))
+		if(cond_func(itr.val))
 			break;
 		itr = itr.next;
 	}
@@ -161,10 +161,10 @@ List.prototype.sort = function (less_then_func)
 {
 	if(this.length == 0)
 		return;
-	
+
 	var merge_queue = new List();
 	var itr = this.head;
-	
+
 	//break list for merge sort and do the first step
 	while(itr != this.end())
 	{

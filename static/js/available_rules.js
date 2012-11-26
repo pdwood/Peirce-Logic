@@ -1,12 +1,11 @@
 InferenceRule.prototype.AvailableRules = function(proof,nodes,logic_modes,current_mode) {
 	var methods = {} ;
 
-	//proerties of node set
+	//properties of node set
 	var all_even_level = true;
 	var all_odd_level = true;
 	var all_same_parent = true;
 	var all_have_parent = true;
-	var one_node = (nodes.length==1);
 	var level = null;
 	var parent = null;
 	nodes.iterate(function(node) {
@@ -15,7 +14,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes,logic_modes,curren
 			if(level) {
 				all_even_level = false;
 			}
-			else 
+			else
 				all_odd_level = false;
 		}
 		else if(node.getLevel()%2!=level){
@@ -32,12 +31,33 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes,logic_modes,curren
 	});
 
 	if(current_mode == logic_modes.PREMISE_MODE) {
-		if(one_node) {
+		if(nodes.length==1) {
 			node = nodes.begin().val;
 			if(node instanceof Level) {
 				methods['Construction: Variable'] = this.variable_for('Construction: Variable');
 				methods['Construction: Empty Cut'] = this.empty_n_cut_for(1,'Construction: Empty Cut');
 				methods['Construction: Empty Double Cut'] = this.empty_n_cut_for(2,'Construction: Empty Double Cut');
+			}
+		}
+		else if (nodes.length==2){
+			D('Level Eq:');
+			node1 = nodes.begin().val;
+			node2 = nodes.begin().next.val;
+			if(node1 instanceof Variable && node2 instanceof Variable) {
+				if (node1.getName() === node2.getName()) {
+					D(true);
+				}
+				else {
+					D(false);
+				}
+			}
+			else if (!(node1 instanceof Variable || node2 instanceof Variable)) {
+				if (node1.equivalence(node2)) {
+					D(true);
+				}
+				else {
+					D(false);
+				}
 			}
 		}
 		if(all_same_parent) {
@@ -49,7 +69,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes,logic_modes,curren
 				methods['Construction: Reverse Double Cut'] = this.reverse_n_cut_for(2,'Construction: Reverse Double Cut');
 		}
 		if(all_have_parent)
-			methods['Construction: Erasure'] = this.premise_erasure['Construction: Erasure'];
+			methods['Construction: Erasure'] = this.premise_erasure('Construction: Erasure');
 	}
 	if(current_mode == logic_modes.PROOF_MODE) {
 		if(nodes instanceof Level) {
