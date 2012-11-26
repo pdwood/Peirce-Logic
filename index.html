@@ -45,7 +45,8 @@
 	<script src="js/level_visual.js"></script>
 	<!--<script src="js/level_equivalence.js"></script>-->
 	<script src="js/variable.js"></script>
-
+    <script src="js/SaveProof.js"></script>
+    <script src="js/LoadProof.js"></script>
 	<script src="js/context_menu.js"></script>
 	<script src="js/zoom_menu.js"></script>
 	<script src="js/mode_handler.js"></script>
@@ -74,6 +75,7 @@
 <div role="main">
 	<div id="paper"></div>
 	<div class="slideMenu">
+            <a onclick="alert(load_proof(save_proof(TheProof)));">Save Proof</a>
             <a class="handle" href="http://link-for-non-js-users.html">Content</a>
             <h3>Menu Fill</h3>
             <p>Lorem ipsum</p>

@@ -200,6 +200,11 @@ Variable deep copy
 */
 Variable.prototype.duplicate = function() {
 	var dup = new Variable(this.paper,null,0,0,true);
-	dup.saved_attr = jQuery.extend(true, {}, this.text.attrs);
+	if(!this.saved_attr){
+		dup.saved_attr = jQuery.extend(true, {}, this.text.attrs);
+	}
+	else{
+		dup.saved_attr = this.saved_attr;
+	}
 	return dup;
 };
