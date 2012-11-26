@@ -171,10 +171,10 @@ List.prototype.sort = function (less_then_func)
 {
 	if(this.length == 0)
 		return;
-	
+
 	var merge_queue = new List();
 	var itr = this.head;
-	
+
 	//break list for merge sort and do the first step
 	while(itr != this.end())
 	{

@@ -39,27 +39,32 @@ ContextHandler.prototype.CloseContext = function() {
 
 ContextHandler.prototype.StartMultiActive = function () {
 	return function(ch) { return function () {
-		Mousetrap.reset();
-		D('s');
-		ch.multiactive = true;
-		ch.selectedNodes = new List();
-		D(ch.selectedNodes);
-		Mousetrap.bind('ctrl', ch.EndMultiActive(), 'keyup');
+		if(!ch.multiactive) {
+			ch.multiactive = true;
+			Mousetrap.reset();
+			D('start multi');
+			ch.selectedNodes = new List();
+			Mousetrap.bind('ctrl', ch.EndMultiActive(), 'keyup');
+		}
 	};
 	}(this);
-}
+};
 
 ContextHandler.prototype.EndMultiActive = function () {
 	return function(ch) { return function () {
-		D('e');
-		ch.multiactive = false;
-		if (ch.selectedNodes.length)
-			ch.NewContextMulti(ch.selectedNodes,ch.prev_x,ch.prev_y);
-		Mousetrap.bind('ctrl', ch.StartMultiActive(), 'keydown');
+		if(ch.multiactive) {
+			D('end multi');
+			ch.multiactive = false;
+			ch.selectedNodes.iterate( function (node) {
+				node.setClickActive(false);
+			});
+			Mousetrap.bind('ctrl', ch.StartMultiActive(), 'keydown');
+			if(ch.selectedNodes.length)
+				ch.NewContextMulti(ch.selectedNodes,ch.prev_x,ch.prev_y);
+		}
 	};
 	}(this);
-
-}
+};
 
 
 ContextHandler.prototype.SingleClickHandler = function(node,event) {
@@ -74,22 +79,11 @@ ContextHandler.prototype.SingleClickHandler = function(node,event) {
 ContextHandler.prototype.changeSelection = function(node) {
 	// Can't select the top level
 	if(node.getLevel() === 0) return;
-	D('fdsafds');
 	if(this.selectedNodes.contains(node)) {
-		if(node instanceof Level) { 
-			node.shape.attr({"stroke-width": 10});
-		}
-		else if(node instanceof Variable) { 
-			node.text.attr({"stroke": "#FFFFFF"});
-		}
+		node.setClickActive(false);
 	}
 	else {
-		if(node instanceof Level) { 
-			node.shape.attr({"stroke-width": 30});
-		}
-		else if(node instanceof Variable) { 
-			node.text.attr({"stroke": "#000000"});
-		}
+		node.setClickActive(true);
 	}
 
 	// Remove or add node

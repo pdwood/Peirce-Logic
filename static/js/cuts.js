@@ -1,5 +1,6 @@
 InferenceRule.prototype.n_cut = function (proof, rule_name, n, nodes) {
 	proof.addnode(rule_name,this.RuleToId(rule_name));
+	nodes_parent = nodes.begin().val.parent;
 
 	var ax = 0;
 	var ay = 0;
@@ -7,15 +8,15 @@ InferenceRule.prototype.n_cut = function (proof, rule_name, n, nodes) {
 	nodes.iterate(function(node) {
 		var parent_list = 0;
 		if(node instanceof Level) {
-			parent_list = node.parent.subtrees; 
+			parent_list = node.parent.subtrees;
 			ax += node.shape.getBBox().x+node.shape.getBBox().width/2;
 			ay += node.shape.getBBox().y+node.shape.getBBox().height/2;
 		}
 		else {
-			parent_list = node.parent.leaves; 
-			ax += node.text.getBBox().x+node.text.getBBox().width/2;
-			ay += node.text.getBBox().y+node.text.getBBox().height/2;
-		}		
+			parent_list = node.parent.leaves;
+			ax += node.text.attrs.x;
+			ay += node.text.attrs.y;
+		}
 		var itr = parent_list.skipUntil(function(p) {
 			return (p === node);
 		});
@@ -25,9 +26,8 @@ InferenceRule.prototype.n_cut = function (proof, rule_name, n, nodes) {
 	//add n-cut
 	ax = ax/nodes.length;
 	ay = ay/nodes.length;
-	//var p = node.parent.addChild(r_attrs.x + (r_attrs.width/2), r_attrs.y + (r_attrs.height/2));
-	//	p = p.addChild(r_attrs.x + (r_attrs.width/2), r_attrs.y + (r_attrs.height/2));
-	var p = node.parent.addChild(ax , ay); 
+	var p = nodes_parent.addChild(ax , ay);
+	n--;
 	while(n>0) {
 		p = p.addChild(ax, ay);
 		n--;
@@ -37,11 +37,11 @@ InferenceRule.prototype.n_cut = function (proof, rule_name, n, nodes) {
 	nodes.iterate(function(node) {
 		var bbox = 0;
 		var children_list = 0;
-		if(node instanceof Level) { 
+		if(node instanceof Level) {
 			bbox = node.shape.getBBox();
 			children_list = p.subtrees;
 		}
-		else if(node instanceof Variable) { 
+		else if(node instanceof Variable) {
 			bbox = node.text.getBBox();
 			children_list = p.leaves;
 		}
@@ -49,12 +49,12 @@ InferenceRule.prototype.n_cut = function (proof, rule_name, n, nodes) {
 		node.parent = p;
 		//if cut puts in children list
 		children_list.push_back(node);
-		node.updateLevel(); 
+		node.updateLevel();
 		//expands the doublecut
 		p.expand(bbox.x,bbox.y,bbox.width,bbox.height);
 		//move collided nodes out of way
-		//p.shiftAdjacent(node,node.shape.getBBox());
-		//p.contract();
+		p.shiftAdjacent(node,bbox);
+		p.contract();
 	});
 };
 
@@ -78,7 +78,7 @@ InferenceRule.prototype.validate_reverse_n_cut = function (n, nodes) {
 	while(n>0){
 		p = p.parent;
 		n--;
-		if(!p || (!p.parent && (!p.variables.length && p.subtrees.length == 1)))
+		if(!p || (!p.parent && (!p.leaves.length && p.subtrees.length == 1)))
 			return false;
 	}
 	return true;
@@ -88,44 +88,46 @@ InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
 	proof.addnode(rule_name,this.RuleToId(rule_name));
 
 	tparent = nodes.begin().val.parent;
+	tparent.compress();
+	n--;
 	while(n>0) {
-		tparent = tparent.val.parent;
+		tparent = tparent.parent;
+		tparent.compress();
 		n--;
 	}
 	tgrandparent = tparent.parent;
-			
+
 	//changes parent
 	nodes.iterate(function(node) {
 		node.parent = tgrandparent;
 	});
-			
+
 	//erase cuts
 	var itr = tgrandparent.subtrees.skipUntil(function(x) {
 		return (x === tparent);
 	});
-	itr.val.compress();
 	tgrandparent.subtrees.erase(itr);
-	
+
 	nodes.iterate(function(node) {
 		var bbox = 0;
 		var children_list = 0;
-		if(node instanceof Level) { 
+		if(node instanceof Level) {
 			bbox = node.shape.getBBox();
-			children_list = children_list.subtrees;
+			children_list = tgrandparent.subtrees;
 		}
-		else if(node instanceof Variable) { 
+		else if(node instanceof Variable) {
 			bbox = node.text.getBBox();
-			children_list = children_list.leaves;
+			children_list = tgrandparent.leaves;
 		}
 
 		//if node puts in children list
 		children_list.push_back(node);
-		node.updateLevel(); 
+		node.updateLevel();
 		//expands the doublecut
 		tgrandparent.expand(bbox.x,bbox.y,bbox.width,bbox.height);
 		//move collided nodes out of way
-		//p.shiftAdjacent(treenode,treenode.shape.getBBox());
-		//p.contract();
+		tgrandparent.shiftAdjacent(node,bbox);
+		tgrandparent.contract();
 	});
 };
 
