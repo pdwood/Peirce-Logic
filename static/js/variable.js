@@ -5,17 +5,16 @@ Variable: Propostional variable, inherits from Node
 Variable.prototype = Object.create(Node.prototype);
 
 function Variable(R,parent,x,y,duplicate) {
-	var id_init = (!parent)?0:parent.getNewID();
-	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent,id_init);
-	
+	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent);
+
 	this.paper = R;
 
 	if(!duplicate) {
 		//initial text, can't be empty or else it defaults to 0,0 origin
-		this.text = this.paper.text(x,y,"~").attr({"font-size":20}); 
+		this.text = this.paper.text(x,y,"~").attr({"font-size":20});
 		text = this.text;
 		this.text.parent = this;
-		
+
 		//setup text initialization
 		var w=100,h=16; //dimensions of text box
 		//create div with inner text box
@@ -53,7 +52,7 @@ function Variable(R,parent,x,y,duplicate) {
 		//need to enter based evaluation
 		$("body").append(text_box); //insert text box into page
 		$(text_box).children()[0].focus(); //focus on text box
-		
+
 		this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 		this.text.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
 		this.text.dblclick(this.onDoubleClick);
@@ -64,8 +63,8 @@ function Variable(R,parent,x,y,duplicate) {
 Variable.renderText
 ~attr: Raphael attributes for rendering
 
-Remove old rapheal text and 
-replace with new text with 
+Remove old rapheal text and
+replace with new text with
 input attributes and setup
 handlers
 */
@@ -74,25 +73,29 @@ Variable.prototype.renderText = function(attr) {
 		this.text.remove();
 		this.text = null;
 	}
-	
+
 	this.text = this.paper.text(0,0,"~").attr(attr);
 	this.text.parent = this;
-	
+
 	this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 	this.text.dblclick(this.onDoubleClick);
-}
+};
 
 Variable.prototype.updateLevel = function() {
 	this.text.toFront();
-}
+};
+
+Variable.prototype.getName = function() {
+	return this.text.attr('text');
+};
 
 /*
 Variable.compress
 
 Save text attributes
-and remove text from 
-variable and screen; 
-Used in saving a tree 
+and remove text from
+variable and screen;
+Used in saving a tree
 for later use
 */
 Variable.prototype.compress = function() {
@@ -104,7 +107,7 @@ Variable.prototype.compress = function() {
 /*
 Variable.restore
 
-Re-render text from 
+Re-render text from
 saved text attributes
 */
 Variable.prototype.restore = function() {
@@ -122,7 +125,7 @@ Variable.prototype.drag = function(dx,dy) {
 /*
 Variable.dragStart
 
-Object variable handler for 
+Object variable handler for
 drag event initilization;
 Adds attributes of orignal
 coordinates to use for shifting
@@ -143,7 +146,7 @@ Variable.dragMove
 ~dx: drag difference in x
 ~dy: drag difference in y
 
-Object variable handler for 
+Object variable handler for
 drag event action; shifts
 text based on drag difference
 */
@@ -155,7 +158,7 @@ Variable.prototype.dragMove = function(dx, dy) {
 	//fit parent hull to new area
 	this.parent.expand(this.text.getBBox().x,this.text.getBBox().y,this.text.getBBox().width,this.text.getBBox().height);
 	this.parent.contract();
-	
+
 	//move collided nodes out of way
 	this.parent.shiftAdjacent(this,this.text.getBBox());
 };
@@ -168,8 +171,8 @@ Variable.prototype.onDragMove = function(dx, dy) {
 /*
 Variable.dragEnd
 
-Object variable handler for 
-drag end event action; 
+Object variable handler for
+drag end event action;
 Does final contraction of Variable
 */
 Variable.prototype.dragEnd = function() {
@@ -184,14 +187,16 @@ Variable.prototype.onDragEnd = function() {
 Variable.onDoubleClick
 ~event: mouse event
 
-Object variable handler for 
-mouse double click action; 
+Object variable handler for
+mouse double click action;
 Creates context menu on node;
 */
 Variable.prototype.onDoubleClick = function(event) {
-	//Menu intialized with node,node's level, and mouse x/y
-	ContextMenu.NewContext(this.parent, (this.attrs.x-this.paper.zoomOffset()[0])/this.paper.zoomScale()[0], 
-										(this.attrs.y-this.paper.zoomOffset()[1])/this.paper.zoomScale()[1]);
+	if (!event.ctrlKey) {
+		//Menu intialized with node,node's level, and mouse x/y
+		ContextMenu.NewContext(this.parent, (this.attrs.x-this.paper.zoomOffset()[0])/this.paper.zoomScale()[0],
+											(this.attrs.y-this.paper.zoomOffset()[1])/this.paper.zoomScale()[1]);
+	}
 };
 
 /*
@@ -204,3 +209,13 @@ Variable.prototype.duplicate = function() {
 	dup.saved_attr = jQuery.extend(true, {}, this.text.attrs);
 	return dup;
 };
+
+
+Variable.prototype.setClickActive = function(flag) {
+	if(!flag)
+		this.text.attr({"stroke-width": "0"});
+	else
+		this.text.attr({"stroke-width": "2"});
+		this.text.attr({"stroke": "#000000"});
+};
+

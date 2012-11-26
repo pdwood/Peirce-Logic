@@ -8,11 +8,11 @@ Level.prototype = Object.create(Node.prototype);
 
 function Level(R,parent,x,y,duplicate) {
 	Object.getPrototypeOf(Level.prototype).constructor.call(this,parent);
-	
+
 	this.paper = R;
 
 	this.shape = null;
-	
+
 	this.DEFAULT_PLANE_WIDTH = this.paper.width*6;
 	this.paper.DEFAULT_PLANE_WIDTH = this.DEFAULT_PLANE_WIDTH;
 	this.DEFAULT_PLANE_HEIGHT = this.paper.height*6;
@@ -20,7 +20,7 @@ function Level(R,parent,x,y,duplicate) {
 	this.DEFAULT_CHILD_WIDTH = 50;
 	this.DEFAULT_CHILD_HEIGHT = 50;
 	this.DEFAULT_CURVATURE = 20;
-	
+
 	//setup shape if not in duplication process
 	if(!duplicate) {
 		//plane constructor
@@ -32,12 +32,10 @@ function Level(R,parent,x,y,duplicate) {
 				this.animate({"fill-opacity": .1}, 500); });*/
 			var color = '#888';
 			this.shape.attr({
-				fill: color, 
+				fill: color,
 				stroke: color, "fill-opacity": 0.1
 			});
-			//start ids
-			this.id_count = 1;
-		} 
+		}
 		//cut constructor
 		else {
 			this.shape = this.paper.rect(x,y,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE);
@@ -46,18 +44,18 @@ function Level(R,parent,x,y,duplicate) {
 					this.attr({"fill-opacity": 0.2}); });
 				this.shape.mouseout(function () {
 					this.attr({"fill-opacity": 0.0}); });
-			
+
 			//color spectrum based on level
 			var color = 0; Raphael.getColor.reset();
 			for(var x =1; x<=this.getLevel();x++){
 				color = Raphael.getColor();
 			}
 			this.shape.attr(
-				{fill: color, 
+				{fill: color,
 				stroke: color, "fill-opacity": 0});
 			this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 		}
-		
+
 		//shape has parent pointer back to level
 		//allows for referencing in Raphael callbacks
 		this.shape.parent = this;
@@ -75,20 +73,15 @@ Copies entire tree.
 */
 Level.prototype.duplicate = function() {
 	var dup = new Level(this.paper,null,0,0,true);
-	dup.id = this.id;
-	dup.id_gen = this.id_gen;
 	dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
-	
-	this.subtrees.iterate(function(x){ 
+
+	this.subtrees.iterate(function(x){
 		child_dup = x.duplicate();
-		child_dup.id = x.id;
-		child_dup.id_gen = x.id_gen;
 		child_dup.parent = dup;
 		dup.subtrees.push_back(child_dup);
 	});
 	this.leaves.iterate(function(x){
 		variable_dup = x.duplicate();
-		variable_dup.id = x.id;
 		variable_dup.parent = dup;
 		dup.leaves.push_back(variable_dup);
 	});
@@ -100,9 +93,9 @@ Level.prototype.duplicate = function() {
 Level.compress
 
 Save shape attributes
-and remove shape from 
-level and screen; 
-Used in saving a tree 
+and remove shape from
+level and screen;
+Used in saving a tree
 for later use
 */
 Level.prototype.compress = function() {
@@ -116,7 +109,7 @@ Level.prototype.compress = function() {
 Level.compressTree()
 
 Store rapahel objects from
-entire sub-tree from this 
+entire sub-tree from this
 as the root; Used for later
 use
 */
@@ -131,7 +124,7 @@ Level.prototype.compressTree = function() {
 /*
 Level.restore
 
-Re-render shape from 
+Re-render shape from
 saved shape attributes
 */
 Level.prototype.restore = function() {
@@ -145,7 +138,7 @@ Level.prototype.restore = function() {
 Level.restoreTree()
 
 Re-render rapahel objects from
-entire sub-tree from this 
+entire sub-tree from this
 as the root
 */
 Level.prototype.restoreTree = function() {
@@ -160,7 +153,7 @@ Level.prototype.restoreTree = function() {
 Level.hide
 
 Hide rapahel objects from
-entire sub-tree from this 
+entire sub-tree from this
 as the root
 */
 Level.prototype.hide = function() {
@@ -175,7 +168,7 @@ Level.prototype.hide = function() {
 Level.show
 
 Show rapahel objects from
-entire sub-tree from this 
+entire sub-tree from this
 as the root
 */
 Level.prototype.show = function() {
@@ -225,15 +218,36 @@ Level.prototype.addVariable = function(x,y) {
 	//then variable pushes itself into this level
 };
 
+Level.prototype.onSingleClick = function(e) {
+	//this.shape.mouseout(function () {
+	//	this.attr({"fill-opacity": .0}); });
+	if(event.ctrlKey) {
+		this.toggleClickActive();
+		ContextMenu.changeSelection(this.parent);
+	}
+};
+
+Level.prototype.setClickActive = function(flag) {
+	if(!flag)
+		this.shape.attr({"stroke-width": 1});
+	else
+		this.shape.attr({"stroke-width": 3});
+};
+
+
+
+
 /*
 Level.onDoubleClick
 ~event: mouse event
 
-Object level handler for 
-mouse double click action; 
+Object level handler for
+mouse double click action;
 Creates context menu on node;
 */
 Level.prototype.onDoubleClick = function(event) {
-	//Menu intialized with node,node's level, and mouse x/y
-	ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
+	if (!event.ctrlKey) {
+		//Menu intialized with node,node's level, and mouse x/y
+		ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
+	}
 };
