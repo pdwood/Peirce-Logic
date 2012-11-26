@@ -219,18 +219,23 @@ Level.prototype.addVariable = function(x,y) {
 };
 
 Level.prototype.onSingleClick = function(e) {
-
 	//this.shape.mouseout(function () {
 	//	this.attr({"fill-opacity": .0}); });
 	if(event.ctrlKey) {
-		if(this.attr("stroke-width") === 3)
-			this.attr({"stroke-width": 1});
-		else
-			this.attr({"stroke-width": 3});
+		this.toggleClickActive();
 		ContextMenu.changeSelection(this.parent);
-
 	}
 };
+
+Level.prototype.setClickActive = function(flag) {
+	if(!flag)
+		this.shape.attr({"stroke-width": 1});
+	else
+		this.shape.attr({"stroke-width": 3});
+};
+
+
+
 
 /*
 Level.onDoubleClick
@@ -241,6 +246,8 @@ mouse double click action;
 Creates context menu on node;
 */
 Level.prototype.onDoubleClick = function(event) {
-	//Menu intialized with node,node's level, and mouse x/y
-	ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
+	if (!event.ctrlKey) {
+		//Menu intialized with node,node's level, and mouse x/y
+		ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
+	}
 };

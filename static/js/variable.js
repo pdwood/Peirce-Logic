@@ -192,9 +192,11 @@ mouse double click action;
 Creates context menu on node;
 */
 Variable.prototype.onDoubleClick = function(event) {
-	//Menu intialized with node,node's level, and mouse x/y
-	ContextMenu.NewContext(this.parent, (this.attrs.x-this.paper.zoomOffset()[0])/this.paper.zoomScale()[0],
-										(this.attrs.y-this.paper.zoomOffset()[1])/this.paper.zoomScale()[1]);
+	if (!event.ctrlKey) {
+		//Menu intialized with node,node's level, and mouse x/y
+		ContextMenu.NewContext(this.parent, (this.attrs.x-this.paper.zoomOffset()[0])/this.paper.zoomScale()[0],
+											(this.attrs.y-this.paper.zoomOffset()[1])/this.paper.zoomScale()[1]);
+	}
 };
 
 /*
@@ -207,3 +209,13 @@ Variable.prototype.duplicate = function() {
 	dup.saved_attr = jQuery.extend(true, {}, this.text.attrs);
 	return dup;
 };
+
+
+Variable.prototype.setClickActive = function(flag) {
+	if(!flag)
+		this.text.attr({"stroke-width": "0"});
+	else
+		this.text.attr({"stroke-width": "2"});
+		this.text.attr({"stroke": "#000000"});
+};
+

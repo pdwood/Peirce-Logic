@@ -28,9 +28,9 @@ Level.prototype.renderShape = function(attr) {
 		this.shape = this.paper.rect(0,0,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE).attr(attr);
 		//mouseover effects
 		this.shape.mouseover(function () {
-			this.attr({"fill-opacity": .2}); });
+			this.attr({"fill-opacity": 0.2}); });
 		this.shape.mouseout(function () {
-			this.attr({"fill-opacity": .0}); });
+			this.attr({"fill-opacity": 0.0}); });
 
 		this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 	}
@@ -40,7 +40,7 @@ Level.prototype.renderShape = function(attr) {
 	this.shape.parent = this;
 
 	this.shape.dblclick(this.onDoubleClick);
-}
+};
 
 
 /*
@@ -118,7 +118,7 @@ Level.prototype.expand = function(cx,cy,cw,ch) {
 		//move collided nodes out of way
 		this.parent.shiftAdjacent(this,this.shape.getBBox());
 	}
-}
+};
 
 
 /*

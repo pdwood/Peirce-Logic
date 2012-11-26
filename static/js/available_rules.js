@@ -45,20 +45,25 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes,logic_modes,curren
 			node2 = nodes.begin().next.val;
 			if(node1 instanceof Variable && node2 instanceof Variable) {
 				if (node1.getName() === node2.getName()) {
-					D(true);
+					alert(true);
+					return
 				}
 				else {
-					D(false);
+					alert(false);
+					return
 				}
 			}
 			else if (!(node1 instanceof Variable || node2 instanceof Variable)) {
 				if (node1.equivalence(node2)) {
-					D(true);
+					alert(true);
+					return
 				}
 				else {
-					D(false);
+					alert(false);
+					return
 				}
 			}
+			alert(false);
 		}
 		if(all_same_parent) {
 			methods['Construction: Cut'] = this.n_cut_for(1,'Construction: Cut');
