@@ -1,7 +1,9 @@
 function ContextHandler(R) {
 	this.paper = R;
 	this.selectedNodes = new List();
-
+	this.prev_x = undefined;
+	this.prev_y = undefined;
+	Mousetrap.bind('ctrl', this.StartMultiActive(), 'keydown');
 	this.context = undefined;
 	$(document).click(
 		(function(ch) {
@@ -20,6 +22,14 @@ ContextHandler.prototype.NewContext = function(node,x,y) {
 	this.context = new Context(this.paper,nodes,x,y);
 };
 
+ContextHandler.prototype.NewContextMulti = function(nodeList,x,y) {
+	if(this.context) {
+		this.context.close();
+		delete this.context;
+	}
+	this.context = new Context(this.paper,nodeList,x,y);
+};
+
 ContextHandler.prototype.CloseContext = function() {
 	if(this.context) {
 		this.context.close();
@@ -27,20 +37,66 @@ ContextHandler.prototype.CloseContext = function() {
 	}
 };
 
+ContextHandler.prototype.StartMultiActive = function () {
+	return function(ch) { return function () {
+		Mousetrap.reset();
+		D('s');
+		ch.multiactive = true;
+		ch.selectedNodes = new List();
+		D(ch.selectedNodes);
+		Mousetrap.bind('ctrl', ch.EndMultiActive(), 'keyup');
+	};
+	}(this);
+}
+
+ContextHandler.prototype.EndMultiActive = function () {
+	return function(ch) { return function () {
+		D('e');
+		ch.multiactive = false;
+		if (ch.selectedNodes.length)
+			ch.NewContextMulti(ch.selectedNodes,ch.prev_x,ch.prev_y);
+		Mousetrap.bind('ctrl', ch.StartMultiActive(), 'keydown');
+	};
+	}(this);
+
+}
+
+
+ContextHandler.prototype.SingleClickHandler = function(node,event) {
+	if (this.multiactive) {
+		this.prev_x = event.offsetX;
+		this.prev_y = event.offsetY;
+		this.changeSelection(node);
+	}
+};
+
 
 ContextHandler.prototype.changeSelection = function(node) {
 	// Can't select the top level
 	if(node.getLevel() === 0) return;
+	D('fdsafds');
+	if(this.selectedNodes.contains(node)) {
+		if(node instanceof Level) { 
+			node.shape.attr({"stroke-width": 10});
+		}
+		else if(node instanceof Variable) { 
+			node.text.attr({"stroke": "#FFFFFF"});
+		}
+	}
+	else {
+		if(node instanceof Level) { 
+			node.shape.attr({"stroke-width": 30});
+		}
+		else if(node instanceof Variable) { 
+			node.text.attr({"stroke": "#000000"});
+		}
+	}
 
-	// Get the location of the node in the list (if it exists)
-	var listItr = selectedNodes.begin();
-	while(listItr !== null)
-		if(listItr.val === node) break;
-		else listItr = listItr.next;
-
-	// Remove or add the node
-	if(listItr === null) selectedNodes.push_back(node);
-	else selectedNodes.erase(listItr);
+	// Remove or add node
+	var listItr = this.selectedNodes.contains(node);
+	if(!listItr)
+		this.selectedNodes.push_back(node);
+	else this.selectedNodes.erase(listItr);
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -143,3 +199,4 @@ Context.prototype.close = function() {
 Context.prototype.makeClose = function (menu) {
 	return function(){menu.close();};
 };
+

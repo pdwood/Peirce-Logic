@@ -59,9 +59,8 @@ function Level(R,parent,x,y,duplicate) {
 		//shape has parent pointer back to level
 		//allows for referencing in Raphael callbacks
 		this.shape.parent = this;
-		this.shape.click(this.onSingleClick);
+		this.shape.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
 		this.shape.dblclick(this.onDoubleClick);
-
 	}
 }
 
