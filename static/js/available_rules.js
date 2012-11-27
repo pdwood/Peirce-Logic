@@ -196,7 +196,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 		}
 		if(nodes.length==1) {
 			node = nodes.begin().val;
-			if(all_odd_level && node instanceof Level) {
+			if(all_even_level && node instanceof Level) {
 				var name = mode_name+'Insertion';
 				methods[name] = this.insertion_for(name);
 			}
