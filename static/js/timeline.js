@@ -22,7 +22,7 @@ var tokenRegex = /\{([^\}]+)\}/g,
         });
     };
     Raphael.fn.popup = function (X, Y, set, pos, ret) {
-        pos = String(pos || "top-middle").split("-"); 
+        pos = String(pos || "top-middle").split("-");
         pos[1] = pos[1] || "middle";
         var r = 5,
             bb = set.getBBox(),
@@ -43,7 +43,7 @@ var tokenRegex = /\{([^\}]+)\}/g,
                 hx2: X - (x + r + gap),
                 vhy: Y - (y + r + h + r + gap),
                 "^hy": Y - (y - gap)
-                
+
             },
             mask = [{
                 x: x + r,
@@ -135,15 +135,15 @@ timeline_f = {
 						select_index: options.select_index || 0
 						},
 			pixels_per_index = 100,
-			range = options.proof.back.id
-			fclick = options.proof.select;
-		
-		
+			range = options.proof.back.id,
+			fclick = options.proof.select.bind(options.proof);
+
+
 		//calculate the range in days, avoid division by 0
 		if (range) {
 			pixels_per_index = (this.width-60)/range;
 		}
-		
+
 		if(pixels_per_index > 100){
 			pixels_per_index = 100;
 		}
@@ -152,16 +152,16 @@ timeline_f = {
 		dots = timeline_f.draw_dots.call(this, options.proof, settings, dots_param, fclick);
 		TimelineHelper.highlight(dots, options.proof.current.id, settings);
 	},
-	
+
 	draw_dots: function(proof, settings, params, fclick) {
 		var dots = [],
 			last = params.x_offset,
 			title = this.text(40, params.y_offset - 25, 'title').attr(settings.popup_text_attr).attr({'font-weight': 'bold', 'font-size': '12px'}),
 			label = this.set().push(title).hide(),
-			popup = ''
-			length = proof.back.id
+			popup = '',
+			length = proof.back.id,
 			current = proof.front;
-						
+
 		for(var i=0;i<length;i++) {
 			var center = i * params.pixels_per_index + params.x_offset;
 			if(i > 0) {
@@ -169,13 +169,13 @@ timeline_f = {
 				if(center < (last + settings.normal_r*2)) { //guarantee no overlapped with last node
 					center = last + settings.normal_r*2;
 				}
-				//if center > width then resize the width 
+				//if center > width then resize the width
 				this.path('M'+ last + ' ' + params.y_offset + 'L' + center + ' ' + params.y_offset).attr({stroke:settings.color, "stroke-width":3}).toBack();
 			}
 
 			dots[i] = this.circle(center, params.y_offset, settings.normal_r).attr(
                 {fill:settings.normal_fill, stroke:settings.color,"stroke-width":2});
-			
+
 			(function (canvas, proofnode) {
 				dots[i].hover(function() {
 					this.attr({r: settings.highlight_r});
@@ -183,7 +183,7 @@ timeline_f = {
 					title.attr({text: name});
 					label.show();
 					var x = this.getBBox().x + this.getBBox().width/2;
-					popup = canvas.popup(x, params.y_offset-15, label, "top-middle").attr(settings.popup_attr);						
+					popup = canvas.popup(x, params.y_offset-15, label, "top-middle").attr(settings.popup_attr);
 					if(popup.getBBox().x < params.x_offset) {
 						popup.remove();
 						popup = canvas.popup(x, params.y_offset-15, label, "top-left").attr(settings.popup_attr);
@@ -199,7 +199,7 @@ timeline_f = {
 					popup.remove();
 					document.body.style.cursor = "default";
 				});
-			
+
 				dots[i].click(function() {
 					fclick(proofnode);
 					for(var j=0;j<dots.length;j++) {
@@ -212,7 +212,7 @@ timeline_f = {
 		}
 		return dots;
 	},
-	
+
 
 };
 

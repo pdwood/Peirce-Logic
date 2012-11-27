@@ -3,8 +3,9 @@ function ProofNode(p) {
 	this.next = null;
 	this.prev = null;
 	this.proof = p;
-	this.id = 1;
-	this.name = 'undefined';
+	this.id = 1
+	this.name = 'null';
+	this.rule_id = 1;
 	this.isPremise = false;
 }
 
@@ -20,16 +21,18 @@ function Proof(R) {
 
 //adds a node in the proof, must be called by all inference rules before tree is changed
 //all nodes after current will be removed
-Proof.prototype.addnode = function () {
+Proof.prototype.addnode = function (rule,rule_id) {
 	this.current.next = new ProofNode(this);
 	this.current.next.prev = this.current;
 	this.current.next.plane = this.current.plane;
 	this.current.plane = this.current.plane.duplicate();
 	this.current = this.current.next;
 	this.current.id = this.current.prev.id + 1;
+	this.current.name = rule;
+	this.current.rule_id = rule_id;
 	this.back = this.current;
 	timeline_f.draw.call(Timeline, {proof:this});
-}
+};
 
 //moves proof to last step
 Proof.prototype.prev = function() {

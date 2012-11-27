@@ -37,9 +37,13 @@ function Variable(R,parent,x,y,duplicate) {
 				//initialize and add variable to parent
 				text.attr({'text':text_string});
 				text.parent.parent.leaves.push_back(text.parent);
+
+				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
+				text.parent.parent.contract();
 				//move collided nodes out of way
-				text.parent.parent.shiftAdjacent(text.parent,text.parent.text.getBBox());
-				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height);
+				text.parent.parent.shiftAdjacent(text.parent,text.getBBox());
+				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
+				text.parent.parent.contract();
 			}
 			catch(e){;} //catch all needed in case div removed before function finishes
 		}
@@ -77,7 +81,9 @@ Variable.prototype.renderText = function(attr) {
 	this.text = this.paper.text(0,0,"~").attr(attr);
 	this.text.parent = this;
 
+
 	this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+	this.text.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
 	this.text.dblclick(this.onDoubleClick);
 };
 

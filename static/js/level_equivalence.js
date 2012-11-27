@@ -45,14 +45,19 @@ function tree_isomorphic(L1,L2,level) {
 	return false;
 }
 
+// rename canonical names of leaves into simplified names
+// and add to names list with appropriate parent
 function leaf_name_alias (names,leaves_parents) {
 	var alias_leaves = [];
 	var alias_map = {};
 	var alias_counter = 0;
 	for(var i in names) {
+		// go through all names and add the name with its
+		// integer alias if its in the alias map
 		if (names[i] in alias_map) {
 			alias_leaves.push( alias_map[names[i]] );
 		}
+		// else create a new integer alias for the new name
 		else {
 			alias_leaves.push( ++alias_counter );
 			alias_map[ names[i] ] = [leaves_parents[ names[i] ], alias_counter ];
