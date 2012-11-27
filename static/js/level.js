@@ -47,7 +47,7 @@ function Level(R,parent,x,y,duplicate) {
 
 			//color spectrum based on level
 			var color = 0; Raphael.getColor.reset();
-			for(var x =1; x<=this.getLevel();x++){
+			for(var x =1; x<=this.getLevel()+1;x++){
 				color = Raphael.getColor();
 			}
 			this.shape.attr(
@@ -63,7 +63,6 @@ function Level(R,parent,x,y,duplicate) {
 		this.shape.dblclick(this.onDoubleClick);
 	}
 }
-
 
 /*
 Level.duplicate
@@ -196,7 +195,7 @@ Level.prototype.addChild = function(x,y) {
 	//move collided nodes out of way
 	this.shiftAdjacent(child,child.shape.getBBox());
 	//expand self to new child
-	this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height);
+	this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height,true);
 	return child;
 };
 
@@ -216,6 +215,30 @@ Level.prototype.addVariable = function(x,y) {
 	//first variable's text box pops up
 	//if valid text used to initialize variable
 	//then variable pushes itself into this level
+};
+
+Level.prototype.removeNode = function(node) {
+	var parent_list = null;
+	if(node instanceof Level) {
+		parent_list = this.subtrees;
+	}
+	else {
+		parent_list = this.leaves;
+	}
+
+	var itr = parent_list.skipUntil(function(x) {
+		return (x === node);
+	});
+
+	if(node instanceof Level) {
+		itr.val.compressTree();
+	}
+	else {
+		itr.val.compress();
+	}
+	parent_list.erase(itr);
+	node.parent = null;
+	this.contract(true);
 };
 
 Level.prototype.onSingleClick = function(e) {

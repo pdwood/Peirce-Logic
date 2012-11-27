@@ -1,18 +1,24 @@
-InferenceRule.prototype.insertion = function(treenode,plane) {
-	if(!(treenode.getLevel() % 2)) {//checks for odd level
-		this.addnode();
-		this.subtrees.iterate(function(c){ 
-			c.parent = treenode;
-			//make sure that coordinates changed for full proof
-			treenode.expand(c.shape.attrs.x,c.shape.attrs.y,c.shape.attrs.width,c.shape.attrs.height);
-		});
-		treenode.subtrees.append(plane.subtrees);
-		this.leaves.iterate(function(c){ 
-			c.parent = treenode;
-			//make sure that coordinates changed for full proof
-			//may need to expand treenode
-		});
-		treenode.leaves.append(plane.leaves);
-	}
-	this.current.name = 'Insertion';
+InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
+	proof.addnode(rule_name+' Start',this.RuleToId(rule_name+' Start'));
+	var node = nodes.begin().val;
+	var odash = node.shape.attr('stroke-dasharray');
+	node.shape.attr({'stroke-dasharray': '--'});
+
+	var reset_func = function(t) {
+		return function(thunk) {
+			thunk.Proof.addnode(rule_name+' End',t.RuleToId(rule_name+' End'));
+			thunk.Node.shape.attr({'stroke-dasharray': odash});
+		};
+	}(this);
+	this.MH.ChangeMode(this.MH.LogicMode.INSERTION_MODE,{'Node':node,
+												'Proof':proof,
+												'Reset':reset_func});
+};
+
+InferenceRule.prototype.insertion_for = function (mode) {
+	return function(inf){
+	return function(proof, nodes) {
+		inf.insertion(proof, mode, nodes);
+	};
+	}(this);
 };

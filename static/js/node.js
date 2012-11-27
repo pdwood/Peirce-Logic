@@ -3,7 +3,7 @@ Node: tree node
 ~parent: parent pointer
 ~level: node depth in tree
 */
-function Node(parent,id) {
+function Node(parent) {
 	this.parent = parent || null;
 	this.visited = false;
 	this.subtrees = new List();
@@ -14,6 +14,8 @@ function Node(parent,id) {
 //Gets the level of the node
 Node.prototype.getLevel = function () {
 	if(!this.parent)
+		return 0;
+	if(!this.parent.parent)
 		return 0;
 	return this.parent.getLevel() + 1;
 };

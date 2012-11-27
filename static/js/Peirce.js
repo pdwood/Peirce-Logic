@@ -6,9 +6,10 @@ window.onload = function() {
 
 	var TIMELINE_HEIGHT = 100;
 	var R = Raphael("paper",window.screen.availWidth,window.screen.availHeight-TIMELINE_HEIGHT*2);
-	mode_width = 90;
+	mode_width = 150;
 
-	ModeHandler(R,window.screen.availWidth-100,10,mode_width,300);
+	var MH = new ModeHandler(R,window.screen.availWidth-mode_width,0,mode_width,25);
+	R.Mode_Handler = MH;
 
 	TheProof = new Proof(R);
 

@@ -51,7 +51,7 @@ InferenceRule.prototype.n_cut = function (proof, rule_name, n, nodes) {
 		children_list.push_back(node);
 		node.updateLevel();
 		//expands the doublecut
-		p.expand(bbox.x,bbox.y,bbox.width,bbox.height);
+		p.expand(bbox.x,bbox.y,bbox.width,bbox.height,true);
 		//move collided nodes out of way
 		p.shiftAdjacent(node,bbox);
 		p.contract();
@@ -78,10 +78,13 @@ InferenceRule.prototype.validate_reverse_n_cut = function (n, nodes) {
 	while(n>0){
 		p = p.parent;
 		n--;
-		if(!p || (!p.parent && (!p.leaves.length && p.subtrees.length == 1)))
+		if(!p || !(p.parent && !p.leaves.length && p.subtrees.length == 1))
 			return false;
 	}
-	return true;
+	p = nodes.begin().val.parent;
+	if(p.subtrees.length + p.leaves.length === nodes.length)
+		return true;
+	return false;
 };
 
 InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
@@ -119,7 +122,6 @@ InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
 			bbox = node.text.getBBox();
 			children_list = tgrandparent.leaves;
 		}
-
 		//if node puts in children list
 		children_list.push_back(node);
 		node.updateLevel();
@@ -127,7 +129,7 @@ InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
 		tgrandparent.expand(bbox.x,bbox.y,bbox.width,bbox.height);
 		//move collided nodes out of way
 		tgrandparent.shiftAdjacent(node,bbox);
-		tgrandparent.contract();
+		tgrandparent.contract(true);
 	});
 };
 
