@@ -10,7 +10,19 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 			thunk.Node.shape.attr({'stroke-dasharray': odash});
 		};
 	}(this);
+
+	var osubtrees = new List();
+	node.subtrees.iterate(function (node) {
+		osubtrees.push_back(node);
+	});
+	var oleaves = new List();
+	node.leaves.iterate(function (node) {
+		oleaves.push_back(node);
+	});
+
 	this.MH.ChangeMode(this.MH.LogicMode.INSERTION_MODE,{'Node':node,
+												'OriginalSubtrees':osubtrees,
+												'OriginalLeaves':oleaves,
 												'Proof':proof,
 												'Reset':reset_func});
 };

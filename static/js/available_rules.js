@@ -90,62 +90,79 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 
 
 	if(current_mode === logic_modes.PREMISE_MODE || current_mode === logic_modes.INSERTION_MODE) {
+		var mode_name = 'Construction: ';
+		var out_of_plane = false;
+		var in_orig_set = false;
+		var ok_in_orig_set = null;
 		if(current_mode === logic_modes.INSERTION_MODE) {
-			var out_of_plane = false;
 			var nMH = this.MH;
+			if(iterable) {
+				// add source node in ok set
+				ok_in_orig_set = iteration_nodes.begin().val;
+			}
 			nodes.iterate(function(node) {
 				if(node === nMH.thunk.Node)
 					return
+				if((nMH.thunk.OriginalSubtrees.contains(node)
+					|| nMH.thunk.OriginalLeaves.contains(node))
+					&& node !== ok_in_orig_set)
+					in_orig_set = true;
+
 				var p = node.parent;
 				while(p!==null) {
 					if(p===nMH.thunk.Node)
 						return;
+					if((nMH.thunk.OriginalSubtrees.contains(p)
+						|| nMH.thunk.OriginalLeaves.contains(p))
+						&& p !== ok_in_orig_set)
+						in_orig_set = true;
 					p = p.parent;
 				}
 				out_of_plane = true;
 			});
-			if(out_of_plane)
-				return {};
+
+
 		}
-		var mode_name = 'Construction: ';
-		if(nodes.length==1) {
-			node = nodes.begin().val;
-			if(node instanceof Level) {
-				var name = mode_name+'Variable';
-				methods[name] = this.variable_for(name);
-				var name = mode_name+'Empty Cut';
-				methods[name] = this.empty_n_cut_for(1,name);
-				var name = mode_name+'Empty Double Cut';
-				methods[name] = this.empty_n_cut_for(2,name);
+		if(!out_of_plane && !in_orig_set) {
+			if(nodes.length==1) {
+				node = nodes.begin().val;
+				if(node instanceof Level) {
+					var name = mode_name+'Variable';
+					methods[name] = this.variable_for(name);
+					var name = mode_name+'Empty Cut';
+					methods[name] = this.empty_n_cut_for(1,name);
+					var name = mode_name+'Empty Double Cut';
+					methods[name] = this.empty_n_cut_for(2,name);
+				}
 			}
-		}
-		else if (nodes.length==2 && iteration_nodes) {
-			if(iterable) {
-				var name = mode_name+'Iteration';
-				methods[name] = this.iteration_for(iteration_nodes,name);
+			else if (nodes.length==2 && iteration_nodes) {
+				if(iterable) {
+					var name = mode_name+'Iteration';
+					methods[name] = this.iteration_for(iteration_nodes,name);
+				}
+				if(deiterable) {
+					var name = mode_name+'Deiteration';
+					methods[name] = this.deiteration_for(iteration_nodes,name);
+				}
 			}
-			if(deiterable) {
-				var name = mode_name+'Deiteration';
-				methods[name] = this.deiteration_for(iteration_nodes,name);
+			if(all_same_parent && all_have_parent && !ok_in_orig_set) {
+				var name = mode_name+'Cut';
+				methods[name] = this.n_cut_for(1,name);
+				var name = mode_name+'Double Cut';
+				methods[name] = this.n_cut_for(2,name);
+				if(this.validate_reverse_n_cut(1,nodes)) {
+					var name = mode_name+'Reverse Cut';
+					methods[name] = this.reverse_n_cut_for(1,name);
+				}
+				if(this.validate_reverse_n_cut(2,nodes)) {
+					var name = mode_name+'Reverse Double Cut';
+					methods[name] = this.reverse_n_cut_for(2,name);
+				}
 			}
-		}
-		if(all_same_parent && all_have_parent) {
-			var name = mode_name+'Cut';
-			methods[name] = this.n_cut_for(1,name);
-			var name = mode_name+'Double Cut';
-			methods[name] = this.n_cut_for(2,name);
-			if(this.validate_reverse_n_cut(1,nodes)) {
-				var name = mode_name+'Reverse Cut';
-				methods[name] = this.reverse_n_cut_for(1,name);
+			if(all_have_parent && !ok_in_orig_set) {
+				var name = mode_name+'Erasure';
+				methods[name] = this.erasure_for(name);
 			}
-			if(this.validate_reverse_n_cut(2,nodes)) {
-				var name = mode_name+'Reverse Double Cut';
-				methods[name] = this.reverse_n_cut_for(2,name);
-			}
-		}
-		if(all_have_parent) {
-			var name = mode_name+'Erasure';
-			methods[name] = this.erasure_for(name);
 		}
 	}
 

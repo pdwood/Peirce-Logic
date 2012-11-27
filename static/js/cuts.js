@@ -71,7 +71,12 @@ InferenceRule.prototype.empty_n_cut = function (proof, rule_name, n, node, x, y)
 
 
 InferenceRule.prototype.validate_reverse_n_cut = function (n, nodes) {
-	var p = nodes.begin().val.parent;
+	var node = nodes.begin().val;
+	var p;
+	if (node instanceof Level && node.parent && !node.leaves.length && !node.subtrees.length)
+		p = node;
+	else
+		p = node.parent;
 	n--;
 	if(!p || (!p.parent && n<=0)) return false;
 
@@ -90,7 +95,16 @@ InferenceRule.prototype.validate_reverse_n_cut = function (n, nodes) {
 InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
 	proof.addnode(rule_name,this.RuleToId(rule_name));
 
-	tparent = nodes.begin().val.parent;
+	var tparent;
+	if(nodes.length==1) {
+		var node = nodes.begin().val;
+		if(node instanceof Level && !node.leaves.length && !node.subtrees.length)
+			tparent = node;
+		else
+			tparent = node.parent;
+	}
+	else
+		tparent = nodes.begin().val.parent;
 	tparent.compress();
 	n--;
 	while(n>0) {
