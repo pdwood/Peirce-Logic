@@ -135,8 +135,8 @@ timeline_f = {
 						select_index: options.select_index || 0
 						},
 			pixels_per_index = 100,
-			range = options.proof.back.id
-			fclick = options.proof.select;
+			range = options.proof.back.id,
+			fclick = options.proof.select.bind(options.proof);
 
 
 		//calculate the range in days, avoid division by 0

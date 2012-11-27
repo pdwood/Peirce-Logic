@@ -117,7 +117,6 @@ Context.prototype.addItem = function(name,func) {
 
 Context.prototype.setup = function() {
 	var available_items = this.inf.AvailableRules(this.paper.Proof,this.nodes);
-	D(available_items);
 	for(var k in available_items) {
 		this.addItem(k,available_items[k]);
 	}
