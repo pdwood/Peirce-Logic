@@ -1,15 +1,21 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from peircelogic.apps.proofs.models import Proof
+from peircelogic.apps.proofs.models import Proof, NewProofForm, ProofForm
+
+def debug(request):
+    return HttpResponse('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>')
 
 def create_proof(request):
-    proof_name = request.POST['proof_name']
-    if proof_name == '':
-        return HttpResponse("proof name cannot be blank")
-    if request.user == None:
+    if request.user.is_anonymous():
         return HttpResponse("authentication failure")
-    proof = Proof.objects.create(name=proof_name, user=request.user)
-    return HttpResponse("success")
+    proof_form = NewProofForm(request.POST)
+    if proof_form.is_valid():
+        proof = proof_form.save(commit=False)
+        proof.user = request.user
+        proof.save()
+        return HttpResponse("success")
+    else:
+        return HttpResponse(str(proof.errors))
 
 def get_proof(request, proof_id):
     proof = get_object_or_404(Proof, pk=proof_id)
@@ -21,9 +27,12 @@ def get_proof(request, proof_id):
 def update_proof(request, proof_id):
     proof = get_object_or_404(Proof, pk=proof_id)
     if proof.user == request.user:
-        proof.proof = request.POST['proof_content']
-        proof.save()
-        return HttpResponse("success")
+        proof = ProofForm(request.POST, instance=proof)
+        if proof.is_valid():
+            proof.save()
+            return HttpResponse("success")
+        else:
+            return HttpResponse(str(proof.errors))
     else:
         return HttpResponse("authentication failure")
 

@@ -5,8 +5,12 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Frontend:
-    url(r'^$', 'peircelogic.views.index'),
+    # Debug
+    url(r'^debug/', 'peircelogic.apps.proofs.views.debug'),
+
+    # Users
+    url(r'^login/', 'django.contrib.auth.views.login'),
+    url(r'^logout/', 'django.contrib.auth.views.logout'),
 
     # CRUD
     url(r'^create_proof/', 'peircelogic.apps.proofs.views.create_proof'),

@@ -1,7 +1,7 @@
 # Global settings
 
 import os
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 ADMINS = (
     ('Derek Schultz', 'schuld6@rpi.edu'),
@@ -33,13 +33,13 @@ USE_L10N = True
 USE_TZ = True
 
 TEMPLATE_DIRS = (
-    PROJECT_ROOT,
+    os.path.join(PROJECT_ROOT, 'templates'),
 )
 
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Add project container as staticfiles to get at the frontend stuff
-    os.path.join(PROJECT_ROOT, 'static'),
+    # os.path.join(PROJECT_ROOT, 'static'),
 )
 
 # List of finder classes that know how to find static files in
