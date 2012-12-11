@@ -38,7 +38,7 @@ Level.prototype.renderShape = function(attr) {
 	//shape has parent pointer back to level
 	//allows for referencing in Raphael callbacks
 	this.shape.parent = this;
-
+	this.shape.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
 	this.shape.dblclick(this.onDoubleClick);
 };
 
@@ -53,7 +53,7 @@ Level.prototype.updateLevel = function() {
 	this.shape.toFront();
 	//color spectrum based on level
 	var color = 0; Raphael.getColor.reset();
-	for(var x =1; x<=this.getLevel();x++){
+	for(var x =1; x<=this.getLevel()+1;x++){
 		color = Raphael.getColor();
 	}
 	this.shape.attr(
@@ -80,7 +80,7 @@ Assumes state prior to change is valid;
 Expands level appropriatly to fit child;
 Then expands its parent;
 */
-Level.prototype.expand = function(cx,cy,cw,ch) {
+Level.prototype.expand = function(cx,cy,cw,ch,animate) {
 	//doesn't expand main plane
 	if(this.parent) {
 		var sc = 20; //slack
@@ -109,11 +109,12 @@ Level.prototype.expand = function(cx,cy,cw,ch) {
 			y: new_y,
 			width: new_width,
 			height: new_height};
-		//this.shape.animate(expanded_att,200,">");
+		if(animate)
+			this.shape.animate(expanded_att,200,"<");
 		this.shape.attr(expanded_att);
 
 		//expand parent
-		this.parent.expand(new_x,new_y,new_width,new_height);
+		this.parent.expand(new_x,new_y,new_width,new_height,animate);
 
 		//move collided nodes out of way
 		this.parent.shiftAdjacent(this,this.shape.getBBox());
@@ -128,14 +129,14 @@ Takes level's shape and
 contracts its around all
 children and variables like a hull;
 */
-Level.prototype.contract = function() {
+Level.prototype.contract = function(animate) {
 	//D(this);
 	if(this.parent) {
 		var sc = 20; //slack
 		//state variables
-		var new_x = (this.shape.attrs.x+this.shape.attrs.width)/2;
-		var new_y = (this.shape.attrs.y+this.shape.attrs.height)/2;
-		var new_width = 0, new_height = 0;
+		var new_x = this.shape.attrs.x+(this.shape.attrs.width)/4;
+		var new_y = this.shape.attrs.y+(this.shape.attrs.height)/4;
+		var new_width = this.DEFAULT_CHILD_WIDTH, new_height = this.DEFAULT_CHILD_HEIGHT;
 		var initial_hull_set_flag = false; //flag for hull initilization
 
 		if(this.subtrees.length) { //if children
@@ -196,17 +197,20 @@ Level.prototype.contract = function() {
 				itr = itr.next;
 			}
 		}
-		//update shape
+
+		//update shape if children exist else revert to base state
 		var expanded_att = {
 			x: new_x,
 			y: new_y,
 			width: new_width,
-			height: new_height};
-		//this.shape.animate(expanded_att,200,"<");
+			height: new_height
+		};
+		if(animate)
+			this.shape.animate(expanded_att,200,"<");
 		this.shape.attr(expanded_att);
 
 		//contract parent
-		this.parent.contract();
+		this.parent.contract(animate);
 	}
 }
 

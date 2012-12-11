@@ -1,4 +1,5 @@
-function InferenceRule() {
+function InferenceRule(mode_handler) {
+	this.MH = mode_handler;
 	this.rules = [
 		'Construction: Variable',
 		'Construction: Cut',
@@ -8,6 +9,8 @@ function InferenceRule() {
 		'Construction: Reverse Double Cut',
 		'Construction: Empty Cut',
 		'Construction: Empty Double Cut',
+		'Construction: Iteration',
+		'Construction: Deiteration',
 
 		'Proof: Double Cut',
 		'Proof: Reverse Double Cut',
@@ -15,7 +18,8 @@ function InferenceRule() {
 		'Proof: Iteration',
 		'Proof: Deiteration',
 		'Proof: Erasure',
-		'Proof: Insertion'
+		'Proof: Insertion Start',
+		'Proof: Insertion End'
 	];
 }
 
@@ -36,7 +40,7 @@ InferenceRule.prototype.variable = function (proof, rule_name, nodes, x, y) {
 
 InferenceRule.prototype.variable_for = function(mode) {
 	return function(inf){
-	return function(proof, nodes, x, y) {	
+	return function(proof, nodes, x, y) {
 		inf.variable(proof, mode, nodes, x, y);
 	};
 	}(this);

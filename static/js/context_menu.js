@@ -43,7 +43,6 @@ ContextHandler.prototype.StartMultiActive = function () {
 			ch.multiactive = true;
 			Mousetrap.reset();
 			D('start multi');
-			ch.selectedNodes = new List();
 			Mousetrap.bind('ctrl', ch.EndMultiActive(), 'keyup');
 		}
 	};
@@ -61,6 +60,7 @@ ContextHandler.prototype.EndMultiActive = function () {
 			Mousetrap.bind('ctrl', ch.StartMultiActive(), 'keydown');
 			if(ch.selectedNodes.length)
 				ch.NewContextMulti(ch.selectedNodes,ch.prev_x,ch.prev_y);
+			ch.selectedNodes = new List();
 		}
 	};
 	}(this);
@@ -69,8 +69,8 @@ ContextHandler.prototype.EndMultiActive = function () {
 
 ContextHandler.prototype.SingleClickHandler = function(node,event) {
 	if (this.multiactive) {
-		this.prev_x = event.offsetX;
-		this.prev_y = event.offsetY;
+		this.prev_x = event.clientX;
+		this.prev_y = event.clientY;
 		this.changeSelection(node);
 	}
 };
@@ -78,7 +78,7 @@ ContextHandler.prototype.SingleClickHandler = function(node,event) {
 
 ContextHandler.prototype.changeSelection = function(node) {
 	// Can't select the top level
-	if(node.getLevel() === 0) return;
+	if(node.parent === null) return;
 	if(this.selectedNodes.contains(node)) {
 		node.setClickActive(false);
 	}
@@ -104,7 +104,7 @@ function Context(R,nodes,x,y) {
 	this.items = {};
 	this.num_items = 0;
 
-	this.inf = new InferenceRule();
+	this.inf = new InferenceRule(this.paper.Mode_Handler);
 
 	this.setup();
 	this.show();
@@ -116,12 +116,10 @@ Context.prototype.addItem = function(name,func) {
 };
 
 Context.prototype.setup = function() {
-	var available_items = this.inf.AvailableRules(this.paper.Proof,this.nodes,
-													this.paper.LogicMode,
-													this.paper.CURRENT_MODE);
-	D(available_items);
-	for(var k in available_items)
+	var available_items = this.inf.AvailableRules(this.paper.Proof,this.nodes);
+	for(var k in available_items) {
 		this.addItem(k,available_items[k]);
+	}
 };
 
 Context.prototype.show = function() {
