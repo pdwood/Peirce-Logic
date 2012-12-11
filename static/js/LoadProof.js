@@ -6,19 +6,21 @@ function load_proof(proofXML){
     alert($xml.find("proof").children("node").length);
     $xml.find("proof").children("node").each(function(index){
         alert(index);
-        new_node = new ProofNode(TheProof);
-        new_node.id = $(this).children("id").first().text();
-        new_node.name = $(this).children("name").first().text();
-        alert(new_node.name);
+
         if(index == 0){
+            new_node = new ProofNode(TheProof);
             TheProof.front = new_node;
             TheProof.current = new_node;
-            new_node.plane = new Level(TheProof.paper,null);
+            TheProof.back = new_node;
         }
         else{
             TheProof.addnode();
-            TheProof.current = new_node;
+            new_node = TheProof.current;
         }
+        new_node.id = $(this).children("id").first().text();
+        new_node.name = $(this).children("name").first().text();
+        alert(new_node.name);
+        new_node.plane = new Level(TheProof.paper,null);
     });
     TheProof.current.plane.restoreTree();
 }
