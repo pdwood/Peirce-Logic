@@ -94,6 +94,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 		var out_of_plane = false;
 		var in_orig_set = false;
 		var ok_in_orig_set = null;
+		var contains_insertion_plane = false;
 		if(current_mode === logic_modes.INSERTION_MODE) {
 			var nMH = this.MH;
 			if(iterable) {
@@ -102,7 +103,8 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 			}
 			nodes.iterate(function(node) {
 				if(node === nMH.thunk.Node)
-					return
+					contains_insertion_plane = true;
+					return;
 				if((nMH.thunk.OriginalSubtrees.contains(node)
 					|| nMH.thunk.OriginalLeaves.contains(node))
 					&& node !== ok_in_orig_set)
@@ -135,7 +137,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 					methods[name] = this.empty_n_cut_for(2,name);
 				}
 			}
-			else if (nodes.length==2 && iteration_nodes) {
+			else if (nodes.length==2 && iteration_nodes && !contains_insertion_plane) {
 				if(iterable) {
 					var name = mode_name+'Iteration';
 					methods[name] = this.iteration_for(iteration_nodes,name);
@@ -145,7 +147,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 					methods[name] = this.deiteration_for(iteration_nodes,name);
 				}
 			}
-			if(all_same_parent && all_have_parent && !ok_in_orig_set) {
+			if(all_same_parent && all_have_parent && !ok_in_orig_set && !contains_insertion_plane) {
 				var name = mode_name+'Cut';
 				methods[name] = this.n_cut_for(1,name);
 				var name = mode_name+'Double Cut';
@@ -159,7 +161,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 					methods[name] = this.reverse_n_cut_for(2,name);
 				}
 			}
-			if(all_have_parent && !ok_in_orig_set) {
+			if(all_have_parent && !ok_in_orig_set && !contains_insertion_plane) {
 				var name = mode_name+'Erasure';
 				methods[name] = this.erasure_for(name);
 			}
