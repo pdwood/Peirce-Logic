@@ -13,7 +13,7 @@ function List()
 	{
 		this.push_back(arguments[i]);
 	}
-}
+};
 List.prototype.push_back = function (x)
 {
 	var push = new ListNode(x);
