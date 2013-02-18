@@ -1,14 +1,21 @@
 var debug;
-var D = function(d) { debug = d; console.log(d); };
+var D = function(d) {
+		debug = d;
+		console.log(d);
+	};
 var R;
 
 window.onload = function() {
 
-	var TIMELINE_HEIGHT = 100;
-	var R = Raphael("paper",window.screen.availWidth,window.screen.availHeight-TIMELINE_HEIGHT*2);
+	TIMELINE_HEIGHT = 100;
+	TIMELINE_X_OFFSET = 30;
+	TIMELINE_Y_OFFSET = 50;
+	TIMELINE_BRANCH_VERTICAL_DISTANCE = 60;
+
+	var R = Raphael("paper", window.screen.availWidth, window.screen.availHeight - TIMELINE_HEIGHT * 2);
 	mode_width = 150;
 
-	var MH = new ModeHandler(R,window.screen.availWidth-mode_width,0,mode_width,25);
+	var MH = new ModeHandler(R, window.screen.availWidth - mode_width, 0, mode_width, 25);
 	R.Mode_Handler = MH;
 
 	TheProof = new Proof(R);
@@ -17,5 +24,11 @@ window.onload = function() {
 	ZoomMenu(R);
 
 	Timeline = Raphael('timeline', window.screen.availWidth, TIMELINE_HEIGHT);
-	timeline_f.draw.call(Timeline, {proof:TheProof});
+	branch_options = {
+		x_offset: TIMELINE_X_OFFSET,
+		y_offset: TIMELINE_Y_OFFSET,
+		branch_vertical_distance: TIMELINE_BRANCH_VERTICAL_DISTANCE,
+		tree: TheProof
+	};
+	branches.draw.call(Timeline, branch_options);
 };

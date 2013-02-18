@@ -45,8 +45,8 @@ function Variable(R,parent,x,y,duplicate) {
 				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
 				text.parent.parent.contract();
 			}
-			catch(e){;} //catch all needed in case div removed before function finishes
-		}
+			catch(e){} //catch all needed in case div removed before function finishes
+		};
 		text_box.focusout( text_evaluate ); //evaluate text on focus out of text box
 		text_box.keyup(function(event){
 			if(event.keyCode == 13){
