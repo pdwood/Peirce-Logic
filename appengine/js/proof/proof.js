@@ -9,7 +9,7 @@ function ProofNode() {
 	this.rule_name = null;
 	this.rule_id = null;
 
-	this.mode = null;
+	this.mode = 0;
 	this.thunk = null;
 }
 

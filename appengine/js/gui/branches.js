@@ -131,11 +131,11 @@ branches = {
         if(options === undefined)
             options = {};
         var settings = {
-            color: options.color || '#f00',
+            color: options.color || '#000',
             normal_r: options.normal_r || 4,
             highlight_r: options.highlight_r || 6,
-            highlight_fill: options.highlight_fill || options.color || '#f00',
-            normal_fill: options.normal_fill || '#fff',
+            highlight_fill: options.highlight_fill || options.color || '#000',
+            normal_fill: options.normal_fill || {0:"#0f0",1:"#00f"},
             popup_text_attr: options.popup_text_attr || {
                 fill: '#000',
                 font: '10px verdana, arial, helvetica, sans-serif'
@@ -143,7 +143,7 @@ branches = {
             popup_attr: options.popup_attr || {
                 fill: options.normal_fill || '#fff',
                 "stroke-width": 2,
-                stroke: options.color || '#f00'
+                stroke: options.color || '#000'
             },
             select_index: options.select_index || 0
         },
@@ -238,11 +238,15 @@ branches = {
                 }).toBack();
 
 
-                dots[++dots_index] = this.circle(layer_x, layer_y, settings.normal_r).attr({
-                    fill: settings.normal_fill,
+                ++dots_index;
+
+                dots[dots_index] = this.circle(layer_x, layer_y, settings.normal_r).attr({
+                    fill: settings.normal_fill[node.mode],
                     stroke: settings.color,
                     "stroke-width": 2
                 });
+
+                dots[dots_index].node_mode = node.mode;
 
                 if(node === tree.current) {
                     curr_index = dots_index;
@@ -294,7 +298,7 @@ branches = {
                         fclick(treenode);
                         for(var j = 0; j < dots.length; j++) {
                             dots[j].attr({
-                                fill: settings.normal_fill
+                                fill: settings.normal_fill[dots[j].node_mode]
                             });
                         }
                         this.attr({
@@ -317,7 +321,7 @@ function BranchHelper() {}
 BranchHelper.highlight = function(dots, index, settings) {
     for(var j = 0; j < dots.length; j++) {
         dots[j].attr({
-            fill: settings.normal_fill
+            fill: settings.normal_fill[dots[j].node_mode]
         });
     }
     dots[index].attr({
