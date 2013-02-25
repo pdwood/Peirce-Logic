@@ -278,6 +278,6 @@ Creates context menu on node;
 Level.prototype.onDoubleClick = function(event) {
 	if (!event.ctrlKey) {
 		//Menu intialized with node,node's level, and mouse x/y
-		ContextMenu.NewContext(this.parent,event.offsetX,event.offsetY);
+		ContextMenu.NewContext(this.parent,event.clientX,event.clientY);
 	}
 };

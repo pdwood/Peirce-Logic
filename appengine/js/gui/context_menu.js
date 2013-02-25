@@ -69,8 +69,8 @@ ContextHandler.prototype.EndMultiActive = function () {
 
 ContextHandler.prototype.SingleClickHandler = function(node,event) {
 	if (this.multiactive) {
-		this.prev_x = event.clientX;
-		this.prev_y = event.clientY;
+		this.prev_x = event.clientX || event.pageX;
+		this.prev_y = event.clientY || event.pageY;
 		this.changeSelection(node);
 	}
 };
