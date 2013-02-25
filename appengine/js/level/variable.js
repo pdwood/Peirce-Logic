@@ -11,7 +11,7 @@ function Variable(R,parent,x,y,duplicate) {
 
 	if(!duplicate) {
 		//initial text, can't be empty or else it defaults to 0,0 origin
-		this.text = this.paper.text(x,y,"~").attr({"font-size":20});
+		this.text = this.paper.text(x,y-PLANE_VOFFSET,"~").attr({"font-size":20});
 		text = this.text;
 		this.text.parent = this;
 
@@ -24,7 +24,7 @@ function Variable(R,parent,x,y,duplicate) {
 		//text_box.css("left",this.text.getBBox().x-w/2+8);
 		//text_box.css("top",this.text.getBBox().y+19);
 		text_box.css("left",(this.text.getBBox().x-this.paper.zoomOffset()[0]-(w/2)*this.paper.zoomScale()[0]+8)/this.paper.zoomScale()[0]);
-		text_box.css("top",(this.text.getBBox().y-this.paper.zoomOffset()[1]+6*this.paper.zoomScale()[1])/this.paper.zoomScale()[1]);
+		text_box.css("top",(this.text.getBBox().y- (this.paper.zoomOffset()[1]+6*this.paper.zoomScale()[1])/this.paper.zoomScale()[1]) + PLANE_VOFFSET );
 		//text creation function
 		var text_evaluate = function() {
 			//get rid extraneous pre/post white space

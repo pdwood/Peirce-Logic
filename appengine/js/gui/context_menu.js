@@ -98,7 +98,7 @@ ContextHandler.prototype.changeSelection = function(node) {
 function Context(R,nodes,x,y) {
 	this.paper = R;
 	this.nodes = nodes || null;
-	this.x = x; this.y = y;
+	this.x = x; this.y = y - PLANE_VOFFSET;
 
 	this.menu_items = this.paper.set();
 	this.items = {};

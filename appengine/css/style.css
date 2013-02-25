@@ -19,3 +19,7 @@ svg:not(:root)
 {
 	background: #F2F2F2;
 }
+
+body{
+	background: url(../img/patternlight.png)
+}
