@@ -23,6 +23,7 @@
             });
         };
     Raphael.fn.popup = function(X, Y, set, pos, ret) {
+        set.attr({x:X,y:Y});
         pos = String(pos || "top-middle").split("-");
         pos[1] = pos[1] || "middle";
         var r = 5,
@@ -117,15 +118,18 @@
                 dy: dy
             };
         }
-        set.translate(dx, dy);
+        set.attr({x:set.getBBox().x+set.getBBox().width/2+dx,y:set.getBBox().y+set.getBBox().height/2+dy});
+        set.toFront();
         return out;
     };
 })();
 
 
 branches = {
-    draw: function(options) {
+    draw: function(tree,options) {
         this.clear();
+        if(options === undefined)
+            options = {};
         var settings = {
             color: options.color || '#f00',
             normal_r: options.normal_r || 4,
@@ -144,25 +148,19 @@ branches = {
             select_index: options.select_index || 0
         },
 
-            branch_horizontal_distance = 100,
-            fclick = options.tree.select.bind(options.tree);
+        fclick = tree.select.bind(tree);
 
-
-        if(branch_horizontal_distance > 100) {
-            branch_horizontal_distance = 100;
-        }
-
-        dots_and_curr_index = branches.draw_dots.call(this, options.tree, settings, fclick);
+        dots_and_curr_index = branches.draw_dots.call(this, tree, settings, fclick);
         BranchHelper.highlight(dots_and_curr_index[0], dots_and_curr_index[1], settings);
     },
 
     draw_dots: function(tree, settings, fclick) {
         var dots = [],
-            h_slack = 10,
+            h_slack = 30,
             v_slack = 10,
             x_offset = h_slack,
             y_offset = this.height / 2,
-            title = this.text(40, y_offset - 25, 'title').attr(settings.popup_text_attr).attr({
+            title = this.text(0, 0, 'title').attr(settings.popup_text_attr).attr({
                 'font-weight': 'bold',
                 'font-size': '12px'
             }),
@@ -250,26 +248,39 @@ branches = {
                     curr_index = dots_index;
                 }
 
-                (function(canvas, treenode) {
+                (function(canvas, treenode,layer_x,layer_y,layer) {
                     dots[dots_index].hover(function() {
                         this.attr({
                             r: settings.highlight_r
                         });
-                        var name = (treenode.name.length > 40) ? treenode.name.substring(0, 40) + "..." : treenode.name;
+                        //var name = (treenode.rule_name.length > 40) ? treenode.rule_name.substring(0, 40) + "..." : treenode.rule_name;
+                        var name = treenode.rule_name;
                         title.attr({
                             text: name
-                        });
-                        label.show();
-                        var x = this.getBBox().x + this.getBBox().width / 2;
-                        popup = canvas.popup(x, layer_y - 15, label, "top-middle").attr(settings.popup_attr);
-                        if(popup.getBBox().x < layer_x) {
+                            });
+                        if(layer>0) {
+                            var x = this.getBBox().x + this.getBBox().width / 2;
+                            var posx = "middle";
+                            var posy = "top";
+                            var diry = 1;
+                            var x_slack = 100;
+                            var y_slack = 3;
+                            label.show();
+                            popup = canvas.popup(x, layer_y - diry*15, label, posy+"-"+posx).attr(settings.popup_attr);
+                            if(popup.getBBox().x <  x_slack) {
+                                posx = "left";
+                            }
+                            if((popup.getBBox().x + popup.getBBox().width) > (canvas.width - x_slack)) {
+                                posx = "right";
+                            }
+                            if(popup.getBBox().y < y_slack) {
+                                posy = "bottom";
+                                diry *= -1;
+                            }
                             popup.remove();
-                            popup = canvas.popup(x, layer_y - 15, label, "top-left").attr(settings.popup_attr);
-                        } else if((popup.getBBox().x + popup.getBBox().width) > (canvas.width - 40)) {
-                            popup.remove();
-                            popup = canvas.popup(x, layer_y - 15, label, "top-right").attr(settings.popup_attr);
+                            popup = canvas.popup(x, layer_y - diry*15, label, posy+"-"+posx).attr(settings.popup_attr);
+                            document.body.style.cursor = "pointer";
                         }
-                        document.body.style.cursor = "pointer";
                     }, function() {
                         this.attr({
                             r: settings.normal_r
@@ -290,7 +301,7 @@ branches = {
                             fill: settings.highlight_fill
                         });
                     });
-                })(this, node);
+                })(this, node, layer_x, layer_y,i);
             }
             // set parent layer offset
             parent_mid_layer = mid_layer;

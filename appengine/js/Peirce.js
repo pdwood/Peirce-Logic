@@ -24,11 +24,5 @@ window.onload = function() {
 	ZoomMenu(R);
 
 	Timeline = Raphael('timeline', window.screen.availWidth, TIMELINE_HEIGHT);
-	branch_options = {
-		x_offset: TIMELINE_X_OFFSET,
-		y_offset: TIMELINE_Y_OFFSET,
-		branch_vertical_distance: TIMELINE_BRANCH_VERTICAL_DISTANCE,
-		tree: TheProof
-	};
-	branches.draw.call(Timeline, branch_options);
+	branches.draw.call(Timeline, TheProof);
 };

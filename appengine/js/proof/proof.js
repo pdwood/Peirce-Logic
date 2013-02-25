@@ -38,13 +38,7 @@ Proof.prototype.addnode = function (rule,rule_id) {
 	this.current.plane = this.current.plane.duplicate();
 	this.current = node;
 
-	branch_options = {
-		x_offset: TIMELINE_X_OFFSET,
-		y_offset: TIMELINE_Y_OFFSET,
-		branch_vertical_distance: TIMELINE_BRANCH_VERTICAL_DISTANCE,
-		tree: this
-	};
-	branches.draw.call(Timeline, branch_options);
+	branches.draw.call(Timeline, this);
 };
 
 //moves proof to last step
