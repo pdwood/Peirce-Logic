@@ -83,7 +83,7 @@
           <a class="brand" href="#">Peirce Logic</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li><a href="#">Home</a></li>
+              <li><a href="#" onClick=home()>Home</a></li>
               <li><a href="#about">About</a></li>
               <li id = "mode" ><a href="#contact">Contact</a></li>
             </ul>
@@ -102,7 +102,17 @@
 		<div id ="timeline"></div>
 	</div>
 </div>
-
+<script>
+function home(){
+			smoke.confirm('I\'m home!',function(e){
+				if (e){
+					smoke.alert('OK pressed');
+				}else{
+					smoke.alert('CANCEL pressed');
+				}
+			});
+		}
+</script>
 <script>
 	getElementById('mode').onclick = function(e){
 	    document.getElementById('mode').innerHTML = '<a href="#">MODE</a>';
