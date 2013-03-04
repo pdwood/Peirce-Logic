@@ -268,8 +268,8 @@ then drags children/variables
 */
 Level.prototype.dragMove = function(dx, dy) {
 	//shift shape
-	var new_x = this.ox + dx*this.paper.zoomScale()[0];
-	var new_y = this.oy + dy*this.paper.zoomScale()[1];
+	var new_x = this.ox + dx;
+	var new_y = this.oy + dy;
 	this.shape.attr({x: new_x, y: new_y});
 	//shift children
 	var itr = this.subtrees.begin();
