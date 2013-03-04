@@ -26,7 +26,7 @@ window.onload = function() {
 	document.getElementById('ModeLink').onclick = function(e){
 		TheProof.execute_transfer();
 	};
-	ZoomMenu(R);
+	//ZoomMenu(R);
 
 	Timeline = Raphael('timeline', window.screen.availWidth, TIMELINE_HEIGHT);
 	branches.draw.call(Timeline, TheProof);
