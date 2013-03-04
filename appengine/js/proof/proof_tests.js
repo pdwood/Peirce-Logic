@@ -50,7 +50,17 @@ N1.subtrees[1].add_lit("D",false);
 N1.subtrees[1].subtrees[0].subtrees.push(Node.NodeSkeleton());
 N1.subtrees[1].subtrees[0].subtrees[0].add_lit("E",false);
 
+//P -> (Q or R) , P and not R
 
+//(Q or R, not R) implies Q
+var N1 = Node.NodeSkeleton();
+N1.subtrees.push(Node.NodeSkeleton());
+N1.subtrees[0].add_lit("Q",false);
+N1.subtrees[1].add_lit("R",false);
+N1.add_lit("R", false);
+var N2 = Node.NodeSkeleton();
+N2.add_lit("Q",true);
+Node.ProofExists(N1,N2);
 
 //(U (V))((U) V)(U)(V)
 var N1 = Node.NodeSkeleton();
@@ -60,6 +70,16 @@ N1.add_lit("V",false);
 N1.subtrees[1].add_lit("U",false);
 N1.add_lit("U",false);
 N1.add_lit("V",false);
+
+//Modus Ponens
+//(P (Q)) P
+var N1 = Node.NodeSkeleton();
+N1.add_lit("P", false);
+N1.subtrees[0].add_lit("Q",false);
+N1.add_lit("P",true);
+//Q
+var N2 = Node.NodeSkeleton();
+N2.add_lit("Q", true);
 
 
 //(U V (W)) (U (W)) (W (U)) V
