@@ -104,7 +104,7 @@ function Context(R,nodes,x,y) {
 	this.items = {};
 	this.num_items = 0;
 
-	this.inf = new InferenceRule(this.paper.Mode_Handler);
+	this.inf = new InferenceRule();
 
 	this.setup();
 	this.show();

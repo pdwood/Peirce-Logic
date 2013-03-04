@@ -15,12 +15,17 @@ window.onload = function() {
 	var R = Raphael("paper", window.screen.availWidth, window.screen.availHeight - 230);
 	mode_width = 150;
 
-	var MH = new ModeHandler(R, window.screen.availWidth - mode_width, 0, mode_width, 25);
-	R.Mode_Handler = MH;
+	//var MH = new ModeHandler(R, window.screen.availWidth - mode_width, 0, mode_width, 25);
+	//R.Mode_Handler = MH;
 
 	TheProof = new Proof(R);
+	R.Proof = TheProof;
 
 	ContextMenu = new ContextHandler(R);
+
+	document.getElementById('ModeLink').onclick = function(e){
+		TheProof.execute_transfer();
+	};
 	ZoomMenu(R);
 
 	Timeline = Raphael('timeline', window.screen.availWidth, TIMELINE_HEIGHT);

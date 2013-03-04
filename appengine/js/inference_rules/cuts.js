@@ -93,6 +93,24 @@ InferenceRule.prototype.validate_reverse_n_cut = function (n, nodes) {
 };
 
 InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
+	var enter = function(t) {
+		return function() {
+			this.data.Node.shape.attr({'stroke-dasharray': '--'});
+		};
+	}(this);
+
+	var exit = function(t) {
+		return function() {
+			this.data.Node.shape.attr({'stroke-dasharray': odash});
+		};
+	}(this);
+
+	var thunk = new Thunk(
+		{'Node':node,
+		'OriginalSubtrees':osubtrees,
+		'OriginalLeaves':oleaves,
+		'Proof':proof,
+		'Reset':reset_func});
 	proof.addnode(rule_name,this.RuleToId(rule_name));
 
 	var tparent;

@@ -133,9 +133,11 @@ branches = {
         var settings = {
             color: options.color || '#000',
             normal_r: options.normal_r || 4,
-            highlight_r: options.highlight_r || 6,
-            highlight_fill: options.highlight_fill || options.color || '#000',
-            normal_fill: options.normal_fill || {0:"#0f0",1:"#00f"},
+            highlight_r: options.highlight_r || 8,
+            normal_stroke: options.normal_stroke || "#000",
+            highlight_stroke: options.highlight_stroke || "#fff",
+            normal_fill: options.normal_fill || {0:"#0f0",1:"#00f",2:"#66f",3:"#f00"},
+            highlight_fill: options.highlight_fill || options.color || '#fff',
             popup_text_attr: options.popup_text_attr || {
                 fill: '#000',
                 font: '10px verdana, arial, helvetica, sans-serif'
@@ -298,11 +300,13 @@ branches = {
                         fclick(treenode);
                         for(var j = 0; j < dots.length; j++) {
                             dots[j].attr({
-                                fill: settings.normal_fill[dots[j].node_mode]
+                                fill: settings.normal_fill[dots[j].node_mode],
+                                stroke: settings.normal_stroke
                             });
                         }
                         this.attr({
-                            fill: settings.highlight_fill
+                            fill: settings.highlight_fill,
+                            stroke: settings.normal_fill[dots[dots_index].node_mode]
                         });
                     });
                 })(this, node, layer_x, layer_y,i);
@@ -321,10 +325,12 @@ function BranchHelper() {}
 BranchHelper.highlight = function(dots, index, settings) {
     for(var j = 0; j < dots.length; j++) {
         dots[j].attr({
-            fill: settings.normal_fill[dots[j].node_mode]
+            fill: settings.normal_fill[dots[j].node_mode],
+            stroke: settings.normal_stroke
         });
     }
     dots[index].attr({
-        fill: settings.highlight_fill
+        fill: settings.highlight_fill,
+        stroke: settings.normal_fill[dots[index].node_mode]
     });
 };

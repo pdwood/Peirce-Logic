@@ -1,6 +1,6 @@
 InferenceRule.prototype.AvailableRules = function(proof,nodes) {
-	var logic_modes = this.MH.LogicMode;
-	var current_mode = this.MH.CURRENT_MODE;
+	var logic_modes = proof.LOGIC_MODES;
+	var current_mode = proof.CURRENT_MODE;
 	var methods = {} ;
 
 	//properties of node set
@@ -89,7 +89,8 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 	}
 
 
-	if(current_mode === logic_modes.PREMISE_MODE || current_mode === logic_modes.INSERTION_MODE) {
+	if(current_mode === logic_modes.PREMISE_MODE || current_mode === logic_modes.INSERTION_MOD
+		|| current_mode === logic_modes.GOAL_MODE) {
 		var mode_name = 'Construction: ';
 		var out_of_plane = false;
 		var in_orig_set = false;
@@ -102,20 +103,20 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 				ok_in_orig_set = iteration_nodes.begin().val;
 			}
 			nodes.iterate(function(node) {
-				if(node === nMH.thunk.Node)
+				if(node === nMH.thunk.data.Node)
 					contains_insertion_plane = true;
 					return;
-				if((nMH.thunk.OriginalSubtrees.contains(node)
-					|| nMH.thunk.OriginalLeaves.contains(node))
+				if((nMH.thunk.data.OriginalSubtrees.contains(node)
+					|| nMH.thunk.data.OriginalLeaves.contains(node))
 					&& node !== ok_in_orig_set)
 					in_orig_set = true;
 
 				var p = node.parent;
 				while(p!==null) {
-					if(p===nMH.thunk.Node)
+					if(p===nMH.thunk.data.Node)
 						return;
-					if((nMH.thunk.OriginalSubtrees.contains(p)
-						|| nMH.thunk.OriginalLeaves.contains(p))
+					if((nMH.thunk.data.OriginalSubtrees.contains(p)
+						|| nMH.thunk.data.OriginalLeaves.contains(p))
 						&& p !== ok_in_orig_set)
 						in_orig_set = true;
 					p = p.parent;

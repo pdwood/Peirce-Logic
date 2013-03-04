@@ -1,15 +1,7 @@
 InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
-	proof.addnode(rule_name+' Start',this.RuleToId(rule_name+' Start'));
 	var node = nodes.begin().val;
 	var odash = node.shape.attr('stroke-dasharray');
 	node.shape.attr({'stroke-dasharray': '--'});
-
-	var reset_func = function(t) {
-		return function(thunk) {
-			thunk.Proof.addnode(rule_name+' End',t.RuleToId(rule_name+' End'));
-			thunk.Node.shape.attr({'stroke-dasharray': odash});
-		};
-	}(this);
 
 	var osubtrees = new List();
 	node.subtrees.iterate(function (node) {
@@ -20,11 +12,33 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 		oleaves.push_back(node);
 	});
 
-	this.MH.ChangeMode(this.MH.LogicMode.INSERTION_MODE,{'Node':node,
-												'OriginalSubtrees':osubtrees,
-												'OriginalLeaves':oleaves,
-												'Proof':proof,
-												'Reset':reset_func});
+	data = {'Node':node,
+			'OriginalSubtrees':osubtrees,
+			'OriginalLeaves':oleaves};
+
+	var transfer = function(proof) {
+		var t = new InferenceRule();
+		proof.addnode(rule_name+' End',t.RuleToId(rule_name+' End'),null,proof.LOGIC_MODE.PROOF_MODE);
+	};
+
+	var enter = function(t) {
+		return function() {
+			this.data.Node.shape.attr({'stroke-dasharray': '--'});
+		};
+	}(this);
+
+	var exit = function(t) {
+		return function() {
+			this.data.Node.shape.attr({'stroke-dasharray': odash});
+		};
+	}(this);
+
+	var thunk = new Thunk(data);
+	thunk.enter = enter;
+	thunk.exit = exit;
+	thunk.transfer = transfer;
+
+	proof.addnode(rule_name+' Start',this.RuleToId(rule_name+' Start'),thunk,this.MH.LogicMode.INSERTION_MODE);
 };
 
 InferenceRule.prototype.insertion_for = function (mode) {
