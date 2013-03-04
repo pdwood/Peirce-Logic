@@ -143,12 +143,21 @@ Proof.prototype.addnode = function (rule,rule_id,thunk,mode) {
 		this.change_mode(mode);
 
 	branches.draw.call(Timeline, this);
+	this.automated_check(this.current);
 };
 
 Proof.prototype.rethunk = function(thunk) {
 	this.thunk.exit();
 	this.thunk = thunk;
 	this.thunk.enter();
+};
+
+Proof.prototype.automated_check = function(pnode) {
+	gnode = pnode;
+	while(gnode.mode !== this.LOGIC_MODES.GOAL_MODE) {
+		gnode = gnode.prev;
+	}
+
 };
 
 //moves proof to last step
@@ -168,6 +177,7 @@ Proof.prototype.select = function(node) {
 		this.current.plane.restoreTree();
 		this.rethunk(this.current.thunk);
 		this.change_mode(this.current.mode);
+		this.automated_check(this.current);
 	}
 };
 
