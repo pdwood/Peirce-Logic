@@ -105,12 +105,7 @@ InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
 		};
 	}(this);
 
-	var thunk = new Thunk(
-		{'Node':node,
-		'OriginalSubtrees':osubtrees,
-		'OriginalLeaves':oleaves,
-		'Proof':proof,
-		'Reset':reset_func});
+
 	proof.addnode(rule_name,this.RuleToId(rule_name));
 
 	var tparent;

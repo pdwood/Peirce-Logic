@@ -15,8 +15,6 @@ function Node(parent) {
 Node.prototype.getLevel = function () {
 	if(!this.parent)
 		return 0;
-	if(!this.parent.parent)
-		return 0;
 	return this.parent.getLevel() + 1;
 };
 

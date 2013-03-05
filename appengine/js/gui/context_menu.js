@@ -104,7 +104,7 @@ function Context(R,nodes,x,y) {
 	this.items = {};
 	this.num_items = 0;
 
-	this.inf = new InferenceRule();
+	this.inf = new InferenceRule(R.Proof.thunk);
 
 	this.setup();
 	this.show();

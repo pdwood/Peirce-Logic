@@ -122,6 +122,8 @@ Proof.prototype.addnode = function (rule,rule_id,thunk,mode) {
 					proof.addnode(mode_name,t.RuleToId(mode_name),null,mode_n);
 				};
 			}(mode_name,mode_n);
+		} else if (node.mode == this.LOGIC_MODES.INSERTION_MODE) {
+			node.thunk = this.thunk;
 		}
 	}
 	else
@@ -129,7 +131,7 @@ Proof.prototype.addnode = function (rule,rule_id,thunk,mode) {
 
 
 	this.current.next.push_back(node);
-	if(mode >= 0 && mode == this.LOGIC_MODES.PREMISE_MODE && this.LOGIC_MODES.GOAL_MODE) {
+	if(mode >= 0 && mode == this.LOGIC_MODES.PREMISE_MODE && this.CURRENT_MODE ==this.LOGIC_MODES.GOAL_MODE) {
 		this.current.plane.compressTree();
 		node.plane = new Level(this.paper,null);
 	}
@@ -142,8 +144,9 @@ Proof.prototype.addnode = function (rule,rule_id,thunk,mode) {
 	if(mode>=0 && mode != this.CURRENT_MODE)
 		this.change_mode(mode);
 
+	if(node.mode !== this.LOGIC_MODES.GOAL_MODE && node.mode !== this.LOGIC_MODES.PREMISE_MODE)
+		this.automated_check(this.current);
 	branches.draw.call(Timeline, this);
-	this.automated_check(this.current);
 };
 
 Proof.prototype.rethunk = function(thunk) {
@@ -157,7 +160,11 @@ Proof.prototype.automated_check = function(pnode) {
 	while(gnode.mode !== this.LOGIC_MODES.GOAL_MODE) {
 		gnode = gnode.prev;
 	}
-
+	gnode.plane.restoreTree();
+	var eq = gnode.plane.equivalence(pnode.plane);
+	gnode.plane.compressTree();
+	if(eq)
+		alert('Reached Goal');
 };
 
 //moves proof to last step
@@ -177,7 +184,8 @@ Proof.prototype.select = function(node) {
 		this.current.plane.restoreTree();
 		this.rethunk(this.current.thunk);
 		this.change_mode(this.current.mode);
-		this.automated_check(this.current);
+		if(node.mode !== this.LOGIC_MODES.GOAL_MODE && node.mode !== this.LOGIC_MODES.PREMISE_MODE)
+			this.automated_check(this.current);
 	}
 };
 

@@ -136,7 +136,7 @@ branches = {
             highlight_r: options.highlight_r || 8,
             normal_stroke: options.normal_stroke || "#000",
             highlight_stroke: options.highlight_stroke || "#fff",
-            normal_fill: options.normal_fill || {0:"#0f0",1:"#00f",2:"#66f",3:"#f00"},
+            normal_fill: options.normal_fill || {0:"#0f0",1:"#00f",2:"#FF6600",3:"#f00"},
             highlight_fill: options.highlight_fill || options.color || '#fff',
             popup_text_attr: options.popup_text_attr || {
                 fill: '#000',

@@ -1,4 +1,4 @@
-function InferenceRule() {
+function InferenceRule(thunk) {
 	this.rules = [
 		'Construction: Variable',
 		'Construction: Cut',
@@ -23,6 +23,7 @@ function InferenceRule() {
 		'Proof: Goal Constructed',
 		'Proof: Premise Constructed'
 	];
+	this.thunk = thunk;
 }
 
 InferenceRule.prototype.IdToRule = function (rule_name) {

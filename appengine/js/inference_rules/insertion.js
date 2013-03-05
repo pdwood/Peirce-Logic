@@ -18,7 +18,7 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 
 	var transfer = function(proof) {
 		var t = new InferenceRule();
-		proof.addnode(rule_name+' End',t.RuleToId(rule_name+' End'),null,proof.LOGIC_MODE.PROOF_MODE);
+		proof.addnode(rule_name+' End',t.RuleToId(rule_name+' End'),null,proof.LOGIC_MODES.PROOF_MODE);
 	};
 
 	var enter = function(t) {
@@ -38,7 +38,7 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 	thunk.exit = exit;
 	thunk.transfer = transfer;
 
-	proof.addnode(rule_name+' Start',this.RuleToId(rule_name+' Start'),thunk,this.MH.LogicMode.INSERTION_MODE);
+	proof.addnode(rule_name+' Start',this.RuleToId(rule_name+' Start'),thunk,proof.LOGIC_MODES.INSERTION_MODE);
 };
 
 InferenceRule.prototype.insertion_for = function (mode) {
