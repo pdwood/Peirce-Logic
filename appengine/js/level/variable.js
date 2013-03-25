@@ -158,9 +158,14 @@ text based on drag difference
 */
 Variable.prototype.dragMove = function(dx, dy) {
 	//shift text
-	var new_x = this.ox + dx;
-	var new_y = this.oy + dy;
-	this.text.attr({x: new_x, y: new_y});
+	var new_x, new_y;
+	//if (this.isOutOfBounds()) {
+		this.collisionMove(dx,dy);
+	//} else {
+	//	new_x = this.ox + dx;
+	//	new_y = this.oy + dy;
+	//	this.text.attr({x: new_x, y: new_y});
+	//}
 	//fit parent hull to new area
 	this.parent.expand(this.text.getBBox().x,this.text.getBBox().y,this.text.getBBox().width,this.text.getBBox().height);
 	this.parent.contract();
@@ -190,6 +195,76 @@ Variable.prototype.onDragEnd = function() {
 };
 
 /*
+Variable.collisionMove
+~dx: drag difference in x
+~dy: drag difference in y
+
+Object level handler for
+drag event action; detects collisions
+with the bounds of the plane.
+*/
+Variable.prototype.collisionMove = function (dx, dy) {
+	var width = this.text.paper.DEFAULT_PLANE_WIDTH;
+	var height = this.text.paper.DEFAULT_PLANE_HEIGHT;
+	var new_x, new_y, slack = 1;
+	var bbox = this.text.getBBox();
+	var shape_width = bbox.width;
+	var shape_height = bbox.height;
+	var ox = this.ox;
+	var oy = this.oy;
+	
+	new_x = ox + dx;
+	new_y = oy + dy;
+	
+	// collision with right bound
+	if (bbox.x2 + dx + shape_width >= width) {
+		new_x = (width-shape_width/2)-slack;
+	}
+	// collision with bottom bound
+	if (bbox.y2 + dy >= height) {
+		new_y = (height-shape_height/2)-slack;
+	}
+	// collision with left bound
+	if (bbox.x + dx <= 0) {
+		new_x = slack + shape_width/2;
+	}
+	// collision with upper bound
+	if (bbox.y + dy <= 0) {
+		new_y = slack + shape_height/2;
+	}
+	this.text.attr({x: new_x, y: new_y});
+};
+
+/*
+Variable.isOutOfBounds
+
+Detects if the variable is colliding with
+the sides of the plane.
+
+Returns true is it is, returns false otherwise.
+*/
+Variable.prototype.isOutOfBounds = function () {
+	if (this.parent && this.parent.parent) return this.parent.isOutOfBounds();
+
+	var bbox = this.text.getBBox();
+	var slack = 5;
+	var width = this.text.paper.DEFAULT_PLANE_WIDTH;
+	var height = this.text.paper.DEFAULT_PLANE_HEIGHT;
+	var shape_width = bbox.width;
+	var shape_height = bbox.height;
+
+	// Colliding with left bound
+	if (bbox.x <= shape_width/2) return true;
+	// Colliding with right bound
+	if (bbox.x2+shape_width/2 >= width) return true;
+	// Colliding with upper bound
+	if (bbox.y-shape_height/2 <= 0) return true;
+	// Colliding with lower bound
+	if (bbox.y2+shape_height/2 >= height) return true;
+	return false;
+};
+
+/*
 Variable.onDoubleClick
 ~event: mouse event
 
@@ -200,7 +275,8 @@ Creates context menu on node;
 Variable.prototype.onDoubleClick = function(event) {
 	if (!event.ctrlKey) {
 		//Menu intialized with node,node's level, and mouse x/y
-		ContextMenu.NewContext(this.parent,this.attrs.x,this.attrs.y);
+		ContextMenu.NewContext(this.parent, (this.attrs.x-this.paper.zoomOffset()[0])/this.paper.zoomScale()[0],
+											(this.attrs.y-this.paper.zoomOffset()[1])/this.paper.zoomScale()[1]);
 	}
 };
 
