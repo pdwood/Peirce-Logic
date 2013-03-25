@@ -21,11 +21,11 @@ function Thunk(data) {
 	this.exit = Thunk.Default_Exit;
 }
 
-Thunk.Default_Enter = function() {
+Thunk.Default_Enter = function(proof) {
 	return;
 };
 
-Thunk.Default_Exit = function() {
+Thunk.Default_Exit = function(proof) {
 	return;
 };
 
@@ -150,9 +150,9 @@ Proof.prototype.addnode = function (rule,rule_id,thunk,mode) {
 };
 
 Proof.prototype.rethunk = function(thunk) {
-	this.thunk.exit();
+	this.thunk.exit(this.current);
 	this.thunk = thunk;
-	this.thunk.enter();
+	this.thunk.enter(this.current);
 };
 
 Proof.prototype.automated_check = function(pnode) {

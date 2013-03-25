@@ -103,21 +103,21 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 				ok_in_orig_set = iteration_nodes.begin().val;
 			}
 			nodes.iterate(function(node) {
-				if(node === thk.data.Node) {
+				if(node.getIdentifier() === thk.data.Node) {
 					contains_insertion_plane = true;
 					return;
 				}
-				if((thk.data.OriginalSubtrees.contains(node)
-					|| thk.data.OriginalLeaves.contains(node))
+				if((thk.data.OriginalSubtrees.contains(node.getIdentifier())
+					|| thk.data.OriginalLeaves.contains(node.getIdentifier()))
 					&& node !== ok_in_orig_set)
 					in_orig_set = true;
 
 				var p = node.parent;
 				while(p!==null) {
-					if(p===thk.data.Node)
+					if(p.getIdentifier()===thk.data.Node)
 						return;
-					if((thk.data.OriginalSubtrees.contains(p)
-						|| thk.data.OriginalLeaves.contains(p))
+					if((thk.data.OriginalSubtrees.contains(p.getIdentifier())
+						|| thk.data.OriginalLeaves.contains(p.getIdentifier()))
 						&& p !== ok_in_orig_set)
 						in_orig_set = true;
 					p = p.parent;
@@ -158,7 +158,9 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 					var name = mode_name+'Reverse Cut';
 					methods[name] = this.reverse_n_cut_for(1,name);
 				}
-				if(this.validate_reverse_n_cut(2,nodes)) {
+				if(this.validate_reverse_n_cut(2,nodes) &&
+					(current_mode !== logic_modes.INSERTION_MODE ||
+						nodes.begin().val.parent.parent.getIdentifier()!==this.thunk.data.Node)) {
 					var name = mode_name+'Reverse Double Cut';
 					methods[name] = this.reverse_n_cut_for(2,name);
 				}
