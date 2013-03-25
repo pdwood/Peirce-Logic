@@ -104,7 +104,7 @@ function Context(R,nodes,x,y) {
 	this.items = {};
 	this.num_items = 0;
 
-	this.inf = new InferenceRule(this.paper.Mode_Handler);
+	this.inf = new InferenceRule(R.Proof.thunk);
 
 	this.setup();
 	this.show();
@@ -150,18 +150,15 @@ Context.prototype.show = function() {
 		var y = oy+partition*c; //start y at correct distance
 		//construct menu box
 		menu_item.push(
-			this.paper.rect(this.paper.zoomOffset()[0]+ox*this.paper.zoomScale()[0],
-							this.paper.zoomOffset()[1]+y*this.paper.zoomScale()[1],
-							width*this.paper.zoomScale()[0],
-							partition*this.paper.zoomScale()[1])
+			this.paper.rect(ox, y, width, partition)
 			.attr({stroke:"#000",fill: "#aabbcc", "stroke-width": 1, "text":"asdf"})
 		);
 		//construct menu text
 		menu_item.push(
-			this.paper.text(this.paper.zoomOffset()[0]+(ox+ox+width)/2*this.paper.zoomScale()[0],
-							this.paper.zoomOffset()[1]+(y+y+partition)/2*this.paper.zoomScale()[1],
+			this.paper.text((ox+ox+width)/2,
+							(y+y+partition)/2,
 							x)
-			.attr({"font-size":font_size*this.paper.zoomScale()[0]})
+			.attr({"font-size":font_size})
 		);
 
 		//set up menu button click function
@@ -169,13 +166,9 @@ Context.prototype.show = function() {
 			//closure that creates function that executes button function at mouse event
 			//then closes menu
 			(function(f,n,x,y,c) {
-				return function() { f.call(self.inf,
-											TheProof,
-											n,
-											x+this.paper.zoomOffset()[0],
-											y+this.paper.zoomOffset()[1]);
+				return function() { f.call(self.inf, TheProof, n, x, y);
 									c(); };
-			})(this.items[x],this.nodes,this.x*this.paper.zoomScale()[0],this.y*this.paper.zoomScale()[1],Context.prototype.makeClose(this))
+			})(this.items[x],this.nodes,this.x,this.y,Context.prototype.makeClose(this))
 		);
 
 		this.menu_items.push(menu_item); //push button into menu_items set

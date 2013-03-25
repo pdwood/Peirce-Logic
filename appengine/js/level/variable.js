@@ -11,7 +11,7 @@ function Variable(R,parent,x,y,duplicate) {
 
 	if(!duplicate) {
 		//initial text, can't be empty or else it defaults to 0,0 origin
-		this.text = this.paper.text(x,y-PLANE_VOFFSET,"~").attr({"font-size":20});
+		this.text = this.paper.text(x,y+45-PLANE_VOFFSET,"~").attr({"font-size":20});
 		text = this.text;
 		this.text.parent = this;
 
@@ -23,8 +23,8 @@ function Variable(R,parent,x,y,duplicate) {
 		text_box.css({"z-index" : 2, "position" : "absolute"});
 		//text_box.css("left",this.text.getBBox().x-w/2+8);
 		//text_box.css("top",this.text.getBBox().y+19);
-		text_box.css("left",(this.text.getBBox().x-this.paper.zoomOffset()[0]-(w/2)*this.paper.zoomScale()[0]+8)/this.paper.zoomScale()[0]);
-		text_box.css("top",(this.text.getBBox().y- (this.paper.zoomOffset()[1]+6*this.paper.zoomScale()[1])/this.paper.zoomScale()[1]) + PLANE_VOFFSET );
+		text_box.css("left",(this.text.getBBox().x-(w/2)));
+		text_box.css("top",(this.text.getBBox().y) + PLANE_VOFFSET );
 		//text creation function
 		var text_evaluate = function() {
 			//get rid extraneous pre/post white space
@@ -158,8 +158,8 @@ text based on drag difference
 */
 Variable.prototype.dragMove = function(dx, dy) {
 	//shift text
-	var new_x = this.ox + dx*this.paper.zoomScale()[0];
-	var new_y = this.oy + dy*this.paper.zoomScale()[1];
+	var new_x = this.ox + dx;
+	var new_y = this.oy + dy;
 	this.text.attr({x: new_x, y: new_y});
 	//fit parent hull to new area
 	this.parent.expand(this.text.getBBox().x,this.text.getBBox().y,this.text.getBBox().width,this.text.getBBox().height);
@@ -200,8 +200,7 @@ Creates context menu on node;
 Variable.prototype.onDoubleClick = function(event) {
 	if (!event.ctrlKey) {
 		//Menu intialized with node,node's level, and mouse x/y
-		ContextMenu.NewContext(this.parent, (this.attrs.x-this.paper.zoomOffset()[0])/this.paper.zoomScale()[0],
-											(this.attrs.y-this.paper.zoomOffset()[1])/this.paper.zoomScale()[1]);
+		ContextMenu.NewContext(this.parent,this.attrs.x,this.attrs.y);
 	}
 };
 
@@ -212,6 +211,8 @@ Variable deep copy
 */
 Variable.prototype.duplicate = function() {
 	var dup = new Variable(this.paper,null,0,0,true);
+	dup.id = this.id;
+	dup.id_gen = this.id_gen;
 	if(!this.saved_attr){
 		dup.saved_attr = jQuery.extend(true, {}, this.text.attrs);
 	}

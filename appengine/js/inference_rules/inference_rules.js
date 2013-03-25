@@ -1,5 +1,4 @@
-function InferenceRule(mode_handler) {
-	this.MH = mode_handler;
+function InferenceRule(thunk) {
 	this.rules = [
 		'Construction: Variable',
 		'Construction: Cut',
@@ -19,8 +18,12 @@ function InferenceRule(mode_handler) {
 		'Proof: Deiteration',
 		'Proof: Erasure',
 		'Proof: Insertion Start',
-		'Proof: Insertion End'
+		'Proof: Insertion End',
+
+		'Proof: Goal Constructed',
+		'Proof: Premise Constructed'
 	];
+	this.thunk = thunk;
 }
 
 InferenceRule.prototype.IdToRule = function (rule_name) {
