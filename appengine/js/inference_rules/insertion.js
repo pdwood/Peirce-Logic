@@ -5,14 +5,14 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 
 	var osubtrees = new List();
 	node.subtrees.iterate(function (node) {
-		osubtrees.push_back(node);
+		osubtrees.push_back(node.getIdentifier());
 	});
 	var oleaves = new List();
 	node.leaves.iterate(function (node) {
-		oleaves.push_back(node);
+		oleaves.push_back(node.getIdentifier());
 	});
 
-	data = {'Node':node,
+	data = {'Node':node.getIdentifier(),
 			'OriginalSubtrees':osubtrees,
 			'OriginalLeaves':oleaves};
 
@@ -22,14 +22,16 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 	};
 
 	var enter = function(t) {
-		return function() {
-			this.data.Node.shape.attr({'stroke-dasharray': '--'});
+		return function(proofnode) {
+			var node = proofnode.plane.getChildByIdentifier(this.data.Node);
+			node.shape.attr({'stroke-dasharray': '--'});
 		};
 	}(this);
 
 	var exit = function(t) {
-		return function() {
-			this.data.Node.shape.attr({'stroke-dasharray': odash});
+		return function(proofnode) {
+			var node = proofnode.plane.getChildByIdentifier(this.data.Node);
+			node.shape.attr({'stroke-dasharray': odash});
 		};
 	}(this);
 
