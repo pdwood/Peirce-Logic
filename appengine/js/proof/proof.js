@@ -46,7 +46,7 @@ function Proof(R) {
 	this.current.thunk = new Thunk({});
 	this.current.thunk.transfer = function(proof) {
 		var t = new InferenceRule();
-		proof.addnode("Proof: Goal Constructed",t.RuleToId("Proof: Goal Constructed"),null,this.LOGIC_MODES.PREMISE_MODE);
+		proof.addnode("Proof: Goal Constructed",t.RuleToId("Proof: Goal Constructed"),null,proof.LOGIC_MODES.PREMISE_MODE);
 	};
 
 	this.thunk = this.current.thunk;
