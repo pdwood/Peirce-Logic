@@ -47,8 +47,9 @@ Node.prototype.getChildByIdentifier = function(id) {
 	if(typeof id === "string") {
 		aid = id.split("_");
 	} else {
-		aid = id;
+		aid = [id];
 	}
+	aid.reverse();
 	var id_node;
 	if (parseInt(aid[0]) === this.id) {
 		if (aid.length>=2) {

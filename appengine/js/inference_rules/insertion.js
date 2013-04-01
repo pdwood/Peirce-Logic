@@ -1,7 +1,5 @@
 InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 	var node = nodes.begin().val;
-	var odash = node.shape.attr('stroke-dasharray');
-	node.shape.attr({'stroke-dasharray': '--'});
 
 	var osubtrees = new List();
 	node.subtrees.iterate(function (node) {
@@ -16,24 +14,11 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 			'OriginalSubtrees':osubtrees,
 			'OriginalLeaves':oleaves};
 
-	var transfer = function(proof) {
-		var t = new InferenceRule();
-		proof.addnode(rule_name+' End',t.RuleToId(rule_name+' End'),null,proof.LOGIC_MODES.PROOF_MODE);
-	};
+	var transfer = this.insertion_thunk_transfer(rule_name);
 
-	var enter = function(t) {
-		return function(proofnode) {
-			var node = proofnode.plane.getChildByIdentifier(this.data.Node);
-			node.shape.attr({'stroke-dasharray': '--'});
-		};
-	}(this);
+	var enter = this.insertion_thunk_enter(rule_name);
 
-	var exit = function(t) {
-		return function(proofnode) {
-			var node = proofnode.plane.getChildByIdentifier(this.data.Node);
-			node.shape.attr({'stroke-dasharray': odash});
-		};
-	}(this);
+	var exit = this.insertion_thunk_exit(rule_name);
 
 	var thunk = new Thunk(data);
 	thunk.enter = enter;
@@ -49,4 +34,25 @@ InferenceRule.prototype.insertion_for = function (mode) {
 		inf.insertion(proof, mode, nodes);
 	};
 	}(this);
+};
+
+InferenceRule.prototype.insertion_thunk_transfer = function(rule_name) {
+	return function(proof) {
+		var t = new InferenceRule();
+		proof.addnode(rule_name+' End',t.RuleToId(rule_name+' End'),null,proof.LOGIC_MODES.PROOF_MODE);
+	};
+};
+
+InferenceRule.prototype.insertion_thunk_enter = function(rule_name) {
+	return function(proofnode) {
+		var node = proofnode.plane.getChildByIdentifier(this.data.Node);
+		node.shape.attr({'stroke-dasharray': '--'});
+	};
+};
+
+InferenceRule.prototype.insertion_thunk_exit = function(rule_name) {
+	return function(proofnode) {
+		var node = proofnode.plane.getChildByIdentifier(this.data.Node);
+		node.shape.attr({'stroke-dasharray': ""});
+	};
 };

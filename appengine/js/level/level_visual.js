@@ -216,9 +216,10 @@ Level.prototype.contract = function(animate) {
 
 
 Level.prototype.drag = function(dx,dy) {
-	this.dragStart();
-	this.dragMove(dx,dy);
-	this.dragEnd();
+	if (this.parent){
+		this.dragStart();
+		this.dragMove(dx,dy);
+		this.dragEnd();}
 }
 
 
@@ -267,10 +268,10 @@ shape based on drag difference
 then drags children/variables
 */
 Level.prototype.dragMove = function(dx, dy) {
-	//shift shape
-	var new_x = this.ox + dx;
-	var new_y = this.oy + dy;
-	this.shape.attr({x: new_x, y: new_y});
+	var new_x, new_y, slack = 5;
+
+	this.collisionMove(dx,dy);
+
 	//shift children
 	var itr = this.subtrees.begin();
 	while(itr!=this.subtrees.end()) {
@@ -295,6 +296,47 @@ Level.prototype.onDragMove = function(dx, dy) {
 	this.paper.renderfix();
 };
 
+/*
+Level.collisionMove
+~dx: drag difference in x
+~dy: drag difference in y
+
+Object level handler for
+drag event action; detects collisions
+with the bounds of the plane.
+*/
+Level.prototype.collisionMove = function (dx, dy) {
+	var width = this.paper.DEFAULT_PLANE_WIDTH;
+	var height = this.paper.DEFAULT_PLANE_HEIGHT;
+	var new_x, new_y, ox, oy, slack = 15;
+	var shape_width = this.shape.attr("width");
+	var shape_height = this.shape.attr("height");
+	var bbox = this.shape.getBBox();
+		
+	ox = this.ox;
+	oy = this.oy;
+	new_x = ox + dx;
+	new_y = oy + dy;
+	
+	// collision with right bound
+	if (bbox.x2 + dx + shape_width >= width) {
+		new_x = (width-shape_width)-slack;
+	}
+	// collision with bottom bound
+	if (bbox.y2 + dy >= height) {
+		new_y = (height-shape_height)-slack;
+	}
+	// collision with left bound
+	if (bbox.x + dx <= 0) {
+		new_x = slack + shape_width/2;
+	}
+	// collision with upper bound
+	if (bbox.y + dy <= 0) {
+		new_y = slack + shape_height/2;
+	}
+
+	this.shape.attr({x: new_x, y: new_y});
+}
 
 /*
 Level.dragEnd
@@ -331,20 +373,111 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 			if(child !== c && !(c.visited)) {
 				var bbox2 = c.text.getBBox();
 				if(this.paper.raphael.isBBoxIntersect(bbox,bbox2)) {
+
 					var sx = 0, sy = 0;
 					var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
 					var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
-					if(dx>=bbox.x2-bbox.x || dx>=bbox2.x2-bbox2.x) {
-						sy = (dy+slack)*(bbox2.y<=bbox.y ? -1:1);
+					var width = this.paper.DEFAULT_PLANE_WIDTH;
+					var height = this.paper.DEFAULT_PLANE_HEIGHT;
+
+					// if bbox2 is already colliding with the upper
+					// prevents bbox from intersecting with bbox2
+					if (bbox2.y <= 0) {
+						// if bbox is colliding with bbox2 on the right
+						if (bbox.x > bbox2.x && bbox.x < bbox2.x2) {
+							sx = (dx+slack)*-1;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the left side
+						} else if (bbox.x2 < bbox2.x2 && bbox.x2 > bbox2.x) {
+							sx = dx-slack;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the bottom
+						} else {
+							sy = dy+slack;
+							child.drag(sx,sy);
+						}
 					}
-					else if(dy>=bbox.y2-bbox.y || dy>=bbox2.y2-bbox2.y) {
-						sx = (dx+slack)*(bbox2.x<=bbox.x ? -1:1);
+					// if bbox2 is already colliding with the left bound
+					else if (bbox2.x <= 0) {
+						// if bbox is colliding with bbox2 on the top
+						if (bbox.y2 > bbox2.y && bbox.y2 < bbox2.y2) {
+							sy = dy-slack;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the bottom
+						} else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
+							sy = (dy+slack)*-1;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the right
+						} else {
+							sy = dy+slack;
+							child.drag(sx,sy)
+						}
 					}
+					// if bbox2 is already colliding with the right bound
+					else if (bbox2.x2 >= width) {
+						// if bbox is colliding with bbox2 on the top
+						if (bbox.y2 > bbox2.y && bbox.y2 < bbox2.y2) {
+							sy = dy+slack;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the bottom
+						} else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
+							sy = (dy-slack)*-1;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the right
+						} else {
+							sy = dy+slack;
+							child.drag(sx,sy)
+						}
+					}
+					// if bbox2 is already colliding with the lower bound
+					else if (bbox2.y2 >= height) {
+						// if bbox is colliding with bbox2 on the right
+						if (bbox.x >= bbox2.x && bbox.x <= bbox2.x2) {
+							sx = (dx-slack)*-1;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the left side
+						} else if (bbox.x2 <= bbox2.x2 && bbox.x2 >= bbox2.x) {
+							sx = dx+slack;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the bottom
+						} else {
+							sy = dy+slack;
+							child.drag(sx,sy);
+						}
+					}
+					// Otherwise, bbox2 is not colliding with any edge and must be
+					// in the center of the plane.
 					else {
-						if(dx<dy){ sx = (dx+slack)*(bbox2.x<=bbox.x ? -1:1); }
-						else{ sy = (dy+slack)*(bbox2.y<=bbox.y ? -1:1); }
+						// bbox hitting upper bound
+						if (bbox2.y-dy <= 0)
+							sy = -1*bbox2.y;
+						// bbox hitting left bound
+						else if (bbox2.x-dx <= 0)
+							sx = -1*bbox2.x;
+						// bbox hitting lower bound
+						else if (bbox2.y2+dy >= height) {
+							if (bbox2.y2 <= height) sy = height-bbox2.y2;
+							else sy = 0;
+						}
+						// bbox hitting right bound
+						else if (bbox2.x2+dx >= width) {
+							if (bbox2.x2 <= width) sx = width-bbox2.x2;
+							else sx = 0;
+						}
+
+						else if (dx >= bbox.x2-bbox.x || dx >= bbox2.x2-bbox2.x)
+							sy = (dy+slack)*(bbox2.y <= bbox.y ? -1:1);
+						else if (dy >= bbox.y2-bbox.y || dy >= bbox2.y2-bbox2.y)
+							sx = (dx+slack)*(bbox2.x <= bbox.x ? -1:1);
+						else {
+							if(dx<dy)
+								sx = (dx+slack)*(bbox2.x <= bbox.x ? -1:1);
+
+							else
+								sy = (dy+slack)*(bbox2.y <= bbox.y ? -1:1);
+						}
+						c.drag(sx,sy);
 					}
-					c.drag(sx,sy);
 				}
 			}
 			itr = itr.next;
@@ -355,20 +488,112 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 			if(child !== c && !(c.visited)) {
 				var bbox2 = c.shape.getBBox();
 				if(this.paper.raphael.isBBoxIntersect(bbox,bbox2)) {
+
 					var sx = 0, sy = 0;
 					var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
 					var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
-					if(dx>=bbox.x2-bbox.x || dx>=bbox2.x2-bbox2.x) {
-						sy = (dy+slack)*(bbox2.y<=bbox.y ? -1:1);
+					var width = this.paper.DEFAULT_PLANE_WIDTH;
+					var height = this.paper.DEFAULT_PLANE_HEIGHT;
+
+					// if bbox2 is already colliding with the upper
+					// prevents bbox from intersecting with bbox2
+					if (bbox2.y <= 0) {
+						// if bbox is colliding with bbox2 on the right
+						if (bbox.x > bbox2.x && bbox.x < bbox2.x2) {
+							sx = (dx+slack)*-1;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the left side
+						} else if (bbox.x2 < bbox2.x2 && bbox.x2 > bbox2.x) {
+							sx = dx-slack;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the bottom
+						} else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
+							sy = dy+slack;
+							child.drag(sx,sy);
+						}
 					}
-					else if(dy>=bbox.y2-bbox.y || dy>=bbox2.y2-bbox2.y) {
-						sx = (dx+slack)*(bbox2.x<=bbox.x ? -1:1);
+					// if bbox2 is already colliding with the left bound
+					else if (bbox2.x <= 0) {
+						// if bbox is colliding with bbox2 on the top
+						if (bbox.y2 > bbox2.y && bbox.y2 < bbox2.y2) {
+							sy = dy-slack;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the bottom
+						} else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
+							sy = (dy+slack)*-1;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the right
+						} else {
+							sy = dy+slack;
+							child.drag(sx,sy)
+						}
 					}
+					// if bbox2 is already colliding with the right bound
+					else if (bbox2.x2 >= width) {
+						// if bbox is colliding with bbox2 on the top
+						if (bbox.y2 > bbox2.y && bbox.y2 < bbox2.y2) {
+							sy = dy+slack;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the bottom
+						} else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
+							sy = (dy-slack)*-1;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the right
+						} else {
+							sy = dy+slack;
+							child.drag(sx,sy)
+						}
+					}
+					// if bbox2 is already colliding with the lower bound
+					else if (bbox2.y2 >= height) {
+						// if bbox is colliding with bbox2 on the right
+						if (bbox.x > bbox2.x && bbox.x < bbox2.x2) {
+							sx = (dx+slack)*-1;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the left side
+						} else if (bbox.x2 < bbox2.x2 && bbox.x2 > bbox2.x) {
+							sx = dx-slack;
+							c.drag(sx,sy);
+						// if bbox is colliding with bbox2 on the bottom
+						} else {
+							sy = dy+slack;
+							child.drag(sx,sy);
+						}
+					}
+					// Otherwise, bbox2 is not colliding with any edge and must be
+					// in the center of the plane.
 					else {
-						if(dx<dy){ sx = (dx+slack)*(bbox2.x<=bbox.x ? -1:1); }
-						else{ sy = (dy+slack)*(bbox2.y<=bbox.y ? -1:1); }
+						// bbox hitting upper bound
+						if (bbox2.y-dy <= 0)
+							sy = -1*bbox2.y;
+						// bbox hitting left bound
+						else if (bbox2.x-dx <= 0)
+							sx = -1*bbox2.x;
+						// bbox hitting lower bound
+						else if (bbox2.y2+dy >= height) {
+							if (bbox2.y2 <= height) sy = height-bbox2.y2;
+							else sy = 0;
+						}
+						// bbox hitting right bound
+						else if (bbox2.x2+dx >= width) {
+							if (bbox2.x2 <= width) sx = width-bbox2.x2;
+							else sx = 0;
+						}
+
+						else if (dx >= bbox.x2-bbox.x || dx >= bbox2.x2-bbox2.x)
+							sy = (dy+slack)*(bbox2.y <= bbox.y ? -1:1);
+						else if (dy >= bbox.y2-bbox.y || dy >= bbox2.y2-bbox2.y)
+							sx = (dx+slack)*(bbox2.x <= bbox.x ? -1:1);
+						else {
+							if(dx<dy)
+								sx = (dx+slack)*(bbox2.x <= bbox.x ? -1:1);
+
+							else
+								sy = (dy+slack)*(bbox2.y <= bbox.y ? -1:1);
+						}
+						c.drag(sx,sy);
 					}
-					c.drag(sx,sy);
+					
 				}
 			}
 			itr = itr.next;

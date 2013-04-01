@@ -23,6 +23,8 @@ window.onload = function() {
 
 	ContextMenu = new ContextHandler(R);
 
+	//Minimap(R);
+
 	document.getElementById('ModeLink').onclick = function(e){
 		TheProof.execute_transfer();
 	};
