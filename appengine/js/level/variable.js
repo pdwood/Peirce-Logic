@@ -215,21 +215,24 @@ Variable.prototype.collisionMove = function (dx, dy) {
 	
 	new_x = ox + dx;
 	new_y = oy + dy;
+
+	//D("OX:"+ox + " DX"+dx + " SW2"+shape_width/2 + " | width:"+width + " total:"+(ox+dx-(shape_width/2)));
 	
 	// collision with right bound
-	if (bbox.x2 + dx + shape_width >= width) {
+	if (ox + dx + shape_width/2 >= width) {
 		new_x = (width-shape_width/2)-slack;
 	}
 	// collision with bottom bound
-	if (bbox.y2 + dy >= height) {
+	if (oy + dy + shape_height/2 >= height) {
 		new_y = (height-shape_height/2)-slack;
 	}
 	// collision with left bound
-	if (bbox.x + dx <= 0) {
-		new_x = slack + shape_width/2;
+
+	if (ox + dx - shape_width/2 < 0) {
+		new_x = shape_width/2;
 	}
 	// collision with upper bound
-	if (bbox.y + dy <= 0) {
+	if (oy + dy <= 0) {
 		new_y = slack + shape_height/2;
 	}
 	this.text.attr({x: new_x, y: new_y});

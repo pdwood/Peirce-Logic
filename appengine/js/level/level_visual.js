@@ -268,7 +268,7 @@ shape based on drag difference
 then drags children/variables
 */
 Level.prototype.dragMove = function(dx, dy) {
-	var new_x, new_y, slack = 5;
+	var new_x, new_y;
 
 	this.collisionMove(dx,dy);
 
@@ -296,6 +296,8 @@ Level.prototype.onDragMove = function(dx, dy) {
 	this.paper.renderfix();
 };
 
+
+
 /*
 Level.collisionMove
 ~dx: drag difference in x
@@ -312,27 +314,28 @@ Level.prototype.collisionMove = function (dx, dy) {
 	var shape_width = this.shape.attr("width");
 	var shape_height = this.shape.attr("height");
 	var bbox = this.shape.getBBox();
-		
 	ox = this.ox;
 	oy = this.oy;
 	new_x = ox + dx;
 	new_y = oy + dy;
+
+	//D("OX:"+ox + " DX"+dx + " SW2"+shape_width/2 + " | width:"+width + " total:"+(ox+dx+(shape_width)));
 	
 	// collision with right bound
-	if (bbox.x2 + dx + shape_width >= width) {
-		new_x = (width-shape_width)-slack;
+	if (ox + dx + shape_width >= width) {
+		new_x = width - shape_width;
 	}
 	// collision with bottom bound
-	if (bbox.y2 + dy >= height) {
-		new_y = (height-shape_height)-slack;
+	if (oy + dy + shape_height >= height) {
+		new_y = height - shape_height;
 	}
 	// collision with left bound
-	if (bbox.x + dx <= 0) {
-		new_x = slack + shape_width/2;
+	if (ox + dx <= 0) {
+		new_x = 0;
 	}
 	// collision with upper bound
-	if (bbox.y + dy <= 0) {
-		new_y = slack + shape_height/2;
+	if (oy + dy <= 0) {
+		new_y = 0;
 	}
 
 	this.shape.attr({x: new_x, y: new_y});
