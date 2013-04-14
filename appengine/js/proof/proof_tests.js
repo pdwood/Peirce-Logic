@@ -50,13 +50,14 @@ N1.subtrees[1].add_lit("D",false);
 N1.subtrees[1].subtrees[0].subtrees.push(Node.NodeSkeleton());
 N1.subtrees[1].subtrees[0].subtrees[0].add_lit("E",false);
 
-//P -> (Q or R) , P and not R
+
+
 
 //(Q or R, not R) implies Q
 var N1 = Node.NodeSkeleton();
 N1.subtrees.push(Node.NodeSkeleton());
 N1.subtrees[0].add_lit("Q",false);
-N1.subtrees[1].add_lit("R",false);
+N1.subtrees[0].add_lit("R",false);
 N1.add_lit("R", false);
 var N2 = Node.NodeSkeleton();
 N2.add_lit("Q",true);
@@ -81,6 +82,34 @@ N1.add_lit("P",true);
 var N2 = Node.NodeSkeleton();
 N2.add_lit("Q", true);
 
+//Modus Tollens
+var N1 = Node.NodeSkeleton();
+N1.add_lit("P", false);
+N1.subtrees[0].add_lit("Q",false);
+N1.add_lit("Q",false);
+var N2 = Node.NodeSkeleton();
+N2.add_lit("P", false);
+
+//[(P->Q)->R] then [(P^Q)->R]EMPTY VARIABLE
+
+var N1 = Node.NodeSkeleton();
+N1.add_lit("P", false);
+N1.subtrees[0].add_lit("Q",false); 
+var N2 = Node.NodeSkeleton();
+N2.subtrees.push(Node.NodeSkeleton());
+N2.subtrees[0].add_lit("R",false);
+var N3 = N2.duplicate();
+N2.subtrees[0].absorb_graph(N1);
+N3.subtrees[0].add_lit("P",true);
+N3.subtrees[0].add_lit("Q",true);
+
+//P->Q and Q, then P (INCORRECT)
+var N1 = Node.NodeSkeleton();
+N1.add_lit("P", false);
+N1.subtrees[0].add_lit("Q",false); 
+N1.add_lit("Q",true);
+var N2 = Node.NodeSkeleton();
+N2.add_lit("P", true);
 
 //(U V (W)) (U (W)) (W (U)) V
 var N1 = Node.NodeSkeleton();
@@ -93,5 +122,32 @@ N1.subtrees[0].add_lit("W",false);
 N1.subtrees[1].add_lit("W",false);
 N1.subtrees[2].add_lit("U",false);
 
+//P (P) therefore Q
+var N1 = Node.NodeSkeleton();
+N1.add_lit("P",false);
+N1.add_lit("P",true);
+var N2 = Node.NodeSkeleton();
+N2.add_lit("Q",true);
+
+// NOTHING  therefore P or (P)
+var N1 = Node.NodeSkeleton();
+var N2 = Node.NodeSkeleton();
+N2.add_lit("P",false);
+N2.subtrees[0].add_lit("P",false);
+ProofExists(N1,N2);
+
+//() -> ()
+var N1 = Node.NodeSkeleton();
+N1.subtrees.push(Node.NodeSkeleton());
+var N2 = Node.NodeSkeleton();
+N2.subtrees.push(Node.NodeSkeleton());
+
+
+//
+var N2 = Node.NodeSkeleton();
+N2.add_lit("P",false);
+N2.subtrees[0].add_lit("Q",false);
+N2.add_lit("Q",false);
+N2.subtrees[1].add_lit("P",false);
 
 file:///C:/Users/caulfb2/Documents/GitHub/Peirce-Logic/appengine/templates/index.html
