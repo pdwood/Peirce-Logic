@@ -32,7 +32,7 @@ Node.prototype.is_model = function(){
 //checks if node is the disjunction of models
 Node.prototype.model_disjunct = function(){
 	if(this.leaves.length !== 0){return false;}
-	for(var i=0; i<this.subtrees.length; i++){	
+	for(var i=0; i<this.subtrees.length; i++){
 		if(!this.subtrees[i].is_model()){return false;}
 	}
 	return true;
@@ -81,7 +81,7 @@ Node.prototype.remove_lit = function(lit, truth){
 			this.leaves[i] = this.leaves[this.leaves.length-1];
 			this.leaves.pop(); i--;
 			if(!truth){ //if removing not A, and an A is found, replaces it with the empty cut
-				this.subtrees.push(Node.NodeSkeleton(this));				
+				this.subtrees.push(Node.NodeSkeleton(this));
 			}
 		}
 	}
@@ -89,8 +89,8 @@ Node.prototype.remove_lit = function(lit, truth){
 	for(var i=0; i<this.subtrees.length; i++){
 		//checks if subtree is a cut containing only the literal-name
 		//if removing a negative literal, removes this subgraph
-		if(!truth && this.subtrees[i].subtrees.length===0 && 
-			this.leaves[0]===lit && this.leaves.length===1){ 
+		if(!truth && this.subtrees[i].subtrees.length===0 &&
+			this.leaves[0]===lit && this.leaves.length===1){
 			this.subtrees[i] = this.subtrees[this.subtrees.length-1];
 			this.subtrees.pop(); i--;
 		}
@@ -101,7 +101,7 @@ Node.prototype.remove_lit = function(lit, truth){
 	this.remove_DN(); //removes any double-cuts created at this level.
 }
 
-//prints out a node, representing cuts as () 
+//prints out a node, representing cuts as ()
 Node.prototype.print_node = function(){
 	for(var i=0; i<this.leaves.length; i++){
 		document.write(this.leaves[i], " ");
@@ -136,7 +136,7 @@ Node.prototype.duplicate = function() {
 Node.prototype.DNFTransform = function(){
 	this.remove_DN();
 	//document.write("DNF:")
-	//this.print_node(); document.write("|"); 
+	//this.print_node(); document.write("|");
 	if(this.subtrees.length === 1 && this.subtrees[0].empty()){return;} //if empty cut
 	if(this.subtrees.length === 0){return;} // if all leaves
 	if(this.empty()){return;} //if empty graph
@@ -147,7 +147,7 @@ Node.prototype.DNFTransform = function(){
 		has_lit = true;
 		lit = this.leaves[this.leaves.length-1];
 		this.leaves.pop();
-		truth = true;	
+		truth = true;
 	}
 	else{ //looks for false literal at depth 0
 		var lit_ind = 0;
@@ -160,19 +160,19 @@ Node.prototype.DNFTransform = function(){
 		if(lit_ind !== this.subtrees.length){ // if false literal is found, removes it
 			has_lit = true;
 			lit = this.subtrees[lit_ind].leaves[0];
-			this.subtrees[lit_ind] = this.subtrees[this.subtrees.length-1]; 
+			this.subtrees[lit_ind] = this.subtrees[this.subtrees.length-1];
 			this.subtrees.pop();
 			truth = false;
-		}		
-	} 
+		}
+	}
 	if(has_lit){ //if a literal was found, pastes it into the rest of the graph
-		this.remove_lit(lit, truth); 
+		this.remove_lit(lit, truth);
 		this.DNFTransform();
 		this.paste(lit, truth);
 		this.remove_DN();
 		return;
 	}
-	else if(this.subtrees.length === 1){return;} 
+	else if(this.subtrees.length === 1){return;}
 	else{//step three in transformation
 
 
@@ -267,7 +267,7 @@ Node.node_to_node_skeleton = function(node){
 	});
 	//node_skeleton.leaves = [];
 	node.leaves.iterate(function(s){
-		node_skeleton.leaves.push(s.text);
+		node_skeleton.leaves.push(s.text.attr("text"));
 	})
 	return node_skeleton;
 }
@@ -278,7 +278,7 @@ Node.ProofExists = function(n1, n2){
 	//var n1 = Node.node_to_node_skeleton(node1);
 	//var n2 = Node.node_to_node_skeleton(node2);
 	var outer_node = Node.NodeSkeleton();
-	n1.parent = outer_node; 
+	n1.parent = outer_node;
 	outer_node.absorb_graph(n1);
 	outer_node.subtrees.push(Node.NodeSkeleton(outer_node));
 	outer_node.subtrees[outer_node.subtrees.length-1].absorb_graph(n2);
