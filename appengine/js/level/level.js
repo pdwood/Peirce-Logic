@@ -13,9 +13,9 @@ function Level(R,parent,x,y,duplicate) {
 
 	this.shape = null;
 
-	this.DEFAULT_PLANE_WIDTH = 25000;
+	this.DEFAULT_PLANE_WIDTH = 1000;
 	this.paper.DEFAULT_PLANE_WIDTH = this.DEFAULT_PLANE_WIDTH;
-	this.DEFAULT_PLANE_HEIGHT = 25000;
+	this.DEFAULT_PLANE_HEIGHT = 200;
 	this.paper.DEFAULT_PLANE_HEIGHT = this.DEFAULT_PLANE_HEIGHT;
 	this.DEFAULT_CHILD_WIDTH = 50;
 	this.DEFAULT_CHILD_HEIGHT = 50;

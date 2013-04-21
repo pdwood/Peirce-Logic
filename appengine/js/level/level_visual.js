@@ -268,17 +268,10 @@ shape based on drag difference
 then drags children/variables
 */
 Level.prototype.dragMove = function(dx, dy) {
-<<<<<<< HEAD
-	//shift shape
-	var new_x = this.ox + dx;
-	var new_y = this.oy + dy;
-	this.shape.attr({x: new_x, y: new_y});
-=======
 	var new_x, new_y;
 
 	this.collisionMove(dx,dy);
 
->>>>>>> 9cddd4fa593d585b124017285716579a16f20adc
 	//shift children
 	var itr = this.subtrees.begin();
 	while(itr!=this.subtrees.end()) {
