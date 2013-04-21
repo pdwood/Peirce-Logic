@@ -13,9 +13,9 @@ function Level(R,parent,x,y,duplicate) {
 
 	this.shape = null;
 
-	this.DEFAULT_PLANE_WIDTH = this.paper.width*6;
+	this.DEFAULT_PLANE_WIDTH = 25000;
 	this.paper.DEFAULT_PLANE_WIDTH = this.DEFAULT_PLANE_WIDTH;
-	this.DEFAULT_PLANE_HEIGHT = this.paper.height*6;
+	this.DEFAULT_PLANE_HEIGHT = 25000;
 	this.paper.DEFAULT_PLANE_HEIGHT = this.DEFAULT_PLANE_HEIGHT;
 	this.DEFAULT_CHILD_WIDTH = 50;
 	this.DEFAULT_CHILD_HEIGHT = 50;
@@ -34,7 +34,7 @@ function Level(R,parent,x,y,duplicate) {
 			this.shape.attr({
 				fill: color,
 				stroke: color, "fill-opacity": 0.1
-			});
+			});	
 		}
 		//cut constructor
 		else {
@@ -74,14 +74,14 @@ Level.prototype.duplicate = function() {
 	var dup = new Level(this.paper,null,0,0,true);
 	dup.id = this.id;
 	dup.id_gen = this.id_gen;
-	if(!this.saved_attr){
+	if(!this.saved_attr) {
 		dup.saved_attr = jQuery.extend(true, {}, this.shape.attrs);
 	}
-	else{
+	else {
 		dup.saved_attr = this.saved_attr;
 	}
-	
-	this.subtrees.iterate(function(x){ 
+
+	this.subtrees.iterate(function(x){
 		child_dup = x.duplicate();
 		child_dup.parent = dup;
 		dup.subtrees.push_back(child_dup);

@@ -60,7 +60,7 @@
 	<script src="../js/level/variable.js"></script>
 
 	<script src="../js/gui/context_menu.js"></script>
-	<script src="../js/gui/zoom_menu.js"></script>
+	<script src="../js/gui/minimap.js"></script>
 	<script src="../js/mode_handler.js"></script>
 	<script src="../js/gui/branches.js"></script>
 </head>
@@ -83,9 +83,13 @@
           <a class="brand" href="#">Peirce Logic</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li id = "mode" ><a href="#contact">Contact</a></li>
+              <li id = "ModeLink">
+              	<span class="label label-important">
+              		Goal Mode
+              	</span>
+              </li>
+              <li id = "AutomatedCheck">
+              </li>
             </ul>
           </div>
         </div>
@@ -96,22 +100,30 @@
 <div role="main">
 	<div class="row-fluid">
 		<div id="paper"></div>
+		<div id="minimap"></div>
 		<div id="paper_overlay" style="z-index: 2; position: absolute; left: 0px; top: 0px; "></div>
 	</div>
 	<div class="row-fluid">
 		<div id ="timeline"></div>
 	</div>
 </div>
-
 <script>
+<<<<<<< HEAD
 	/*getElementById('mode').onclick = function(e){
 	    document.getElementById('mode').innerHTML = '<a href="#">MODE</a>';
 	};*/
+=======
+function home(){
+			smoke.confirm('I\'m home!',function(e){
+				if (e){
+					smoke.alert('OK pressed');
+				}else{
+					smoke.alert('CANCEL pressed');
+				}
+			});
+		}
+>>>>>>> 9cddd4fa593d585b124017285716579a16f20adc
 </script>
-
-
-
-
 
 
 <footer>

@@ -1,6 +1,6 @@
 InferenceRule.prototype.AvailableRules = function(proof,nodes) {
-	var logic_modes = this.MH.LogicMode;
-	var current_mode = this.MH.CURRENT_MODE;
+	var logic_modes = proof.LOGIC_MODES;
+	var current_mode = proof.CURRENT_MODE;
 	var methods = {} ;
 
 	//properties of node set
@@ -89,33 +89,35 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 	}
 
 
-	if(current_mode === logic_modes.PREMISE_MODE || current_mode === logic_modes.INSERTION_MODE) {
+	if(current_mode === logic_modes.PREMISE_MODE || current_mode === logic_modes.INSERTION_MODE
+		|| current_mode === logic_modes.GOAL_MODE) {
 		var mode_name = 'Construction: ';
 		var out_of_plane = false;
 		var in_orig_set = false;
 		var ok_in_orig_set = null;
 		var contains_insertion_plane = false;
 		if(current_mode === logic_modes.INSERTION_MODE) {
-			var nMH = this.MH;
+			var thk = this.thunk;
 			if(iterable) {
 				// add source node in ok set
 				ok_in_orig_set = iteration_nodes.begin().val;
 			}
 			nodes.iterate(function(node) {
-				if(node === nMH.thunk.Node)
+				if(node.getIdentifier() === thk.data.Node) {
 					contains_insertion_plane = true;
 					return;
-				if((nMH.thunk.OriginalSubtrees.contains(node)
-					|| nMH.thunk.OriginalLeaves.contains(node))
+				}
+				if((thk.data.OriginalSubtrees.contains(node.getIdentifier())
+					|| thk.data.OriginalLeaves.contains(node.getIdentifier()))
 					&& node !== ok_in_orig_set)
 					in_orig_set = true;
 
 				var p = node.parent;
 				while(p!==null) {
-					if(p===nMH.thunk.Node)
+					if(p.getIdentifier()===thk.data.Node)
 						return;
-					if((nMH.thunk.OriginalSubtrees.contains(p)
-						|| nMH.thunk.OriginalLeaves.contains(p))
+					if((thk.data.OriginalSubtrees.contains(p.getIdentifier())
+						|| thk.data.OriginalLeaves.contains(p.getIdentifier()))
 						&& p !== ok_in_orig_set)
 						in_orig_set = true;
 					p = p.parent;
@@ -156,7 +158,9 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 					var name = mode_name+'Reverse Cut';
 					methods[name] = this.reverse_n_cut_for(1,name);
 				}
-				if(this.validate_reverse_n_cut(2,nodes)) {
+				if(this.validate_reverse_n_cut(2,nodes) &&
+					(current_mode !== logic_modes.INSERTION_MODE ||
+						nodes.begin().val.parent.parent.getIdentifier()!==this.thunk.data.Node)) {
 					var name = mode_name+'Reverse Double Cut';
 					methods[name] = this.reverse_n_cut_for(2,name);
 				}
@@ -198,12 +202,12 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 		}
 		if(nodes.length==1) {
 			node = nodes.begin().val;
-			if(all_even_level && node instanceof Level) {
+			if(all_odd_level && node instanceof Level) {
 				var name = mode_name+'Insertion';
 				methods[name] = this.insertion_for(name);
 			}
 		}
-		if(all_even_level && all_have_parent) {
+		if(all_odd_level && all_have_parent) {
 			var name = mode_name+'Erasure';
 			methods[name] = this.erasure_for(name);
 		}
