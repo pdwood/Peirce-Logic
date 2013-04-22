@@ -12,7 +12,7 @@ window.onload = function() {
 
 	PLANE_VOFFSET += BOOTSTRAP_HEIGHT;
 
-	var R = Raphael("paper", window.screen.availWidth, window.screen.availHeight - 230);
+	R = Raphael("paper", window.screen.availWidth, window.screen.availHeight - 230);
 	mode_width = 150;
 
 	//var MH = new ModeHandler(R, window.screen.availWidth - mode_width, 0, mode_width, 25);

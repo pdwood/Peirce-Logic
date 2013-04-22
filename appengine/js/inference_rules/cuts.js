@@ -1,5 +1,5 @@
 InferenceRule.prototype.n_cut = function (proof, rule_name, n, nodes) {
-	proof.addnode(rule_name,this.RuleToId(rule_name));
+	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
 	nodes_parent = nodes.begin().val.parent;
 
 	var ax = 0;
@@ -59,7 +59,7 @@ InferenceRule.prototype.n_cut = function (proof, rule_name, n, nodes) {
 };
 
 InferenceRule.prototype.empty_n_cut = function (proof, rule_name, n, node, x, y) {
-	proof.addnode(rule_name,this.RuleToId(rule_name));
+	proof.addnode(rule_name,this.RuleToId(rule_name),node);
 
 	var p = node.begin().val.addChild(x,y);
 	n--;
@@ -106,7 +106,7 @@ InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
 	}(this);
 
 
-	proof.addnode(rule_name,this.RuleToId(rule_name));
+	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
 
 	var tparent;
 	if(nodes.length==1) {

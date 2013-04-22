@@ -21,6 +21,15 @@ function Thunk(data) {
 	this.exit = Thunk.Default_Exit;
 }
 
+Proof.Default_Thunk = function (nodes) {
+	var thunk_data = {};
+	thunk_data["Nodes"] = [];
+	nodes.iterate(function(n) {
+		thunk_data["Nodes"].push(n.getIdentifier());
+	});
+	return (new Thunk(thunk_data));
+};
+
 Thunk.Default_Enter = function(proof) {
 	return;
 };
@@ -91,7 +100,7 @@ Proof.prototype.execute_transfer = function() {
 
 
 //adds a node in the proof, must be called by all inference rules before tree is changed
-Proof.prototype.addnode = function (rule,rule_id,thunk,mode) {
+Proof.prototype.addnode = function (rule,rule_id,nodes,thunk,mode) {
 	var node = new ProofNode();
 	node.plane = this.current.plane;
 	node.prev = this.current;
@@ -104,7 +113,7 @@ Proof.prototype.addnode = function (rule,rule_id,thunk,mode) {
 		node.mode = this.CURRENT_MODE;
 
 	if(!thunk) {
-		node.thunk = new Thunk({});
+		node.thunk = Proof.Default_Thunk(nodes);
 		if(node.mode == this.LOGIC_MODES.PREMISE_MODE || node.mode == this.LOGIC_MODES.GOAL_MODE) {
 			mode_name = "";
 			mode_n = 0;
@@ -119,9 +128,9 @@ Proof.prototype.addnode = function (rule,rule_id,thunk,mode) {
 			node.thunk.transfer = function(mode_name) {
 				return function(proof) {
 					var t = new InferenceRule();
-					proof.addnode(mode_name,t.RuleToId(mode_name),null,mode_n);
+					proof.addnode(mode_name,t.RuleToId(mode_name),nodes,null,mode_n);
 				};
-			}(mode_name,mode_n);
+			}(mode_name,mode_n,nodes);
 		} else if (node.mode == this.LOGIC_MODES.INSERTION_MODE) {
 			node.thunk = this.thunk;
 		}

@@ -1,5 +1,5 @@
 InferenceRule.prototype.erasure = function (proof, rule_name, nodes) {
-	proof.addnode(rule_name,this.RuleToId(rule_name));
+	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
 	nodes.iterate(function(node) {
 		var parent = node.parent;
 		parent.removeNode(node);

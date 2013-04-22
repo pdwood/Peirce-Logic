@@ -37,7 +37,7 @@ InferenceRule.prototype.RuleToId = function(rule_id) {
 };
 
 InferenceRule.prototype.variable = function (proof, rule_name, nodes, x, y) {
-	proof.addnode(rule_name,this.RuleToId(rule_name));
+	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
 	nodes.begin().val.addVariable(x,y);
 };
 
@@ -48,3 +48,4 @@ InferenceRule.prototype.variable_for = function(mode) {
 	};
 	}(this);
 };
+

@@ -1,5 +1,5 @@
 InferenceRule.prototype.iteration = function (proof, rule_name, nodes, x, y) {
-	proof.addnode(rule_name,this.RuleToId(rule_name));
+	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
 	var source = nodes.begin().val.duplicate();
 	var dest = nodes.begin().next.val;
 	source.parent = dest;
@@ -43,7 +43,7 @@ InferenceRule.prototype.iteration_for = function (iteration_nodes,mode) {
 };
 
 InferenceRule.prototype.deiteration = function (proof, rule_name, nodes) {
-	proof.addnode(rule_name,this.RuleToId(rule_name));
+	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
 	var dest = nodes.begin().next.val;
 	var parent = dest.parent;
 	parent.removeNode(dest);

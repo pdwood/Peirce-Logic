@@ -10,7 +10,7 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 		oleaves.push_back(node.getIdentifier());
 	});
 
-	data = {'Node':node.getIdentifier(),
+	data = {'Nodes':[node.getIdentifier()],
 			'OriginalSubtrees':osubtrees,
 			'OriginalLeaves':oleaves};
 
@@ -25,7 +25,7 @@ InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
 	thunk.exit = exit;
 	thunk.transfer = transfer;
 
-	proof.addnode(rule_name+' Start',this.RuleToId(rule_name+' Start'),thunk,proof.LOGIC_MODES.INSERTION_MODE);
+	proof.addnode(rule_name+' Start',this.RuleToId(rule_name+' Start'),nodes,thunk,proof.LOGIC_MODES.INSERTION_MODE);
 };
 
 InferenceRule.prototype.insertion_for = function (mode) {
@@ -45,14 +45,14 @@ InferenceRule.prototype.insertion_thunk_transfer = function(rule_name) {
 
 InferenceRule.prototype.insertion_thunk_enter = function(rule_name) {
 	return function(proofnode) {
-		var node = proofnode.plane.getChildByIdentifier(this.data.Node);
+		var node = proofnode.plane.getChildByIdentifier(this.data.Nodes[0]);
 		node.shape.attr({'stroke-dasharray': '--'});
 	};
 };
 
 InferenceRule.prototype.insertion_thunk_exit = function(rule_name) {
 	return function(proofnode) {
-		var node = proofnode.plane.getChildByIdentifier(this.data.Node);
+		var node = proofnode.plane.getChildByIdentifier(this.data.Nodes[0]);
 		node.shape.attr({'stroke-dasharray': ""});
 	};
 };
