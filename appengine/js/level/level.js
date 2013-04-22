@@ -196,6 +196,7 @@ current level at x,y position (x,y is center)
 returns child
 */
 Level.prototype.addChild = function(x,y) {
+	minimap.addPoint(x, y);
 	var child = new Level(this.paper,this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
 	child.shape.toFront();
 	this.subtrees.push_back(child);
@@ -208,7 +209,7 @@ Level.prototype.addChild = function(x,y) {
 
 
 /*
-Level.addChild
+Level.addVariable
 ~x: new variable x
 ~y: new variable y
 

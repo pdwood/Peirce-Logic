@@ -12,7 +12,7 @@ window.onload = function() {
 
 	PLANE_VOFFSET += BOOTSTRAP_HEIGHT;
 
-	R = Raphael("paper", window.screen.availWidth, window.screen.availHeight - 230);
+	var R = Raphael("paper", window.screen.availWidth, window.screen.availHeight - 230);
 	mode_width = 150;
 
 	//var MH = new ModeHandler(R, window.screen.availWidth - mode_width, 0, mode_width, 25);
@@ -20,10 +20,9 @@ window.onload = function() {
 
 	TheProof = new Proof(R);
 	R.Proof = TheProof;
-
+	minimap = new Minimap(R);
 	ContextMenu = new ContextHandler(R);
 
-	//Minimap(R);
 
 	document.getElementById('ModeLink').onclick = function(e){
 		TheProof.execute_transfer();
