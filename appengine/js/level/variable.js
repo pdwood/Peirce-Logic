@@ -108,7 +108,7 @@ Variable.prototype.compress = function() {
 	this.saved_attr = jQuery.extend(true, {}, this.text.attrs);
 	this.text.remove();
 	this.text = null;
-}
+};
 
 /*
 Variable.restore
@@ -118,15 +118,15 @@ saved text attributes
 */
 Variable.prototype.restore = function() {
 	if(this.saved_attr) { //check if saved attributes exist
-		this.renderText(this.saved_attr)
+		this.renderText(this.saved_attr);
 	}
-}
+};
 
 Variable.prototype.drag = function(dx,dy) {
 	this.dragStart();
 	this.dragMove(dx,dy);
 	this.dragEnd();
-}
+};
 
 /*
 Variable.dragStart
@@ -172,11 +172,12 @@ Variable.prototype.dragMove = function(dx, dy) {
 
 	//move collided nodes out of way
 	this.parent.shiftAdjacent(this,this.text.getBBox());
+	minimap.redraw();
 };
 //Variable callback for dragging
 Variable.prototype.onDragMove = function(dx, dy) {
 	this.parent.dragMove(dx,dy);
-	this.paper.renderfix()
+	this.paper.renderfix();
 };
 
 /*
@@ -188,7 +189,7 @@ Does final contraction of Variable
 */
 Variable.prototype.dragEnd = function() {
 	this.parent.contract();
-}
+};
 //Variable callback for drag ending
 Variable.prototype.onDragEnd = function() {
 	this.parent.dragEnd();

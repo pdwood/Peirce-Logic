@@ -212,15 +212,16 @@ Level.prototype.contract = function(animate) {
 		//contract parent
 		this.parent.contract(animate);
 	}
-}
+};
 
 
 Level.prototype.drag = function(dx,dy) {
 	if (this.parent){
 		this.dragStart();
 		this.dragMove(dx,dy);
-		this.dragEnd();}
-}
+		this.dragEnd();
+	}
+};
 
 
 /*
@@ -253,7 +254,7 @@ Level.prototype.dragStart = function() {
 Level.prototype.onDragStart = function() {
 	this.parent.dragStart();
 	//highlight shape
-	this.attr({"fill-opacity": .2});
+	this.attr({"fill-opacity": 0.2});
 };
 
 
@@ -289,6 +290,7 @@ Level.prototype.dragMove = function(dx, dy) {
 	//fit hull to new area
 	this.parent.expand(new_x,new_y,this.shape.attrs.width,this.shape.attrs.height);
 	this.parent.contract();
+	minimap.redraw();
 };
 //Level callback for dragging
 Level.prototype.onDragMove = function(dx, dy) {
@@ -339,7 +341,7 @@ Level.prototype.collisionMove = function (dx, dy) {
 	}
 
 	this.shape.attr({x: new_x, y: new_y});
-}
+};
 
 /*
 Level.dragEnd

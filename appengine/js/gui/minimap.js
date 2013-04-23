@@ -4,12 +4,25 @@ function Minimap(R) {
     this.width = 100;
     this.height = 100;
     this.relief = 4;
-    this.points_array = [];
+    this.points = [];
     var plane_width = DEFAULT_PLANE_WIDTH;
     var plane_height = DEFAULT_PLANE_HEIGHT;
 
     this.R = R;
     this.R_overlay = induce_overlay('minimap', this.x, this.y+PLANE_VOFFSET, this.x+this.width+1, this.y+this.height+1);
+
+    this.viewport = this.R_overlay.rect(this.x, this.y, (PLANE_CANVAS_WIDTH()/plane_width)*this.width,
+                                                        (PLANE_CANVAS_HEIGHT()/plane_height)*this.height);
+    this.viewport.parent = this;
+    this.viewport.ox = this.x;
+    this.viewport.oy = this.y;
+
+    this.viewport.attr({
+        'stroke-width': 1,
+        fill: 'white',
+        stroke: 'black',
+        'fill-opacity': 0.15
+    });
 
     this.minimap = this.R_overlay.rect(this.x, this.y, this.width, this.height).attr({
         fill: 'black',
@@ -19,19 +32,7 @@ function Minimap(R) {
     });
     this.minimap.parent = this;
 
-    this.viewport = this.R_overlay.rect(this.x, this.y, (PLANE_CANVAS_WIDTH()/plane_width)*this.width,
-                                                        (PLANE_CANVAS_HEIGHT()/plane_height)*this.height);
-    this.viewport.parent = this;
 
-    this.viewport.attr({
-        'stroke-width': 1,
-        fill: 'white',
-        stroke: 'black',
-        'fill-opacity': 0.15
-    });
-
-    this.viewport.ox = this.x;
-    this.viewport.oy = this.y;
 
     this.zoom_x = 0;
     this.zoom_y = 0;
@@ -39,34 +40,40 @@ function Minimap(R) {
     this.zoom_height = PLANE_CANVAS_HEIGHT();
     R.setViewBox(this.zoom_x, this.zoom_y, this.zoom_width, this.zoom_height, false);
 
-    this.viewport.drag(this.move, this.start, this.end);
+    this.minimap.drag(this.move, this.start, this.end);
+    this.minimap.dblclick(this.minimapClick);
 }
 
+Minimap.prototype.minimapClick = function(event) {
+    var coords = mouse_to_svg_coordinates(this,event);
+    this.parent.collisionMove(coords.x+event.clientX-this.parent.relief,coords.y+event.clientY-PLANE_VOFFSET-this.parent.relief);
+};
+
 Minimap.prototype.start = function () {
-    this.attr({
-        opacity: 0.5
-    });
-    this.ox = this.attr("x");
-    this.oy = this.attr("y");
+    // this.attr({
+    //     opacity: 0.5
+    // });
+    this.parent.viewport.ox = this.parent.viewport.attr("x");
+    this.parent.viewport.oy = this.parent.viewport.attr("y");
 };
 
 Minimap.prototype.move = function (dx, dy) {
-    this.parent.collisionMove(dx, dy);
+    this.parent.collisionMove(this.parent.viewport.ox + dx, this.parent.viewport.oy + dy);
 };
 
 Minimap.prototype.end = function () {
-    this.attr({
-        opacity: 100
-    });
+    // this.attr({
+    //     opacity: 100
+    // });
 };
 
-Minimap.prototype.collisionMove = function (dx, dy) {
+Minimap.prototype.collisionMove = function (x, y) {
     var v_bbox = this.viewport.getBBox();
     var m_bbox = this.minimap.getBBox();
     var ox = this.viewport.ox;
     var oy = this.viewport.oy;
-    var new_x = ox + dx;
-    var new_y = oy + dy;
+    var new_x = x;
+    var new_y = y;
     var v_width = this.viewport.attr("width");
     var v_height = this.viewport.attr("height");
     var m_width = this.minimap.attr("width");
@@ -122,7 +129,26 @@ Minimap.prototype.windowResizeView = function() {
     this.R.setViewBox(this.zoom_x, this.zoom_y, this.zoom_width, this.zoom_height, false);
 };
 
-Minimap.prototype.addPoint = function (x, y) {
+Minimap.prototype.redraw = function() {
+    var plane = TheProof.current.plane;
+    for(var p in this.points) {
+        this.points[p].remove();
+    }
+    this.points = [];
+    var mm = this;
+    plane.subtrees.iterate(function(n) {
+        var x = n.shape.attr("x");
+        var y = n.shape.attr("y");
+        mm.addPoint(x,y,"red");
+    });
+    plane.leaves.iterate(function(n) {
+        var x = n.text.attr("x");
+        var y = n.text.attr("y");
+        mm.addPoint(x,y,"gray");
+    });
+};
+
+Minimap.prototype.addPoint = function (x, y, color) {
     var m_width = this.minimap.attr('width');
     var m_height = this.minimap.attr('height');
     var x_offset = this.minimap.attr('x');
@@ -133,5 +159,6 @@ Minimap.prototype.addPoint = function (x, y) {
     var zoom_x = ((x/plane_width)*m_width)+x_offset;
     var zoom_y = ((y/plane_height)*m_height)+y_offset;
 
-    this.points_array.push(this.R_overlay.rect(zoom_x, zoom_y, 1, 1, DEFAULT_CURVATURE).attr({fill: 'gray', stroke: 'gray'}));
+    var point = this.R_overlay.rect(zoom_x, zoom_y, 1, 1, DEFAULT_CURVATURE).attr({fill: color, stroke: color});
+    this.points.push(point);
 };

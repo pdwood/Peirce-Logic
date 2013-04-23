@@ -15,7 +15,8 @@ function induce_overlay(name,x,y,dx,dy) {
 Created by Ricardo Corbucci on 2012-06-13
 E-mail: ricardo....@gmail.com
 It requires jQuery!
-raphaelObj -> receives Raphael.element or Raphael.Paper. Any will do!
+raphaelObj -> receives Raphael.element or Raphael.Paper. Any will do
+https://groups.google.com/forum/?fromgroups=#!topic/raphaeljs/ABOC-HCMFK0
 */
 function mouse_to_svg_coordinates(raphaelObj,mouseEvent) {
 	var paper = raphaelObj.paper ? raphaelObj.paper : raphaelObj;

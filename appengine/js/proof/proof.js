@@ -195,6 +195,7 @@ Proof.prototype.select = function(node) {
 		this.change_mode(this.current.mode);
 		if(node.mode !== this.LOGIC_MODES.GOAL_MODE && node.mode !== this.LOGIC_MODES.PREMISE_MODE)
 			this.automated_check(this.current);
+		minimap.redraw();
 	}
 };
 

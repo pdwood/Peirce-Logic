@@ -188,7 +188,6 @@ current level at x,y position (x,y is center)
 returns child
 */
 Level.prototype.addChild = function(x,y) {
-	minimap.addPoint(x, y);
 	var child = new Level(this.paper,this,x-DEFAULT_CHILD_WIDTH/2,y-DEFAULT_CHILD_HEIGHT/2);
 	child.shape.toFront();
 	this.subtrees.push_back(child);
@@ -196,6 +195,7 @@ Level.prototype.addChild = function(x,y) {
 	this.shiftAdjacent(child,child.shape.getBBox());
 	//expand self to new child
 	this.expand(child.shape.attrs.x, child.shape.attrs.y, child.shape.attrs.width, child.shape.attrs.height,true);
+	minimap.redraw();
 	return child;
 };
 
@@ -215,6 +215,7 @@ Level.prototype.addVariable = function(x,y) {
 	//first variable's text box pops up
 	//if valid text used to initialize variable
 	//then variable pushes itself into this level
+	minimap.redraw();
 };
 
 Level.prototype.removeNode = function(node) {
