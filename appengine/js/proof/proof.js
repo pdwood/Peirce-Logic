@@ -173,7 +173,7 @@ Proof.prototype.automated_check = function(pnode) {
 	var eq = gnode.plane.equivalence(pnode.plane);
 	gnode.plane.compressTree();
 	if(eq)
-		alert('Reached Goal');
+		smoke.alert('Reached Goal');
 };
 
 //moves proof to last step

@@ -9,7 +9,8 @@ svg:not(:root)
 
 #timeline
 {
-	background: #F2F2F2;
+	/*background: #F2F2F2;*/
+	background: url(../img/patternlight.png)
 }
 
 body{

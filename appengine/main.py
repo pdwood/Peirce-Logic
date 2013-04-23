@@ -18,12 +18,18 @@ def proof_key(proof_name=None):
 
 
 class IndexHandler(webapp2.RequestHandler):
+
     def get(self):
+        user = users.get_current_user()
+        template_values = {
+            "user": user
+        }
         template = jinja_environment.get_template('templates/index.html')
-        self.response.out.write(template.render())
+        self.response.out.write(template.render(template_values))
 
 
 class ProofHandler(webapp2.RequestHandler):
+
     def get(self):
         self.response.out.write('<html><body>')
 
