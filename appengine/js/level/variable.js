@@ -11,51 +11,30 @@ function Variable(R,parent,x,y,duplicate) {
 
 	if(!duplicate) {
 		//initial text, can't be empty or else it defaults to 0,0 origin
-		this.text = this.paper.text(x,y+45-PLANE_VOFFSET,"~").attr({"font-size":20});
+		this.text = this.paper.text(x,y+45-PLANE_VOFFSET,"").attr({"font-size":20});
 		text = this.text;
 		this.text.parent = this;
 
 		//setup text initialization
-		var w=100,h=16; //dimensions of text box
-		//create div with inner text box
-		var text_box = $('<div> <input style="height:' + h + 'px; width: ' + w + 'px;" type="text" name="textbox" value=""></div>');
-		//center over text area
-		text_box.css({"z-index" : 2, "position" : "absolute"});
-		//text_box.css("left",this.text.getBBox().x-w/2+8);
-		//text_box.css("top",this.text.getBBox().y+19);
-		text_box.css("left",(this.text.getBBox().x-(w/2)));
-		text_box.css("top",(this.text.getBBox().y) + PLANE_VOFFSET );
-		//text creation function
-		var text_evaluate = function() {
-			//get rid extraneous pre/post white space
-			var text_string = this.children[0].value.replace(/^\s+|\s+$/g,"");
-			try {
-				this.parentNode.removeChild(this); //remove div
-				if(!text_string.length) { //if not valid string, just white space
-					text_string = "EMPTY VARIABLE";
-				}
-				//initialize and add variable to parent
-				text.attr({'text':text_string});
-				text.parent.parent.leaves.push_back(text.parent);
+		smoke.prompt('Enter Variable Name',function(e){
+			var text_string =  "";
+			if(e){
+				text_string = e.replace(/^\s+|\s+$/g,"");
+			}
+			if(!text_string.length) { //if not valid string, just white space
+				text_string = "EMPTY VARIABLE";
+			}
+			//initialize and add variable to parent
+			text.attr({'text':text_string});
+			text.parent.parent.leaves.push_back(text.parent);
 
-				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
-				text.parent.parent.contract();
-				//move collided nodes out of way
-				text.parent.parent.shiftAdjacent(text.parent,text.getBBox());
-				text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
-				text.parent.parent.contract();
-			}
-			catch(e){} //catch all needed in case div removed before function finishes
-		};
-		text_box.focusout( text_evaluate ); //evaluate text on focus out of text box
-		text_box.keyup(function(event){
-			if(event.keyCode == 13){
-				text_evaluate.apply(this);
-			}
+			text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
+			text.parent.parent.contract();
+			//move collided nodes out of way
+			text.parent.parent.shiftAdjacent(text.parent,text.getBBox());
+			text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
+			text.parent.parent.contract();
 		});
-		//need to enter based evaluation
-		$("body").append(text_box); //insert text box into page
-		$(text_box).children()[0].focus(); //focus on text box
 
 		this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 		this.text.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
