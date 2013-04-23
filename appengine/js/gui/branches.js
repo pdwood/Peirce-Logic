@@ -259,7 +259,7 @@ branches = {
                     curr_index = dots_index;
                 }
 
-                (function(canvas, treenode,layer_x,layer_y,layer) {
+                (function(canvas, treenode,layer_x,layer_y,layer,dots_index) {
                     dots[dots_index].hover(function() {
                         this.attr({
                             r: settings.highlight_r
@@ -314,7 +314,7 @@ branches = {
                             stroke: settings.normal_fill[dots[dots_index].node_mode]
                         });
                     });
-                })(this, node, layer_x, layer_y,i);
+                })(this, node, layer_x, layer_y,i,dots_index);
             }
             // set parent layer offset
             parent_mid_layer = mid_layer;
