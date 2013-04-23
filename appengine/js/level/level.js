@@ -13,19 +13,11 @@ function Level(R,parent,x,y,duplicate) {
 
 	this.shape = null;
 
-	this.DEFAULT_PLANE_WIDTH = 5000;
-	this.paper.DEFAULT_PLANE_WIDTH = this.DEFAULT_PLANE_WIDTH;
-	this.DEFAULT_PLANE_HEIGHT = 5000;
-	this.paper.DEFAULT_PLANE_HEIGHT = this.DEFAULT_PLANE_HEIGHT;
-	this.DEFAULT_CHILD_WIDTH = 50;
-	this.DEFAULT_CHILD_HEIGHT = 50;
-	this.DEFAULT_CURVATURE = 20;
-
 	//setup shape if not in duplication process
 	if(!duplicate) {
 		//plane constructor
 		if(!parent) {
-			this.shape = this.paper.rect(0,0,this.DEFAULT_PLANE_WIDTH,this.DEFAULT_PLANE_HEIGHT);
+			this.shape = this.paper.rect(0,0,DEFAULT_PLANE_WIDTH,DEFAULT_PLANE_HEIGHT);
 			/*this.shape.mouseover(function () {
 				this.animate({"fill-opacity": .2}, 500); });
 			this.shape.mouseout(function () {
@@ -34,11 +26,11 @@ function Level(R,parent,x,y,duplicate) {
 			this.shape.attr({
 				fill: color,
 				stroke: color, "fill-opacity": 0.1
-			});	
+			});
 		}
 		//cut constructor
 		else {
-			this.shape = this.paper.rect(x,y,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE);
+			this.shape = this.paper.rect(x,y,DEFAULT_CHILD_WIDTH,DEFAULT_CHILD_HEIGHT,DEFAULT_CURVATURE);
 			//mouseover effects
 				this.shape.mouseover(function () {
 					this.attr({"fill-opacity": 0.2}); });
@@ -197,7 +189,7 @@ returns child
 */
 Level.prototype.addChild = function(x,y) {
 	minimap.addPoint(x, y);
-	var child = new Level(this.paper,this,x-this.DEFAULT_CHILD_WIDTH/2,y-this.DEFAULT_CHILD_HEIGHT/2);
+	var child = new Level(this.paper,this,x-DEFAULT_CHILD_WIDTH/2,y-DEFAULT_CHILD_HEIGHT/2);
 	child.shape.toFront();
 	this.subtrees.push_back(child);
 	//move collided nodes out of way
@@ -279,6 +271,7 @@ Creates context menu on node;
 Level.prototype.onDoubleClick = function(event) {
 	if (!event.ctrlKey) {
 		//Menu intialized with node,node's level, and mouse x/y
-		ContextMenu.NewContext(this.parent,event.clientX,event.clientY);
+		var coords = mouse_to_svg_coordinates(this,event);
+		ContextMenu.NewContext(this.parent,coords.x+event.clientX,coords.y+event.clientY-PLANE_VOFFSET);
 	}
 };

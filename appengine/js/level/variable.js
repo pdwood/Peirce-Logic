@@ -204,20 +204,20 @@ drag event action; detects collisions
 with the bounds of the plane.
 */
 Variable.prototype.collisionMove = function (dx, dy) {
-	var width = this.text.paper.DEFAULT_PLANE_WIDTH;
-	var height = this.text.paper.DEFAULT_PLANE_HEIGHT;
+	var width = DEFAULT_PLANE_WIDTH;
+	var height = DEFAULT_PLANE_HEIGHT;
 	var new_x, new_y, slack = 1;
 	var bbox = this.text.getBBox();
 	var shape_width = bbox.width;
 	var shape_height = bbox.height;
 	var ox = this.ox;
 	var oy = this.oy;
-	
+
 	new_x = ox + dx;
 	new_y = oy + dy;
 
 	//D("OX:"+ox + " DX"+dx + " SW2"+shape_width/2 + " | width:"+width + " total:"+(ox+dx-(shape_width/2)));
-	
+
 	// collision with right bound
 	if (ox + dx + shape_width/2 >= width) {
 		new_x = (width-shape_width/2)-slack;
@@ -251,8 +251,8 @@ Variable.prototype.isOutOfBounds = function () {
 
 	var bbox = this.text.getBBox();
 	var slack = 5;
-	var width = this.text.paper.DEFAULT_PLANE_WIDTH;
-	var height = this.text.paper.DEFAULT_PLANE_HEIGHT;
+	var width = DEFAULT_PLANE_WIDTH;
+	var height = DEFAULT_PLANE_HEIGHT;
 	var shape_width = bbox.width;
 	var shape_height = bbox.height;
 

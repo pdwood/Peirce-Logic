@@ -9,26 +9,35 @@ window.onload = function() {
 	PLANE_VOFFSET = 0;
 	BOOTSTRAP_HEIGHT = 35;
 	TIMELINE_HEIGHT = 100;
-
+	DEFAULT_PLANE_WIDTH = 5000;
+	DEFAULT_PLANE_HEIGHT = 5000;
+	DEFAULT_CHILD_WIDTH = 50;
+	DEFAULT_CHILD_HEIGHT = 50;
+	DEFAULT_CURVATURE = 20;
 	PLANE_VOFFSET += BOOTSTRAP_HEIGHT;
+	PLANE_CANVAS_WIDTH = function() { return $(window).width(); };
+	PLANE_CANVAS_HEIGHT = function() { return $(window).height() - TIMELINE_HEIGHT - PLANE_VOFFSET; };
+	TIMELINE_CANVAS_WIDTH = PLANE_CANVAS_WIDTH;
+	TIMELINE_CANVAS_HEIGHT = function() { return TIMELINE_HEIGHT; };
 
-	var R = Raphael("paper", window.screen.availWidth, window.screen.availHeight - 230);
-	mode_width = 150;
 
-	//var MH = new ModeHandler(R, window.screen.availWidth - mode_width, 0, mode_width, 25);
-	//R.Mode_Handler = MH;
+	R = Raphael("paper", PLANE_CANVAS_WIDTH() , PLANE_CANVAS_HEIGHT() );
+	//R.setSize('100%', '100%');
 
 	TheProof = new Proof(R);
-	R.Proof = TheProof;
 	minimap = new Minimap(R);
 	ContextMenu = new ContextHandler(R);
-
 
 	document.getElementById('ModeLink').onclick = function(e){
 		TheProof.execute_transfer();
 	};
-	//ZoomMenu(R);
 
-	Timeline = Raphael('timeline', window.screen.availWidth, TIMELINE_HEIGHT);
+	Timeline = Raphael('timeline', TIMELINE_CANVAS_WIDTH(), TIMELINE_CANVAS_HEIGHT());
 	branches.draw.call(Timeline, TheProof);
+
+	$(window).resize( function() {
+		minimap.windowResizeView();
+		branches.draw.call(Timeline);
+    	//Timeline.setViewBox(0, 0, TIMELINE_CANVAS_WIDTH(), TIMELINE_CANVAS_HEIGHT(), true);
+	});
 };

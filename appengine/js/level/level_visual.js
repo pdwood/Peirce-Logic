@@ -17,7 +17,7 @@ handlers
 Level.prototype.renderShape = function(attr) {
 	//for plane
 	if(!this.parent) {
-		this.shape = this.paper.rect(0,0,this.DEFAULT_PLANE_WIDTH,this.DEFAULT_PLANE_HEIGHT).attr(attr);
+		this.shape = this.paper.rect(0,0,DEFAULT_PLANE_WIDTH,DEFAULT_PLANE_HEIGHT).attr(attr);
 		/*this.shape.mouseover(function () {
 			this.animate({"fill-opacity": .2}, 500); });
 		this.shape.mouseout(function () {
@@ -25,7 +25,7 @@ Level.prototype.renderShape = function(attr) {
 	}
 	//for cut
 	else {
-		this.shape = this.paper.rect(0,0,this.DEFAULT_CHILD_WIDTH,this.DEFAULT_CHILD_HEIGHT,this.DEFAULT_CURVATURE).attr(attr);
+		this.shape = this.paper.rect(0,0,DEFAULT_CHILD_WIDTH,DEFAULT_CHILD_HEIGHT,DEFAULT_CURVATURE).attr(attr);
 		//mouseover effects
 		this.shape.mouseover(function () {
 			this.attr({"fill-opacity": 0.2}); });
@@ -136,7 +136,7 @@ Level.prototype.contract = function(animate) {
 		//state variables
 		var new_x = this.shape.attrs.x+(this.shape.attrs.width)/4;
 		var new_y = this.shape.attrs.y+(this.shape.attrs.height)/4;
-		var new_width = this.DEFAULT_CHILD_WIDTH, new_height = this.DEFAULT_CHILD_HEIGHT;
+		var new_width = DEFAULT_CHILD_WIDTH, new_height = DEFAULT_CHILD_HEIGHT;
 		var initial_hull_set_flag = false; //flag for hull initilization
 
 		if(this.subtrees.length) { //if children
@@ -308,8 +308,8 @@ drag event action; detects collisions
 with the bounds of the plane.
 */
 Level.prototype.collisionMove = function (dx, dy) {
-	var width = this.paper.DEFAULT_PLANE_WIDTH;
-	var height = this.paper.DEFAULT_PLANE_HEIGHT;
+	var width = DEFAULT_PLANE_WIDTH;
+	var height = DEFAULT_PLANE_HEIGHT;
 	var new_x, new_y, ox, oy, slack = 15;
 	var shape_width = this.shape.attr("width");
 	var shape_height = this.shape.attr("height");
@@ -320,7 +320,7 @@ Level.prototype.collisionMove = function (dx, dy) {
 	new_y = oy + dy;
 
 	//D("OX:"+ox + " DX"+dx + " SW2"+shape_width/2 + " | width:"+width + " total:"+(ox+dx+(shape_width)));
-	
+
 	// collision with right bound
 	if (ox + dx + shape_width >= width) {
 		new_x = width - shape_width;
@@ -380,8 +380,8 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 					var sx = 0, sy = 0;
 					var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
 					var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
-					var width = this.paper.DEFAULT_PLANE_WIDTH;
-					var height = this.paper.DEFAULT_PLANE_HEIGHT;
+					var width = DEFAULT_PLANE_WIDTH;
+					var height = DEFAULT_PLANE_HEIGHT;
 
 					// if bbox2 is already colliding with the upper
 					// prevents bbox from intersecting with bbox2
@@ -495,8 +495,8 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 					var sx = 0, sy = 0;
 					var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
 					var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
-					var width = this.paper.DEFAULT_PLANE_WIDTH;
-					var height = this.paper.DEFAULT_PLANE_HEIGHT;
+					var width = DEFAULT_PLANE_WIDTH;
+					var height = DEFAULT_PLANE_HEIGHT;
 
 					// if bbox2 is already colliding with the upper
 					// prevents bbox from intersecting with bbox2
@@ -596,7 +596,7 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
 						}
 						c.drag(sx,sy);
 					}
-					
+
 				}
 			}
 			itr = itr.next;

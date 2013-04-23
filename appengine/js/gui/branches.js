@@ -148,9 +148,14 @@ branches = {
                 stroke: options.color || '#000'
             },
             select_index: options.select_index || 0
-        },
+        };
 
-        fclick = tree.select.bind(tree);
+        // use for redrawing without a new tree
+        if(tree === undefined)
+            tree = this.cached_tree;
+        else
+            this.cached_tree = tree;
+        var fclick = tree.select.bind(tree);
 
         dots_and_curr_index = branches.draw_dots.call(this, tree, settings, fclick);
         BranchHelper.highlight(dots_and_curr_index[0], dots_and_curr_index[1], settings);
@@ -161,7 +166,7 @@ branches = {
             h_slack = 30,
             v_slack = 10,
             x_offset = h_slack,
-            y_offset = this.height / 2,
+            y_offset = TIMELINE_CANVAS_HEIGHT() / 2,
             title = this.text(0, 0, 'title').attr(settings.popup_text_attr).attr({
                 'font-weight': 'bold',
                 'font-size': '12px'
@@ -201,8 +206,8 @@ branches = {
             });
         }
 
-        var branch_horizontal_distance = (this.width - 2.0 * h_slack) / (layers.length - 1 ? layers.length - 1 : 1);
-        var branch_vertical_distance = (this.height - 2.0 * v_slack) / max_layer_size;
+        var branch_horizontal_distance = (TIMELINE_CANVAS_WIDTH() - 2.0 * h_slack) / (layers.length - 1 ? layers.length - 1 : 1);
+        var branch_vertical_distance = (TIMELINE_CANVAS_HEIGHT() - 2.0 * v_slack) / max_layer_size;
 
         // go through layers making branches depending on y layer
         var node_ylayer = 0;

@@ -69,8 +69,9 @@ ContextHandler.prototype.EndMultiActive = function () {
 
 ContextHandler.prototype.SingleClickHandler = function(node,event) {
 	if (this.multiactive) {
-		this.prev_x = event.clientX || event.pageX;
-		this.prev_y = event.clientY || event.pageY;
+		var coords = mouse_to_svg_coordinates(this.paper,event);
+		this.prev_x = coords.x;
+		this.prev_y = coords.y;
 		this.changeSelection(node);
 	}
 };
@@ -98,13 +99,13 @@ ContextHandler.prototype.changeSelection = function(node) {
 function Context(R,nodes,x,y) {
 	this.paper = R;
 	this.nodes = nodes || null;
-	this.x = x; this.y = y - PLANE_VOFFSET;
+	this.x = x; this.y = y;
 
 	this.menu_items = this.paper.set();
 	this.items = {};
 	this.num_items = 0;
 
-	this.inf = new InferenceRule(R.Proof.thunk);
+	this.inf = new InferenceRule(TheProof.thunk);
 
 	this.setup();
 	this.show();
@@ -116,7 +117,7 @@ Context.prototype.addItem = function(name,func) {
 };
 
 Context.prototype.setup = function() {
-	var available_items = this.inf.AvailableRules(this.paper.Proof,this.nodes);
+	var available_items = this.inf.AvailableRules(TheProof,this.nodes);
 	for(var k in available_items) {
 		this.addItem(k,available_items[k]);
 	}
@@ -140,9 +141,9 @@ Context.prototype.show = function() {
 
 	//set correct initial x and y values
 	//fit overflow from width
-	var ox = (this.x+offset+width+tol > window.innerWidth)? this.x-(width+tol)+offset : this.x+offset;
+	var ox = (this.x+offset+width+tol > this.paper._viewBox[2]) ? this.x-(width+tol)+offset : this.x+offset;
 	//fit overflow from height
-	var oy = (this.y+offset+partition*n+tol > window.innerHeight-this.paper.canvas.offsetTop) ? this.y-(partition*n+tol)+offset : this.y+offset;
+	var oy = (this.y+offset+partition*n+tol > this.paper._viewBox[3]-this.paper.canvas.offsetTop) ? this.y-(partition*n+tol)+offset : this.y+offset;
 
 	var c=0; //item counter
 	for(x in this.items) {
