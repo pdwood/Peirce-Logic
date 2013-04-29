@@ -4,42 +4,57 @@ Variable: Propostional variable, inherits from Node
 */
 Variable.prototype = Object.create(Node.prototype);
 
-function Variable(R,parent,x,y,duplicate) {
+function Variable(R,parent,x,y,duplicate,variable_name) {
 	Object.getPrototypeOf(Variable.prototype).constructor.call(this,parent);
 
 	this.paper = R;
 
 	if(!duplicate) {
-		//initial text, can't be empty or else it defaults to 0,0 origin
-		this.text = this.paper.text(x,y+45-PLANE_VOFFSET,"").attr({"font-size":20});
-		text = this.text;
-		this.text.parent = this;
+		if(variable_name) {
+			this.setText(variable_name);
+		} else {
+			//initial text, can't be empty or else it defaults to 0,0 origin
+			this.text = this.paper.text(x,y+45-PLANE_VOFFSET,"").attr({"font-size":20});
+			text = this.text;
+			this.text.parent = this;
 
-		//setup text initialization
-		smoke.prompt('Enter Variable Name',function(e){
-			var text_string =  "";
-			if(e){
-				text_string = e.replace(/^\s+|\s+$/g,"");
-			}
-			if(!text_string.length) { //if not valid string, just white space
-				text_string = "EMPTY VARIABLE";
-			}
-			//initialize and add variable to parent
-			text.attr({'text':text_string});
-			text.parent.parent.leaves.push_back(text.parent);
+			//setup text initialization
+			smoke.prompt('Enter Variable Name',function(e){
+				var text_string =  "";
+				if(e){
+					text_string = e.replace(/^\s+|\s+$/g,"");
+				}
+				if(!text_string.length) { //if not valid string, just white space
+					text_string = "EMPTY VARIABLE";
+				}
 
-			text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
-			text.parent.parent.contract();
-			//move collided nodes out of way
-			text.parent.parent.shiftAdjacent(text.parent,text.getBBox());
-			text.parent.parent.expand(text.getBBox().x, text.getBBox().y, text.getBBox().width, text.getBBox().height,true);
-			text.parent.parent.contract();
-		});
+				text.parent.setText(text_string);	
+			});
+		}
 
 		this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 		this.text.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
 		this.text.dblclick(this.onDoubleClick);
 	}
+}
+
+/*
+Variable.setText
+~variable_name: String for variable
+
+Add string for variable
+*/
+Variable.prototype.setText = function(variable_name) {
+	//initialize and add variable to parent
+	this.text.attr({'text':variable_name});
+	this.parent.leaves.push_back(this);
+
+	this.parent.expand(this.text.getBBox().x, this.text.getBBox().y, this.text.getBBox().width, this.text.getBBox().height,true);
+	this.parent.contract();
+	//move collided nodes out of way
+	this.parent.shiftAdjacent(this,this.text.getBBox());
+	this.parent.expand(this.text.getBBox().x, this.text.getBBox().y, this.text.getBBox().width, this.text.getBBox().height,true);
+	this.parent.contract();
 }
 
 /*

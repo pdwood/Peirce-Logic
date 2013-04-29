@@ -204,12 +204,14 @@ Level.prototype.addChild = function(x,y) {
 Level.addVariable
 ~x: new variable x
 ~y: new variable y
+~name: optional new variable name
 
 Creates new variable inside
-current level at x,y position
+current level at x,y position 
+with name if used
 */
-Level.prototype.addVariable = function(x,y) {
-	var variable = new Variable(this.paper,this,x,y);
+Level.prototype.addVariable = function(x,y,name) {
+	var variable = new Variable(this.paper,this,x,y,name);
 	variable.text.toFront();
 	//this creates variable, but not adds it
 	//first variable's text box pops up
