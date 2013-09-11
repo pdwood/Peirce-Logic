@@ -1,17 +1,3 @@
-/*Level.prototype.equivalence = function(other){
-	// get leaves of both trees
-	var L1 = tree_leaves(this);
-	var L2 = tree_leaves(other);
-	// check of same leaf count
-	if (L1.length !== L2.length)
-		return false;
-	// simple case of two empty cuts
-	if (L1.length === L2.length && L1.length===0)
-		return true;
-	// run treeisomorphism
-	return tree_isomorphic(L1,L2,0);
-};
-*/
 
 //Tests if a graph is empty
 Node.prototype.empty = function(){
@@ -256,6 +242,7 @@ Node.NodeSkeleton = function(parent){
 	return new_node;
 }
 
+
 //converts a level to a node skeleton
 Node.node_to_node_skeleton = function(node){
 	var node_skeleton = Node.NodeSkeleton();
@@ -275,8 +262,6 @@ Node.node_to_node_skeleton = function(node){
 //given graphs n1 and n2 detemines if n1 entails n2
 //does this by negating n2 and conjuncting it with n1 and searching for a contradiction
 Node.ProofExists = function(n1, n2){
-	//var n1 = Node.node_to_node_skeleton(node1);
-	//var n2 = Node.node_to_node_skeleton(node2);
 	var outer_node = Node.NodeSkeleton();
 	n1.parent = outer_node;
 	outer_node.absorb_graph(n1);
