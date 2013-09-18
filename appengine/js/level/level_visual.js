@@ -328,12 +328,7 @@ Level.prototype.collisionMove = function (dx, dy) {
 
     /* find root */
     var that = this; 
-    var nLevel = -1;
-    while(that.parent) {
-        that = that.parent;
-        nLevel += 1; 
-    }
-    var padding = slack*nLevel;
+    var padding = slack*(this.getLevel()-1);
 
     var ox = this.ox;
     var oy = this.oy;
