@@ -67,7 +67,6 @@ function Proof(R) {
 
 Proof.prototype.change_mode = function(mode) {
 	this.PREVIOUS_MODE = this.CURRENT_MODE;
-
 	mode_name = "";
 	warning_color = "";
 	if (mode === this.LOGIC_MODES.PREMISE_MODE) {
@@ -90,8 +89,7 @@ Proof.prototype.change_mode = function(mode) {
 		mode_name = "Goal Mode";
 		warning_color = "label-important";
 	}
-	style = 'style="font-size: 12px; margin-top: 8px; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;"';
-	document.getElementById('ModeLink').innerHTML = '<span class="label '+ warning_color +'" '+ style +'>'+mode_name+'</span>';
+	document.getElementById('ModeLink').innerHTML = '<span id="ModeLink" class="label '+ warning_color +'">'+mode_name+'</span>';
 };
 
 Proof.prototype.execute_transfer = function() {
