@@ -16,7 +16,7 @@ $(document).ready(function(){
 	    placement: "bottom",
 	    orphan:true
 	} , {
-	    element: "#modebutton",
+	    element: "#ModeLink",
 	    title: "Modes",
 	    content: "This is the mode button. In Peirce Logic, you start out in Goal Mode. In this mode, you specify the goal of your proof, or what you want to prove.",
 	    backdrop:true
