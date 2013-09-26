@@ -253,14 +253,6 @@ remove_spaces = function(s){
 //use "!" for negation, "&" for and, "||" for or, and "->" for implication
 //Only use alpha-numberic characters and "_" for variable names
 PL_Node.PL_to_EG = function(s){
- remove_spaces(s);
- var n = PL_Node.parse_PL(s);
- n = PL_Node.Distribute_Nots(n);
- n = PL_Node.Shift_Ands(n);
- var new_node = Node.NodeSkeleton();
- new_node.subtrees.push(Node.NodeSkeleton());
- new_node.subtrees[0].absorb_graph(PL_Node.handle_Ors(n));
- new_node.remove_DN();
- return new_node;
+ return populate_parents(PL_TO_EG.parse(s));
 }
 
