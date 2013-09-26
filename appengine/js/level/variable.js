@@ -273,8 +273,7 @@ Creates context menu on node;
 Variable.prototype.onDoubleClick = function(event) {
 	if (!event.ctrlKey) {
 		//Menu intialized with node,node's level, and mouse x/y
-		ContextMenu.NewContext(this.parent, (this.attrs.x-this.paper.zoomOffset()[0])/this.paper.zoomScale()[0],
-											(this.attrs.y-this.paper.zoomOffset()[1])/this.paper.zoomScale()[1]);
+		ContextMenu.NewContext(this.parent, this.attrs.x, this.attrs.y);
 	}
 };
 
