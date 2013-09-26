@@ -43,9 +43,12 @@ Node.prototype.add_lit = function(literal,truth){
 //literal is the name of the variable
 //truth is either true or false and tells whether the literal is the variable or the negation of the variable.
 Node.prototype.paste =  function(literal, truth){
-	document.write("paste", literal, " ", truth);
+	document.write("paste ");
+	if(truth){document.write(literal, " ");}
+	else{document.write("(", literal, ") ");}
+	document.write(" into ");
 	this.print_node();
-	//document.write("|");
+	document.write("|");
 	if(this.subtrees.length === 1 && this.subtrees[0].empty() && this.leaves.length === 0){return;} //if empty cut
 	if(this.is_model()){this.add_lit(literal, truth);} //if model
 	else{ //disjunction of models
@@ -116,10 +119,12 @@ Node.prototype.duplicate = function() {
 }
 
 
+
 //Transforms node into Disjunctive Normal Form
 //See Description of Process at link below
 //http://www.cogsci.rpi.edu/~heuveb/Research/EG/Presentations/EGAPG.ppt
 Node.prototype.DNFTransform = function(){
+<<<<<<< HEAD
 	this.remove_DN();
 	//document.write("DNF:")
 	//this.print_node(); document.write("|");
@@ -160,44 +165,89 @@ Node.prototype.DNFTransform = function(){
 	}
 	else if(this.subtrees.length === 1){return;}
 	else{//step three in transformation
+=======
 
+>>>>>>> Barath told me to push
 
-		//picks subtree, G1, in graph and removes it.
-		//G2 is original graph without G1
-		var G1 = this.subtrees[this.subtrees.length-1].duplicate();
-		this.subtrees.pop(); //sets this to G2
-		var G2 = this.duplicate();
-		this.subtrees = []; this.leaves = [];
-		this.subtrees.push(Node.NodeSkeleton(this));
-
-		//handles each cut as a subgraph, G4
-		//Disjuncts not-G4 and G2 for every G4
-		for(var i=0; i<G1.subtrees.length; i++){
-			var G3 = Node.NodeSkeleton(this.subtrees[0]);
-			this.subtrees[0].subtrees.push(G3)
-			G3.absorb_graph(G2);
-			var G4 = Node.NodeSkeleton(G3);
-			G4.subtrees.push(G1.subtrees[i].duplicate());
-			G3.subtrees.push(G4);
-			G3.DNFTransform();
+	this.remove_DN();
+	document.write("DNF:");
+	this.print_node(); document.write(" | "); 
+	if(!(this.subtrees.length === 1 && this.subtrees[0].empty()) && //if empty cut
+		!(this.subtrees.length === 0) && // if all leaves
+		!(this.empty())){ //if empty graph
+		//checks for at least one literal at depth 0 and removes it, then pastes it into the rest of the graph
+		var lit; var truth; var has_lit = false;
+		if(this.leaves.length !== 0){ //checks for true literal in leaves, and removes if fout
+			has_lit = true;
+			lit = this.leaves[this.leaves.length-1];
+			this.leaves.pop();
+			truth = true;	
 		}
-
-		//handles conjunction of leaves as a subgraph, LeafG4, like G4s above
-		if(G1.leaves.length > 0){
-			var LeafG3 = Node.NodeSkeleton(this.subtrees[0]);
-			var LeafG4 = Node.NodeSkeleton(LeafG3);
-			LeafG3.subtrees.push(LeafG4);
-			for(var i=0; i<G1.leaves.length; i++){
-				LeafG4.leaves.push(G1.leaves[i]);
+		else{ //looks for false literal at depth 0
+			var lit_ind = 0;
+			while(lit_ind !== this.subtrees.length){ // finds index of false literal in subgraphs
+				if(this.subtrees[lit_ind].subtrees.length ===0 &&
+					this.subtrees[lit_ind].leaves.length === 1)
+					{break;}
+				lit_ind++;
 			}
-			LeafG3.absorb_graph(G2);
-			LeafG3.DNFTransform();
-			this.subtrees[0].subtrees.push(LeafG3);
+			if(lit_ind !== this.subtrees.length){ // if false literal is found, removes it
+				has_lit = true;
+				lit = this.subtrees[lit_ind].leaves[0];
+				this.subtrees[lit_ind] = this.subtrees[this.subtrees.length-1]; 
+				this.subtrees.pop();
+				truth = false;
+			}		
+		} 
+		if(has_lit){ //if a literal was found, pastes it into the rest of the graph
+			this.remove_lit(lit, truth); 
+			this.DNFTransform();
+			this.paste(lit, truth);
+			this.remove_DN();
+			return;
 		}
-		this.subtrees[0].remove_DN();
-		this.remove_DN();
-	}
+		else if(this.subtrees.length !== 1){//step three in transformation
 
+			//picks subtree, G1, in graph and removes it.
+			//G2 is original graph without G1
+			var G1 = this.subtrees[this.subtrees.length-1].duplicate();
+			this.subtrees.pop(); //sets this to G2
+			var G2 = this.duplicate();
+			this.subtrees = []; this.leaves = [];
+			this.subtrees.push(Node.NodeSkeleton(this));
+
+			//handles each cut as a subgraph, G4
+			//Disjuncts not-G4 and G2 for every G4
+			for(var i=0; i<G1.subtrees.length; i++){
+				var G3 = Node.NodeSkeleton(this.subtrees[0]);
+				this.subtrees[0].subtrees.push(G3)
+				G3.absorb_graph(G2);
+				var G4 = Node.NodeSkeleton(G3);
+				G4.subtrees.push(G1.subtrees[i].duplicate());
+				G3.subtrees.push(G4);
+				G3.DNFTransform();
+			}
+
+			//handles conjunction of leaves as a subgraph, LeafG4, like G4s above
+			if(G1.leaves.length > 0){
+				var LeafG3 = Node.NodeSkeleton(this.subtrees[0]);
+				var LeafG4 = Node.NodeSkeleton(LeafG3);
+				LeafG3.subtrees.push(LeafG4);
+				for(var i=0; i<G1.leaves.length; i++){
+					LeafG4.leaves.push(G1.leaves[i]);
+				}
+				LeafG3.absorb_graph(G2);
+				LeafG3.DNFTransform();
+				this.subtrees[0].subtrees.push(LeafG3);
+			}
+			this.subtrees[0].remove_DN();
+		}
+	}
+	document.write("yields: "); this.print_node();
+	document.write("removing DNs: ");
+	this.remove_DN();
+	this.print_node();
+	document.write(" | ")
 };
 
 //Copies G and adds every leaf and subgraph to the current node
