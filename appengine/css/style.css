@@ -32,6 +32,13 @@ body
 {
 	background: url(../img/patternlight.png);
 }
+
+@media(max-width:767px) {
+    body {
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
 }
 
 #ModeLink
