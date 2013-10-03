@@ -131,6 +131,8 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 			if(nodes.length==1) {
 				node = nodes.begin().val;
 				if(node instanceof Level) {
+					var name = mode_name+'PL Statement';
+					methods[name] = this.PL_statement_for(name);
 					var name = mode_name+'Variable';
 					methods[name] = this.variable_for(name);
 					var name = mode_name+'Empty Cut';
