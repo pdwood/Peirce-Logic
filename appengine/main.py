@@ -25,7 +25,6 @@ class IndexHandler(webapp2.RequestHandler):
             greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
                        (user.nickname(), users.create_logout_url('/')))
         else:
-            self.redirect(users.create_login_url(self.request.uri))
             greeting = ('<a href="%s">Sign in or register</a>.' %
                        users.create_login_url('/'))
 
