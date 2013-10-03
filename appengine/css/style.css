@@ -2,11 +2,22 @@ svg:not(:root)
 {
     z-index: 1;
     overflow: hidden;
+	
+	width: 100%;
+}
+
+	
+#paper{
+	width: 100%;
+	height: calc(100% - 140px);
+	height: -moz-calc(100$ - 140px);
+	height: webkit-calc(100% - 140px);
 }
 
 #timeline
 {
-    background: url(../img/patternlight.png)
+    background: url(../img/patternlight.png);
+	width: 100%
 }
 
 body

@@ -20,9 +20,9 @@ window.onload = function() {
 	TIMELINE_CANVAS_WIDTH = PLANE_CANVAS_WIDTH;
 	TIMELINE_CANVAS_HEIGHT = function() { return TIMELINE_HEIGHT; };
 
+	R = Raphael("paper", PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT() );//.setViewBox(0,0,'100%', PLANE_CANVAS_HEIGHT(), true);//;
 
-	R = Raphael("paper", PLANE_CANVAS_WIDTH() , PLANE_CANVAS_HEIGHT() );
-	//R.setSize('100%', '100%');
+	//R.canvas.setAttribute('preserveAspectRatio', 'none');
 
 	TheProof = new Proof(R);
 	minimap = new Minimap(R);
@@ -38,6 +38,6 @@ window.onload = function() {
 	$(window).resize( function() {
 		minimap.windowResizeView();
 		branches.draw.call(Timeline);
-    	//Timeline.setViewBox(0, 0, TIMELINE_CANVAS_WIDTH(), TIMELINE_CANVAS_HEIGHT(), true);
-	});
+	}
+	);
 };
