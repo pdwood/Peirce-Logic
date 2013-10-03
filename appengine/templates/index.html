@@ -85,7 +85,7 @@
                 </button>
                 <p class="navbar-text pull-right">
                 {% if user %}
-                    Logged in as <a href="#" class="navbar-link">{{ greeting.author }}</a>
+                    Logged in as <a href="#" class="navbar-link">{{user.nickname()}}</a>
                 {% else %}
                     Log In
                 {% endif %}
@@ -104,16 +104,16 @@
 </header>
 
 <div role="main">
+    <p>{{user}}</p>
     <div class="row-fluid">
         <div id="paper"></div>
         <div id="minimap"></div>
-        <span id="ModeLink" type="button">This text is hidden</span>
+        <span id="ModeLink" type="button"></span>
         <div id="timeline"></div>
     </div>
 </div>
 
 <footer>
-
 </footer>
 
 <!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
