@@ -2,27 +2,36 @@ svg:not(:root)
 {
     z-index: 1;
     overflow: hidden;
-	
+	height: calc(100% - 180px);
+	height: -moz-calc(100$ - 180px);
+	height: webkit-calc(100% - 180px);
 	width: 100%;
 }
 
 	
 #paper{
 	width: 100%;
-	height: calc(100% - 140px);
-	height: -moz-calc(100$ - 140px);
-	height: webkit-calc(100% - 140px);
+	height: calc(100% - 180px);
+	height: -moz-calc(100$ - 180px);
+	height: webkit-calc(100% - 180px);
 }
 
 #timeline
 {
     background: url(../img/patternlight.png);
-	width: 100%
+	width: 100%;
+}
+
+#no_margin
+{
+	margin-left: 0px;
+	margin-right: 0px
 }
 
 body
 {
-    background: url(../img/patternlight.png)
+	background: url(../img/patternlight.png);
+}
 }
 
 #ModeLink
@@ -32,6 +41,13 @@ body
     -webkit-border-radius: 1px; 
     -moz-border-radius: 1px; 
     border-radius: 1px; 
-    width: 100%; 
+    width: calc(100% - 8px);
+	width: -moz-calc(100$ - 8px);
+	width: webkit-calc(100% - 8px);
     text-align: center
+}
+
+.navbar.navbar-inverse.navbar-static-top.fixedbar	 {
+margin-left: 0px;
+margin-right: 0px;
 }

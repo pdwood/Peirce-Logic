@@ -32,7 +32,7 @@ window.onload = function() {
 		TheProof.execute_transfer();
 	};
 
-	Timeline = Raphael('timeline', TIMELINE_CANVAS_WIDTH(), TIMELINE_CANVAS_HEIGHT());
+	Timeline = Raphael('timeline', '100%', TIMELINE_CANVAS_HEIGHT());
 	branches.draw.call(Timeline, TheProof);
 
 	$(window).resize( function() {
