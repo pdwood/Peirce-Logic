@@ -6,7 +6,7 @@ svg:not(:root)
 
 #timeline
 {
-    background: url(../img/patternlight.png)
+    background: url(../img/patternlight.png);
 }
 
 body
@@ -36,4 +36,8 @@ body
 
 .navbar {
     margin-bottom: 0px;
+}
+
+.navbar-inner {
+    background: url(../img/patterndark.png);
 }
