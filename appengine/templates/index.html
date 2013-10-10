@@ -74,7 +74,7 @@
 
 
 <header>
-    <div class="navbar navbar-inverse navbar-static-top ">
+    <div class="navbar navbar-inverse navbar-static-top">
         <div class="navbar-inner">
             <div class="container-fluid">
                 <!--
@@ -91,10 +91,10 @@
                 {% endif %}
                 </p>
                 -->
-                <button id="tourbutton" type="button" class="btn btn-primary pull-right">
+                <button id="tourbutton" type="button" class="btn btn-primary navbar-btn">
                     Take the tour!
                 </button>
-                <a class="brand" href="#">Peirce Logic</a>
+                <a class="navbar-brand" href="#">Peirce Logic</a>
                 <!-- Not needed for now.... -->
                 <div class="nav-collapse collapse">
                 </div>
@@ -107,7 +107,9 @@
     <div class="row-fluid">
         <div id="paper"></div>
         <div id="minimap"></div>
-        <span id="ModeLink" type="button"></span>
+        <div class="row">
+            <div class="col-sm-12" id="ModeLink" type="button"></div>
+        </div>
         <div id="timeline"></div>
     </div>
 </div>
