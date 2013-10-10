@@ -16,9 +16,10 @@ $(document).ready(function(){
 	    placement: "bottom",
 	    orphan:true
 	} , {
-	    element: "#modebutton",
+	    element: "#ModeLink",
 	    title: "Modes",
 	    content: "This is the mode button. In Peirce Logic, you start out in Goal Mode. In this mode, you specify the goal of your proof, or what you want to prove.",
+	    placement: "top",
 	    backdrop:true
 	} , {
 	    title: "Peirce basics",
@@ -28,13 +29,14 @@ $(document).ready(function(){
 	    element: "#paper",
 	    title: "Add a statement",
 	    placement: "left",
-	    content: "Since everything on the page is conjuncted, we just have to put the statements A and B on the page. Double-click anywhere on the page and select the 'Construction: Variable' option.  Type in 'A' and click 'OK' or press enter.  Double click anywhere else on the page and do the same for B.  We've now completed setting up our goal state.",
+	    content: "Since everything on the page is conjuncted, we just have to put the statements A and B on the page. Double-click anywhere on the page and select the 'Construction: Variable' option.  Type in 'A' and click 'OK' or press enter.  Double click anywhere else on the page and do the same for 'B'.  We've now completed setting up our goal state.",
 	    orphan:true
 	} , {
-	    element: "#modebutton",
+	    element: "#ModeLink",
 	    title: "Going to Premise Mode",
 	    content: "Now let's go to the next mode: Premise Mode. To do this, click on the mode button once.",
 	    reflex: true,
+	    placement: "top",
 	    backdrop: true
 	} , {
 	    element: "#paper",
@@ -47,10 +49,11 @@ $(document).ready(function(){
 	    placement: "left",
 	    content: "Now for the &#172;&#172 B. In Peirce logic, negations are represented visually as circles, which are called 'cuts.' Everything within a cut is negated, so everything within a cut that is itself within a cut is double negated. In this application, we place the cuts on a page first.  Double click on the page again and select 'Construction: Empty Double Cut.'  Then double click within the cut to place the 'B.'"
 	} , {
-	    element: "#modebutton",
+	    element: "#ModeLink",
 	    title: "Going to Proof Mode",
 	    content: "Now we're done setting up our assumptions. Let's go to Proof Mode. Click the button again.",
 	    backdrop: true,
+	    placement: "top",
 	    reflex: true
 	} , {
 	    element: "#paper",
