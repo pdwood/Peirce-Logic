@@ -13,6 +13,18 @@ function ProofNode() {
 	this.thunk = null;
 }
 
+function ProofTreeTrim(node){
+	if(node.prev == null){
+		return node;
+	}
+
+	//Delete proof offshoots by ensuring each node in the main path is an only child.
+	node.prev.next = new List();
+	node.prev.next.push_back(node);
+
+	return ProofTreeTrim(node.prev);
+}
+
 function Thunk(data) {
 	this.data = data;
 
