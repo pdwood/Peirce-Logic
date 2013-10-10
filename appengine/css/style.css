@@ -14,10 +14,6 @@ body
     background: url(../img/patternlight.png);
 }
 
-.navbar-text {
-    padding-left: 15px;
-}
-
 .username{
     color: #00FF00;
 }
@@ -35,9 +31,5 @@ body
 }
 
 .navbar {
-    margin-bottom: 0px;
-}
-
-.navbar-inner {
     background: url(../img/patterndark.png);
 }
