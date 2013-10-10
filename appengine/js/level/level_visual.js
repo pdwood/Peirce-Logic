@@ -223,6 +223,9 @@ Level.prototype.drag = function(dx,dy) {
 	}
 };
 
+Level.prototype.touchend = function(dx,dy) {
+	
+}
 
 /*
 Level.dragStart

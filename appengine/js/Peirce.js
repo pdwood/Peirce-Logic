@@ -20,8 +20,10 @@ window.onload = function() {
 	TIMELINE_CANVAS_WIDTH = PLANE_CANVAS_WIDTH;
 	TIMELINE_CANVAS_HEIGHT = function() { return TIMELINE_HEIGHT; };
 
-
 	R = Raphael("paper", PLANE_CANVAS_WIDTH() , PLANE_CANVAS_HEIGHT() );
+	
+	R.oncontextmenu = function(){ return false; }
+	
 	//R.setSize('100%', '100%');
 
 	TheProof = new Proof(R);
