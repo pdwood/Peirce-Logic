@@ -5,7 +5,7 @@ import webapp2
 import jinja2
 import os
 
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 from google.appengine.api import users
 
 jinja_environment = jinja2.Environment(
@@ -14,7 +14,7 @@ jinja_environment = jinja2.Environment(
 
 def proof_key(proof_name=None):
     """Constructs a Datastore key for a Proof entity with proof_name."""
-    return db.Key.from_path('Proof', proof_name)
+    return ndb.Key('Proof', proof_name)
 
 
 class IndexHandler(webapp2.RequestHandler):
@@ -41,7 +41,7 @@ class ProofHandler(webapp2.RequestHandler):
     def get(self):
         self.response.out.write('<html><body>')
 
-        proofs = db.GqlQuery("SELECT * "
+        proofs = ndb.GqlQuery("SELECT * "
                              "FROM Proof "
                              "WHERE ANCESTOR IS :1 "
                              "ORDER BY date DESC LIMIT 10",
