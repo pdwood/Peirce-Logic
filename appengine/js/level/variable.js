@@ -34,7 +34,11 @@ function Variable(R,parent,x,y,duplicate,variable_name) {
 
 		this.text.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
 		this.text.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
-		this.text.dblclick(this.onDoubleClick);
+		this.text.mousedown(function(e) {
+			if (e.which == 3) {
+				this.parent.onRightClick(e);
+			}
+		});
 	}
 }
 
@@ -263,17 +267,17 @@ Variable.prototype.isOutOfBounds = function () {
 };
 
 /*
-Variable.onDoubleClick
+Variable.onRightClick
 ~event: mouse event
 
 Object variable handler for
-mouse double click action;
+mouse right click action;
 Creates context menu on node;
 */
-Variable.prototype.onDoubleClick = function(event) {
+Variable.prototype.onRightClick = function(event) {
 	if (!event.ctrlKey) {
 		//Menu intialized with node,node's level, and mouse x/y
-		ContextMenu.NewContext(this.parent, this.attrs.x, this.attrs.y);
+		ContextMenu.NewContext(this, this.ox, this.oy);
 	}
 };
 
