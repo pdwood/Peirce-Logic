@@ -29,7 +29,7 @@ $(document).ready(function(){
 	    element: "#paper",
 	    title: "Add a statement",
 	    placement: "left",
-	    content: "Since everything on the page is conjuncted, we just have to put the statements A and B on the page. Double-click anywhere on the page and select the 'Construction: Variable' option.  Type in 'A' and click 'OK' or press enter.  Double click anywhere else on the page and do the same for 'B'.  We've now completed setting up our goal state.",
+	    content: "Since everything on the page is conjuncted, we just have to put the statements A and B on the page. Right click anywhere on the page and select the 'Construction: Variable' option.  Type in 'A' and click 'OK' or press enter.  Right click anywhere else on the page and do the same for 'B'.  We've now completed setting up our goal state.",
 	    orphan:true
 	} , {
 	    element: "#ModeLink",
@@ -47,7 +47,7 @@ $(document).ready(function(){
 	    element: "#paper",
 	    title: "Cuts",
 	    placement: "left",
-	    content: "Now for the &#172;&#172 B. In Peirce logic, negations are represented visually as circles, which are called 'cuts.' Everything within a cut is negated, so everything within a cut that is itself within a cut is double negated. In this application, we place the cuts on a page first.  Double click on the page again and select 'Construction: Empty Double Cut.'  Then double click within the cut to place the 'B.'"
+	    content: "Now for the &#172;&#172 B. In Peirce logic, negations are represented visually as circles, which are called 'cuts.' Everything within a cut is negated, so everything within a cut that is itself within a cut is double negated. In this application, we place the cuts on a page first.  Right click on the page again and select 'Construction: Empty Double Cut.'  Then right click within the cut to place the 'B.'"
 	} , {
 	    element: "#ModeLink",
 	    title: "Going to Proof Mode",
@@ -58,7 +58,7 @@ $(document).ready(function(){
 	} , {
 	    element: "#paper",
 	    title: "Proof Mode",
-	    content: "Proof Mode is where we operate on the premises to get to the goal.  We need to eliminate the double negation by getting rid of the two cuts. To do this, double click on the 'B' and select 'Proof: Reverse Double Cut.' Now our proof state is equivalent to our goal state. You're done!",
+	    content: "Proof Mode is where we operate on the premises to get to the goal.  We need to eliminate the double negation by getting rid of the two cuts. To do this, right click on the 'B' and select 'Proof: Reverse Double Cut.' Now our proof state is equivalent to our goal state. You're done!",
 	    placement: "left"
 	    }
     ]);
