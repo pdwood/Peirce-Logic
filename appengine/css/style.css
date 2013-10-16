@@ -2,7 +2,7 @@ svg:not(:root) {
     z-index: 1;
     overflow: hidden;
     height: calc(100% - 180px);
-    height: -moz-calc(100$ - 180px);
+    height: -moz-calc(100% - 180px);
     height: webkit-calc(100% - 180px);
     width: 100%;
 }
