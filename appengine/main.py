@@ -21,8 +21,16 @@ class IndexHandler(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        if user:
+            greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
+                       (user.nickname(), users.create_logout_url('/')))
+        else:
+            greeting = ('<a href="%s">Sign in or register</a>.' %
+                       users.create_login_url('/'))
+
         template_values = {
-            "user": user
+            "user": user,
+            "greeting": greeting
         }
         template = jinja_environment.get_template('templates/index.html')
         self.response.out.write(template.render(template_values))

@@ -1,6 +1,6 @@
 function Minimap(R) {
     this.x = 3;
-    this.y = 3;
+    this.y = 9;
     this.width = 100;
     this.height = 100;
     this.relief = 4;

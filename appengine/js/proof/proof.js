@@ -87,9 +87,9 @@ Proof.prototype.change_mode = function(mode) {
 	if (mode === this.LOGIC_MODES.GOAL_MODE) {
 		this.CURRENT_MODE = this.LOGIC_MODES.GOAL_MODE;
 		mode_name = "Goal Mode";
-		warning_color = "label-important";
+		warning_color = "label-danger";
 	}
-	document.getElementById('ModeLink').innerHTML = '<span id="ModeLink" class="label '+ warning_color +'">'+mode_name+'</span>';
+	document.getElementById('ModeLink').innerHTML = '<div id="ModeLink" class="col-sm-12 '+ warning_color +'">'+mode_name+'</div>';
 };
 
 Proof.prototype.execute_transfer = function() {

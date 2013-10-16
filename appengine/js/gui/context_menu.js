@@ -125,7 +125,7 @@ Context.prototype.setup = function() {
 
 Context.prototype.show = function() {
 	var n = this.num_items; //shorthand variable
-	if(n===0) return; //return for no items
+	if (n===0) return; //return for no items
 	//get longest menu item name length
 	var max_length = 0;
 	for(var x in this.items) {

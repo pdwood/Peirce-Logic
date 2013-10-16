@@ -52,7 +52,14 @@ function Level(R,parent,x,y,duplicate) {
 		//allows for referencing in Raphael callbacks
 		this.shape.parent = this;
 		this.shape.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
-		this.shape.dblclick(this.onDoubleClick);
+		$(document).bind('contextmenu', function(e) {
+			e.preventDefault();
+		});
+		this.shape.mousedown(function(e) {
+			if (e.which == 3) {
+				this.parent.onRightClick(e);
+			}
+		});
 	}
 }
 
@@ -264,17 +271,18 @@ Level.prototype.setClickActive = function(flag) {
 
 
 /*
-Level.onDoubleClick
+Level.onRightClick
 ~event: mouse event
 
 Object level handler for
-mouse double click action;
+mouse right click action;
 Creates context menu on node;
 */
-Level.prototype.onDoubleClick = function(event) {
+Level.prototype.onRightClick = function(event) {
 	if (!event.ctrlKey) {
 		//Menu intialized with node,node's level, and mouse x/y
 		var coords = mouse_to_svg_coordinates(this,event);
-		ContextMenu.NewContext(this.parent,coords.x+event.clientX,coords.y+event.clientY-PLANE_VOFFSET);
+		ContextMenu.NewContext(this,coords.x+event.clientX,coords.y+event.clientY-PLANE_VOFFSET);
+		
 	}
 };
