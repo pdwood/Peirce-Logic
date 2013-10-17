@@ -20,9 +20,7 @@ window.onload = function() {
 	TIMELINE_CANVAS_WIDTH = PLANE_CANVAS_WIDTH;
 	TIMELINE_CANVAS_HEIGHT = function() { return TIMELINE_HEIGHT; };
 
-	R = Raphael("paper", PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT() );//.setViewBox(0,0,'100%', PLANE_CANVAS_HEIGHT(), true);//;
-
-	//R.canvas.setAttribute('preserveAspectRatio', 'none');
+	R = Raphael("paper", PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT() );
 
 	TheProof = new Proof(R);
 	minimap = new Minimap(R);
