@@ -22,14 +22,19 @@ class IndexHandler(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        big_log=""
         if user:
             greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
                        (user.nickname(), users.create_logout_url('/')))
             message_query = Message.query(ancestor=userlog_key(user.email()))
             messages = message_query.fetch(10)
-            big_log = []
+            little_log = []
+            
             for message in messages:
-                big_log.append(message.content)
+                little_log.append(message.content)
+            
+            for m in little_log:
+                big_log+="<p>%s</p><br>" %m
         else:
             greeting = ('<a href="%s">Sign in or register</a>.' %
                        users.create_login_url('/'))
@@ -42,6 +47,23 @@ class IndexHandler(webapp2.RequestHandler):
         template = jinja_environment.get_template('templates/index.html')
         self.response.out.write(template.render(template_values))
 
+class Userlog(webapp2.RequestHandler):
+
+    def post(self):
+        # We set the same parent key on the 'Greeting' to ensure each Greeting
+        # is in the same entity group. Queries across the single entity group
+        # will be consistent. However, the write rate to a single entity group
+        # should be limited to ~1/second.
+        message = Message(parent=userlog_key(users.get_current_user().email()))
+
+        message.content = self.request.get('content')
+        message.put()
+
+        query_params = {'userlog': users.get_current_user().email()}
+        self.redirect('/?' + urllib.urlencode(query_params))
+
+
 app = webapp2.WSGIApplication([
-    ('/', IndexHandler)
+    ('/', IndexHandler),
+    ('/sign', Userlog)
 ], debug=True)

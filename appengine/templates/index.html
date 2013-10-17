@@ -93,7 +93,10 @@
               </div>
               <div class="modal-body">
                 <p> {{big_log}} </p>
-		<textarea class="form-control" rows="3"></textarea>
+		<form action="/sign" method="post">
+		  <textarea class="form-control" name="content" rows="3"></textarea>
+		  <div><input type="submit" value="Sign Guestbook"></div>
+		</form>
               </div>
               <div class="modal-footer">
 		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
