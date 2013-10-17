@@ -1,8 +1,3 @@
-/*
-Node: tree node
-~parent: parent pointer
-~level: node depth in tree
-*/
 function Node(parent) {
 	this.parent = parent || null;
 	if(!this.parent)
@@ -13,8 +8,25 @@ function Node(parent) {
 	this.subtrees = new List();
 	this.leaves = new List();
 	this.id_gen = 0;
+    this.context = null;
 }
 
+// generate dict of id -> child
+Node.prototype.toDict = function () {
+    var dict = {};
+    this.toDictChild(dict);
+};
+
+Node.prototype.toDictChild = function (dict) {
+    dict[this.getIdentifier()] = this;
+    this.leaves.iterate(function(x) {
+        dict[x.getIdentifier()] = x;
+    });
+    this.subtrees.iterate(function(x) {
+        dict[x.getIdentifier()] = x;
+        x.toDictChild(dict);
+    });
+};
 
 //Gets the level of the node
 Node.prototype.getLevel = function () {
@@ -31,6 +43,12 @@ Node.prototype.isChild = function (node) {
 	return this.parent.isChild(node);
 };
 
+Node.prototype.isLeaf = function () {
+    if(this.subtrees.length > 0 || this.leaves.length >0)
+        return true;
+    return false;
+};
+
 Node.prototype.genChildID = function() {
 	return this.id_gen++;
 };
@@ -42,8 +60,20 @@ Node.prototype.getIdentifier = function() {
 		return this.id;
 };
 
+Node.prototype.addSubtree = function() {
+    var child = new Node(this);
+    this.subtrees.push_back(child);
+    return child;
+};
+
+Node.prototype.addLeaf = function() {
+    var child = new Node(this);
+    this.leaves.push_back(child);
+    return child;
+};
+
 Node.prototype.getChildByIdentifier = function(id) {
-	var aid = null;
+	var aid = null; // branch id list
 	if(typeof id === "string") {
 		aid = id.split("_");
 	} else {
