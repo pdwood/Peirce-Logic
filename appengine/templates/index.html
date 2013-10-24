@@ -1,109 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Peirce Logic</title>
-        <meta charset="utf-8">
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-    
-        <!-- Favicon -->
-        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-    
-        <!-- Bootstrap -->
-        <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
-        <link href="../css/bootstrap-responsive.min.css" rel="stylesheet">
-        
-        <!-- Bootstrap Tour -->
-        <link href="../css/bootstrap-tour.min.css" rel="stylesheet">
-    
-        <!-- Smoke -->
-        <link rel="stylesheet" href="../css/smoke.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="../css/smoke_100theme.css" type="text/css" media="screen" />
-    
-        <!-- Styles --><!--
-        <link rel="stylesheet" href="../css/main.css">
-        <link rel="stylesheet" href="../css/normalize.css"> -->
-        <link rel="stylesheet" href="../css/style.css">
-    
-        <!-- Libraries -->
-        <script src="../js/libs/boilerplate/vendor/jquery-1.8.0.min.js" type="text/javascript"></script>
-        <script src="../js/libs/boilerplate/plugins.js" type="text/javascript"></script>
-        <script src="../js/libs/raphael-min.js" type="text/javascript"></script>
-        <script src="../js/libs/mousetrap.min.js" type="text/javascript"></script>
-        <script src="../js/libs/bootstrap/bootstrap.min.js" type="text/javascript"></script>
-        <script src="../js/libs/smoke.min.js" type="text/javascript"></script>
-        <script src="../js/libs/bootstrap/bootstrap-tour.min.js" type="text/javascript"></script>
-    
-        <!-- Peirce Logic -->
-        <script src="../js/utils/list.js" type="text/javascript"></script>
-        <script src="../js/utils/utility.js" type="text/javascript"></script>
-        <script src="../js/Peirce.js" type="text/javascript"></script>
-        <script src="../js/proof/proof.js" type="text/javascript"></script>
-    
-        <script src="../js/inference_rules/inference_rules.js" type="text/javascript"></script>
-        <script src="../js/inference_rules/available_rules.js" type="text/javascript"></script>
-        <script src="../js/inference_rules/cuts.js" type="text/javascript"></script>
-        <script src="../js/inference_rules/erasure.js" type="text/javascript"></script>
-        <script src="../js/inference_rules/insertion.js" type="text/javascript"></script>
-        <script src="../js/inference_rules/iteration.js" type="text/javascript"></script>
-    
-        <script src="../js/proof/save_load_proof.js" type="text/javascript"></script>
-        <script src="../js/level/node.js" type="text/javascript"></script>
-        <script src="../js/proof/automated_proof.js" type="text/javascript"></script>
-        <script src="../js/level/level.js" type="text/javascript"></script>
-        <script src="../js/level/level_visual.js" type="text/javascript"></script>
-        <script src="../js/level/level_equivalence.js" type="text/javascript"></script>
-        <script src="../js/level/variable.js" type="text/javascript"></script>
-    
-        <script src="../js/gui/context_menu.js" type="text/javascript"></script>
-        <script src="../js/gui/minimap.js" type="text/javascript"></script>
-        <script src="../js/mode_handler.js" type="text/javascript"></script>
-        <script src="../js/gui/branches.js" type="text/javascript"></script>
-    
-        <script src="../js/tour.js" type="text/javascript"></script>
-    </head>
-    <body>
-        <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">Peirce Logic</a>
-                <p class="navbar-text pull-right">
-                    {{greeting}}
-                </p>
-                <button id="tourbutton" type="button" class="btn btn-primary btn-sm navbar-btn">
-                    Take the tour!
-                </button>
-		<button type="button" data-toggle="modal" data-target="#myModal">
-		  Launch modal
-		</button>
-            </div>
-        </div>
-        <div id="paper"></div>
-        <div id="minimap"></div>
-        <div class="col-sm-12" id="ModeLink" type="button"></div>
-        <div id="timeline"></div>
+	<head>
+		<title>Peirce Logic</title>
+		<meta charset="utf-8">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+	
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+	
+		<!-- Bootstrap -->
+		<link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="../css/bootstrap-responsive.min.css" rel="stylesheet">
+		
+		<!-- Bootstrap Tour -->
+		<link href="../css/bootstrap-tour.min.css" rel="stylesheet">
+	
+		<!-- Smoke -->
+		<link rel="stylesheet" href="../css/smoke.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="../css/smoke_100theme.css" type="text/css" media="screen" />
+	
+		<!-- Styles --><!--
+		<link rel="stylesheet" href="../css/main.css">
+		<link rel="stylesheet" href="../css/normalize.css"> -->
+		<link rel="stylesheet" href="../css/style.css">
+	
+		<!-- Libraries -->
+		<script src="../js/libs/boilerplate/vendor/jquery-1.8.0.min.js" type="text/javascript"></script>
+		<script src="../js/libs/boilerplate/plugins.js" type="text/javascript"></script>
+		<script src="../js/libs/raphael-min.js" type="text/javascript"></script>
+		<script src="../js/libs/mousetrap.min.js" type="text/javascript"></script>
+		<script src="../js/libs/bootstrap/bootstrap.min.js" type="text/javascript"></script>
+		<script src="../js/libs/smoke.min.js" type="text/javascript"></script>
+		<script src="../js/libs/bootstrap/bootstrap-tour.min.js" type="text/javascript"></script>
+	
+		<!-- Peirce Logic -->
+		<script src="../js/utils/list.js" type="text/javascript"></script>
+		<script src="../js/utils/utility.js" type="text/javascript"></script>
+		<script src="../js/Peirce.js" type="text/javascript"></script>
+		<script src="../js/proof/proof.js" type="text/javascript"></script>
+	
+		<script src="../js/inference_rules/inference_rules.js" type="text/javascript"></script>
+		<script src="../js/inference_rules/available_rules.js" type="text/javascript"></script>
+		<script src="../js/inference_rules/cuts.js" type="text/javascript"></script>
+		<script src="../js/inference_rules/erasure.js" type="text/javascript"></script>
+		<script src="../js/inference_rules/insertion.js" type="text/javascript"></script>
+		<script src="../js/inference_rules/iteration.js" type="text/javascript"></script>
+	
+		<script src="../js/proof/save_load_proof.js" type="text/javascript"></script>
+		<script src="../js/level/node.js" type="text/javascript"></script>
+		<script src="../js/proof/automated_proof.js" type="text/javascript"></script>
+		<script src="../js/level/level.js" type="text/javascript"></script>
+		<script src="../js/level/level_visual.js" type="text/javascript"></script>
+		<script src="../js/level/level_equivalence.js" type="text/javascript"></script>
+		<script src="../js/level/variable.js" type="text/javascript"></script>
+	
+		<script src="../js/gui/context_menu.js" type="text/javascript"></script>
+		<script src="../js/gui/minimap.js" type="text/javascript"></script>
+		<script src="../js/mode_handler.js" type="text/javascript"></script>
+		<script src="../js/gui/branches.js" type="text/javascript"></script>
+	
+		<script src="../js/tour.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<div class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<a class="navbar-brand" href="#">Peirce Logic</a>
+				<button id="tourbutton" type="button" class="btn btn-primary btn-sm navbar-btn">
+					Take the tour!
+				</button>
+				<p class="navbar-text pull-right">
+					{{greeting}}   
+				</p>
+				<div class="btn-group pull-right" style="margin-top:6px">
+					<button data-toggle="modal" href="#saveModal" class="btn btn-primary">
+						<span class="glyphicon glyphicon-floppy-disk"></span>
+					</button>
+					<button data-toggle="modal" href="#loadModal" class="btn btn-danger">
+						<span class="glyphicon glyphicon-folder-open"></span>
+					</button>
+				</div>
+			</div>
+		</div>
+		<div id="paper"></div>
+		<div id="minimap"></div>
+		<div class="col-sm-12" id="ModeLink" type="button"></div>
+		<div id="timeline"></div>
 
-	<!-- Modal -->
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	  <div class="modal-dialog">
-	    <div class="modal-content">
-              <div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-		<h4 class="modal-title">CASH RULES EVERTYHING AROUND ME C.R.E.A.M.</h4>
-              </div>
-              <div class="modal-body">
-                <p> {{big_log}} </p>
-		<form action="/sign" method="post">
-		  <textarea class="form-control" name="content" rows="3"></textarea>
-		  <div><input type="submit" value="Sign Guestbook"></div>
-		</form>
-              </div>
-              <div class="modal-footer">
-		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		<button type="button" class="btn btn-primary">Save changes</button>
-              </div>
-	    </div><!-- /.modal-content -->
-	  </div><!-- /.modal-dialog -->
-	</div><!-- /.modal -->
-    </body>
+		<!-- Save Modal -->
+		<div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				  <h4 class="modal-title">Save Proof</h4>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to save your proof?
+					<p> {{big_log}} </p>
+					<form action="/sign" method="post">
+					  <textarea class="form-control" name="content" rows="3"></textarea>
+					  <div><input type="submit" value="Sign Guestbook"></div>
+					</form>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				  <button type="button" class="btn btn-primary">Save changes</button>
+				</div>
+			  </div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<!-- Load Modal -->
+		<div class="modal fade" id="loadModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				  <h4 class="modal-title">Load Proof</h4>
+				</div>
+				<div class="modal-body">
+						Select the file you would like to open:
+						<br>
+					<select size="5" style="width:75%">
+						<option value="o1">sample1</option>
+						<option value="o2">sample2</option>
+						<option value="o3">sample3</option>
+						<option value="o4">sample4</option>
+						<option value="o5">sample5</option>
+						<option value="o6">sample6</option>
+						<option value="o7">sample7</option>
+					</select>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				  <button type="button" class="btn btn-primary">Open</button>
+				</div>
+			  </div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+	</body>
 </html>
