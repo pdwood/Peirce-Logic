@@ -34,8 +34,9 @@ window.onload = function() {
 	branches.draw.call(Timeline, TheProof);
 
 	$(window).resize( function() {
-		minimap.windowResizeView();
-		branches.draw.call(Timeline);
+	    minimap.windowResizeView();
+	    branches.draw.call(Timeline);
+	    R.setSize(PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
 	}
 	);
 };
