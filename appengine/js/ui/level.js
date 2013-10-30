@@ -259,6 +259,19 @@ Level.prototype.contract = function(animate) {
     }
 };
 
+Level.prototype.touchend = function(dx,dy) {
+	
+}
+
+/*
+Level.dragStart
+
+Object level handler for
+drag event initilization;
+Adds attributes of orignal
+coordinates to use for shifting
+the shape during drag
+*/
 Level.prototype.dragStart = function() {
     //save orignal positions of children
     var itr = this.node.subtrees.begin();
