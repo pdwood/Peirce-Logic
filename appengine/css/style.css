@@ -29,6 +29,12 @@ body {
 
 }
 
+#play-buttons {
+    position: absolute;
+    z-index: 2;
+    align:right;
+}
+
 #ModeLink {
     font-size: 16px;
     color: white;
