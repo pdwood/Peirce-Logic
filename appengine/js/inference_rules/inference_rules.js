@@ -36,15 +36,15 @@ InferenceRule.prototype.RuleToId = function(rule_id) {
 	return 'InvalidRule';
 };
 
-InferenceRule.prototype.variable = function (proof, rule_name, nodes, x, y) {
+InferenceRule.prototype.variable = function (proof, rule_name, nodes) {
 	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
-	nodes.begin().val.addVariable(x,y);
+	return nodes.begin().val.addLeaf();
 };
 
 InferenceRule.prototype.variable_for = function(mode) {
 	return function(inf){
-	return function(proof, nodes, x, y) {
-		inf.variable(proof, mode, nodes, x, y);
+	return function(proof, nodes) {
+		inf.variable(proof, mode, nodes);
 	};
 	}(this);
 };
