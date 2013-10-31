@@ -62,9 +62,18 @@ Node.prototype.getIdentifier = function() {
 
 Node.prototype.addSubtree = function() {
     var child = new Node(this);
+    // fix ids here
     this.subtrees.push_back(child);
     return child;
 };
+
+/* To do: make fmap etc.
+Node.prototype.refreshIDs = function() {
+	this.id_gen = 0;
+	for childern
+		child.refreshIDs();
+};
+*/
 
 Node.prototype.addLeaf = function() {
     var child = new Node(this);
@@ -108,4 +117,25 @@ Node.prototype.getChildByIdentifier = function(id) {
 		}
 	}
 	return id_node;
+};
+
+Node.prototype.duplicate = function() {
+	var dup = new Node(this.parent);
+    if(!dup.parent)
+		dup.id = 0;
+	else
+		dup.id = this.parent.genChildID();
+	// Maybe something with gen_id?
+
+    this.subtrees.iterate(function(x){
+            child_dup = x.duplicate();
+            child_dup.parent = dup;
+            dup.subtrees.push_back(child_dup);
+    });
+    this.leaves.iterate(function(x){
+            variable_dup = x.duplicate();
+            variable_dup.parent = dup;
+            dup.leaves.push_back(variable_dup);
+    });
+    return dup;
 };
