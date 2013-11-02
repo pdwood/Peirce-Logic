@@ -67,10 +67,16 @@ Node.prototype.addSubtree = function() {
     return child;
 };
 
+Node.prototype.fmap = function(func) {
+	func(this);
+	this.leaves.iterate(function(node) { node.fmap(func); });
+	this.subtrees.iterate(function(node) { node.fmap(func); });
+}
+
 /* To do: make fmap etc.
 Node.prototype.refreshIDs = function() {
 	this.id_gen = 0;
-	for childern
+	for children
 		child.refreshIDs();
 };
 */
