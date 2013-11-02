@@ -23,6 +23,7 @@ window.onload = function() {
 	R = Raphael("paper", PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT() );
 
 	TheProof = new Proof(R);
+	AddUIReactors(TheProof);
 	minimap = new Minimap(R);
 	ContextMenu = new ContextHandler(R);
 

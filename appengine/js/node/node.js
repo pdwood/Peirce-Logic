@@ -45,8 +45,8 @@ Node.prototype.isChild = function (node) {
 
 Node.prototype.isLeaf = function () {
     if(this.subtrees.length > 0 || this.leaves.length >0)
-        return true;
-    return false;
+        return false;
+    return true;
 };
 
 Node.prototype.genChildID = function() {
