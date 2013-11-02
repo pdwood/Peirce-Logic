@@ -1,217 +1,156 @@
-function ProofNode() {
-	this.plane = null;
+function ProofNode(nodeTree) {
+    this.nodeTree = nodeTree; // main node of tree
+    this.uiSet = null; // ui set used to hold ui nodes when rendering node
 
 	this.next = new List();
 	this.prev = null;
-	this.id = 1;
-	this.id_gen = 1;
 
-	this.rule_name = null;
-	this.rule_id = null;
-
-	this.mode = 0;
-	this.thunk = null;
+	// proof node properties, serilizable
+    this.uiAttr = null; // node id -> attr map
+    this.ruleName =  null; // rule name used to find applicator and validator
+    this.ruleNodes =  null; // string map to node ids used to in applicator
+    this.mode =  null; // mode node is in
 }
 
-function Thunk(data) {
-	this.data = data;
-
-	this.transfer = Thunk.Default_Transfer;
-	this.enter = Thunk.Default_Enter;
-	this.exit = Thunk.Default_Exit;
+ProofNode.prototype.constructUI = function(R) {
+    this.uiSet = new UINodeTree(R, this.nodeTree, Level, Variable, this.uiAttr);
+    this.uiSet.constructUI();
 }
 
-Proof.Default_Thunk = function (nodes) {
-	var thunk_data = {};
-	thunk_data["Nodes"] = [];
-	nodes.iterate(function(n) {
-		thunk_data["Nodes"].push(n.getIdentifier());
-	});
-	return (new Thunk(thunk_data));
-};
-
-Thunk.Default_Enter = function(proof) {
-	return;
-};
-
-Thunk.Default_Exit = function(proof) {
-	return;
-};
-
-Thunk.Default_Transfer = function(proof) {
-	return;
-};
-
+ProofNode.prototype.deconstructUI = function() {
+    if(this.uiSet) {
+        this.uiSet.deconstructUI();
+        this.uiSet = null;
+    }
+}
 
 function Proof(R) {
 	this.paper = R;
-	this.LOGIC_MODES = {PREMISE_MODE: 0, PROOF_MODE: 1, INSERTION_MODE: 2, GOAL_MODE: 3};
-	this.CURRENT_MODE = this.LOGIC_MODES.GOAL_MODE;
-	this.PREVIOUS_MODE = this.LOGIC_MODES.GOAL_MODE;
+	// main logic modes
+	this.LOGIC_MODES = {
+        PREMISE_MODE: 0, 
+        PROOF_MODE: 1, 
+        INSERTION_MODE: 2, 
+        GOAL_MODE: 3};
 
-	this.current = new ProofNode();//current node displayed
-	this.current.plane = new Level(R,null);
-	this.current.mode = this.CURRENT_MODE;
-	this.current.thunk = new Thunk({});
-	this.current.thunk.transfer = function(proof) {
-		var t = new InferenceRule();
-		proof.addnode("Proof: Goal Constructed",t.RuleToId("Proof: Goal Constructed"),null,proof.LOGIC_MODES.PREMISE_MODE);
+	// ui reactor map
+	this.eventReactors = {};
+	this.EVENTS = {
+		CHANGE_MODE: 'changeMode',
+		ADD_NODE: 'addNode',
+		SELECT_NODE: 'select',
+		NEXT_NODE: 'next',
+		PREVIOUS_NODE: 'prev',
+		//AUTOMATED_CHECK: 'automated_check'
 	};
 
-	this.thunk = this.current.thunk;
+	// mode of proof
+	this.currentMode = this.LOGIC_MODES.GOAL_MODE;
+	this.previousMode = this.LOGIC_MODES.GOAL_MODE;
+
+	// initial seed
+    this.nodeSeed = new Node(null);
+
+	this.current = new ProofNode(this.nodeSeed); //current node displayed
+	this.current.mode = this.currentMode;
 	this.front = this.current;
 
-	this.current.plane = new Level(R,null);
-	this.change_mode(this.CURRENT_MODE);
+	this.changeMode(this.currentMode);
 }
 
-Proof.prototype.change_mode = function(mode) {
-	this.PREVIOUS_MODE = this.CURRENT_MODE;
-	mode_name = "";
-	warning_color = "";
+Proof.prototype.addReactor = function(event, func) {
+	this.eventReactors[event] = func;
+};
+
+
+Proof.prototype.removeReactor = function(event) {
+	if (event in this.eventReactors)
+		delete this.eventReactors[event];
+};
+
+Proof.prototype.activateReactor = function(event) {
+	if (event in this.eventReactors)
+		this.eventReactors[event](this);
+}
+
+Proof.prototype.changeMode = function(mode) {
+	this.previousMode = this.currentMode;
 	if (mode === this.LOGIC_MODES.PREMISE_MODE) {
-		this.CURRENT_MODE = this.LOGIC_MODES.PREMISE_MODE;
-		mode_name = "Premise Mode";
-		warning_color = "label-success";
+		this.currentMode = this.LOGIC_MODES.PREMISE_MODE;
 	}
 	if (mode === this.LOGIC_MODES.PROOF_MODE) {
-		this.CURRENT_MODE = this.LOGIC_MODES.PROOF_MODE;
-		mode_name = "Proof Mode";
-		warning_color = "label-info";
+		this.currentMode = this.LOGIC_MODES.PROOF_MODE;
 	}
 	if (mode === this.LOGIC_MODES.INSERTION_MODE) {
-		this.CURRENT_MODE = this.LOGIC_MODES.INSERTION_MODE;
-		mode_name = "Insertion Mode";
-		warning_color = "label-warning";
+		this.currentMode = this.LOGIC_MODES.INSERTION_MODE;
 	}
 	if (mode === this.LOGIC_MODES.GOAL_MODE) {
-		this.CURRENT_MODE = this.LOGIC_MODES.GOAL_MODE;
-		mode_name = "Goal Mode";
-		warning_color = "label-danger";
+		this.currentMode = this.LOGIC_MODES.GOAL_MODE;
 	}
-	document.getElementById('ModeLink').innerHTML = '<div id="ModeLink" class="col-sm-12 '+ warning_color +'">'+mode_name+'</div>';
-};
 
-Proof.prototype.execute_transfer = function() {
-	this.current.thunk.transfer(this);
+	this.activateReactor(this.EVENTS.CHANGE_MODE);
 };
-
 
 //adds a node in the proof, must be called by all inference rules before tree is changed
-Proof.prototype.addnode = function (rule,rule_id,nodes,thunk,mode) {
-	var node = new ProofNode();
-	node.plane = this.current.plane;
+Proof.prototype.addNode = function (rule,ruleApplicator,ruleNodes,thunk) {
+    var newTree = ruleApplicator(this.current.nodeTree);
+	var node = new ProofNode(newTree);
 	node.prev = this.current;
-	node.id = this.id_gen++;
-	node.rule_name = rule;
-	node.rule_id = rule_id;
-	if(mode>=0)
-		node.mode = mode;
-	else
-		node.mode = this.CURRENT_MODE;
+	node.ruleName = rule;
+    node.ruleApplicator = ruleApplicator;
+    node.ruleNodes = ruleNodes;
+    node.thunk = thunk;
 
-	if(!thunk) {
-		node.thunk = Proof.Default_Thunk(nodes);
-		if(node.mode == this.LOGIC_MODES.PREMISE_MODE || node.mode == this.LOGIC_MODES.GOAL_MODE) {
-			mode_name = "";
-			mode_n = 0;
-			if(node.mode == this.LOGIC_MODES.PREMISE_MODE) {
-				mode_name = "Proof: Premise Constructed";
-				mode_n = this.LOGIC_MODES.PROOF_MODE;
-			}
-			else {
-				mode_name = "Proof: Goal Constructed";
-				mode_n = this.LOGIC_MODES.PREMISE_MODE;
-			}
-			node.thunk.transfer = function(mode_name) {
-				return function(proof) {
-					var t = new InferenceRule();
-					proof.addnode(mode_name,t.RuleToId(mode_name),nodes,null,mode_n);
-				};
-			}(mode_name,mode_n,nodes);
-		} else if (node.mode == this.LOGIC_MODES.INSERTION_MODE) {
-			node.thunk = this.thunk;
-		}
-	}
-	else
-		node.thunk = thunk;
-
-
+    this.current.deconstructUI();
 	this.current.next.push_back(node);
-	if(mode >= 0 && mode == this.LOGIC_MODES.PREMISE_MODE && this.CURRENT_MODE ==this.LOGIC_MODES.GOAL_MODE) {
-		this.current.plane.compressTree();
-		node.plane = new Level(this.paper,null);
-	}
-	else
-		this.current.plane = this.current.plane.duplicate();
 	this.current = node;
+    this.current.constructUI();
 
-	this.rethunk(this.current.thunk);
-
-	if(mode>=0 && mode != this.CURRENT_MODE)
-		this.change_mode(mode);
-
-	if(node.mode !== this.LOGIC_MODES.GOAL_MODE && node.mode !== this.LOGIC_MODES.PREMISE_MODE)
-		this.automated_check(this.current);
-	branches.draw.call(Timeline, this);
+	this.activateReactor(this.EVENTS.ADD_NODE);
 };
 
-Proof.prototype.rethunk = function(thunk) {
-	this.thunk.exit(this.current);
-	this.thunk = thunk;
-	this.thunk.enter(this.current);
-};
-
+/*
 Proof.prototype.automated_check = function(pnode) {
 	gnode = pnode;
 	while(gnode.mode !== this.LOGIC_MODES.GOAL_MODE) {
 		gnode = gnode.prev;
 	}
-	gnode.plane.restoreTree();
+	gnode.constructUI();
 	var eq = gnode.plane.equivalence(pnode.plane);
-	gnode.plane.compressTree();
+	gnode.deconstructUI();
 	if(eq)
 		smoke.alert('Reached Goal');
-};
+};*/
 
 //moves proof to last step
 Proof.prototype.prev = function() {
 	if(this.current.prev) {
-		this.current.plane.compressTree();
+		this.current.deconstructUI();
 		this.current = this.current.prev;
-		this.current.plane.restoreTree();
+		this.current.constructUI();
+		this.activateReactor(this.EVENTS.PREVIOUS_NODE);
 	}
 };
 
 //selects step from timeline
 Proof.prototype.select = function(node) {
 	if(this.current !== node) {
-		this.current.plane.compressTree();
+		this.current.deconstructUI();
 		this.current = node;
-		this.current.plane.restoreTree();
-		this.rethunk(this.current.thunk);
-		this.change_mode(this.current.mode);
-		if(node.mode !== this.LOGIC_MODES.GOAL_MODE && node.mode !== this.LOGIC_MODES.PREMISE_MODE)
-			this.automated_check(this.current);
-		minimap.redraw();
+		this.current.constructUI();
+		this.changeMode(this.current.mode);
+		//if(node.mode !== this.LOGIC_MODES.GOAL_MODE && node.mode !== this.LOGIC_MODES.PREMISE_MODE)
+			//this.automated_check(this.current);
+		this.activateReactor(this.EVENTS.SELECT_NODE);
 	}
 };
 
 //moves proof to next step
 Proof.prototype.next = function () {
 	if(this.current.next) {
-		this.current.plane.compressTree();
+		this.current.deconstructUI();
 		this.current = this.current.next;
-		this.current.plane.restoreTree();
+		this.current.constructUI();
+		this.activateReactor(this.EVENTS.NEXT_NODE);
 	}
 };
-
-//swaps proof to the step pointed to by proof node
-Proof.prototype.swap = function (proof_node) {
-	if(proof_node) {
-		this.current.plane.compressTree();
-		this.current = proof_node;
-		this.current.plane.restoreTree();
-	}
-};
-
