@@ -21,7 +21,9 @@ function InferenceRule(thunk) {
 		'Proof: Insertion End',
 
 		'Proof: Goal Constructed',
-		'Proof: Premise Constructed'
+		'Proof: Premise Constructed',
+
+		'Construction: PL Statement'
 	];
 	this.thunk = thunk;
 }

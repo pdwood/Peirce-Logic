@@ -17,6 +17,18 @@ ProofNode.prototype.constructUI = function(R) {
     this.uiSet.constructUI();
 }
 
+function ProofTreeTrim(node){
+	if(node.prev == null){
+		return node;
+	}
+
+	//Delete proof offshoots by ensuring each node in the main path is an only child.
+	node.prev.next = new List();
+	node.prev.next.push_back(node);
+
+	return ProofTreeTrim(node.prev);
+}
+
 ProofNode.prototype.deconstructUI = function() {
     if(this.uiSet) {
         this.uiSet.deconstructUI();

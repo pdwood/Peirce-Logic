@@ -90,7 +90,8 @@ N1.add_lit("Q",false);
 var N2 = Node.NodeSkeleton();
 N2.add_lit("P", false);
 
-//[(P->Q)->R] then [(P^Q)->R]EMPTY VARIABLE
+//[(P->Q)->R] then [(P^Q)->R]EMPTY VARIABLE
+
 
 var N1 = Node.NodeSkeleton();
 N1.add_lit("P", false);
@@ -150,4 +151,4 @@ N2.subtrees[0].add_lit("Q",false);
 N2.add_lit("Q",false);
 N2.subtrees[1].add_lit("P",false);
 
-file:///C:/Users/caulfb2/Documents/GitHub/Peirce-Logic/appengine/templates/index.html
+//file:///C:/Users/caulfb2/Documents/GitHub/Peirce-Logic/appengine/templates/index.html
