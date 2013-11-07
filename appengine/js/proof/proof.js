@@ -187,6 +187,7 @@ Proof.prototype.prev = function() {
 
 //selects step from timeline
 Proof.prototype.select = function(node) {
+	D(node)
 	if(this.current !== node) {
 		this.current.plane.compressTree();
 		this.current = node;

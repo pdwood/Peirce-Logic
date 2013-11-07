@@ -49,3 +49,7 @@ body {
     background: url(../img/patterndark.png);
     margin-bottom: 0px;
 }
+
+#proofplayer {
+	text-align: center;
+}

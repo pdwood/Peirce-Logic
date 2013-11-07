@@ -29,6 +29,16 @@ window.onload = function() {
 	document.getElementById('ModeLink').onclick = function(e){
 		TheProof.execute_transfer();
 	};
+	document.getElementById('backwardtick').onclick = function(e){
+		if(TheProof.current.prev) {
+			TheProof.select(TheProof.current.prev);
+		}
+	};
+	document.getElementById('forwardtick').onclick = function(e){
+		if(TheProof.current.next.head) {
+			TheProof.select(TheProof.current.next.head.val);
+		}
+	};
 
 	Timeline = Raphael('timeline', '100%', TIMELINE_CANVAS_HEIGHT());
 	branches.draw.call(Timeline, TheProof);
