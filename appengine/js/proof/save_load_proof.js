@@ -19,6 +19,8 @@ stringToProof = function(proofString) {
 fillSaveString = function() {
 	$("#content").val(proofToString());                                               
 }
+// on click
+$("#saveButton").click(fillSaveString())
 
 // THIS IS THE OLD CODE
 // I LEFT IT HERE BECUZ mAYbe IT"S USEFUL 2 u
