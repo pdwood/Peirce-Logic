@@ -14,3 +14,7 @@ window.onload = function () {
     };
     R.set(g).drag(move, start, up);
 };
+
+g.onclick = function () {
+    alert('Suck it, jewbag.')
+}
