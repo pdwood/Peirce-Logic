@@ -170,8 +170,10 @@ Proof.prototype.automated_check = function(pnode) {
 	gnode.plane.restoreTree();
 	var eq = gnode.plane.equivalence(pnode.plane);
 	gnode.plane.compressTree();
-	if(eq)
+	if(eq) {
 		smoke.alert('Reached Goal');
+		playerButtons();
+	}
 };
 
 //moves proof to last step
