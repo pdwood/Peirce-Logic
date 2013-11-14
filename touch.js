@@ -1,4 +1,6 @@
 window.onload = function () {
+    var element = document.getElementById('holder');
+    var H = Hammer(element);
     var R = Raphael(0, 0, "100%", "100%"),
         g = R.circle(210, 100, 50).attr({fill: "hsb(.3, 1, 1)", stroke: "none", opacity: .5});
     var start = function () {
@@ -14,7 +16,3 @@ window.onload = function () {
     };
     R.set(g).drag(move, start, up);
 };
-
-g.onclick = function () {
-    alert('Suck it, jewbag.')
-}
