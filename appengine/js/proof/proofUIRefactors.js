@@ -4,7 +4,7 @@ function AddUIReactors(proof) {
 	proof.addReactor(proof.EVENTS.ADD_NODE, AddNode);
 	proof.addReactor(proof.EVENTS.SELECT_NODE, ChangeNode);
 	proof.addReactor(proof.EVENTS.NEXT_NODE, ChangeNode);
-	proof.dadReactor(proof.EVENTS.PREVIOUS_NODE, ChangeNode);
+	proof.addReactor(proof.EVENTS.PREVIOUS_NODE, ChangeNode);
 }
 
 function ChangeMode(proof) {
