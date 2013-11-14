@@ -39,7 +39,10 @@
         <script src="../js/utils/list.js" type="text/javascript"></script>
         <script src="../js/utils/utility.js" type="text/javascript"></script>
         <script src="../js/Peirce.js" type="text/javascript"></script>
+
         <script src="../js/proof/proof.js" type="text/javascript"></script>
+        <script src="../js/proof/proof_ui_reactors.js" type="text/javascript"></script>
+        <script src="../js/proof/automated_proof.js" type="text/javascript"></script>
     
         <script src="../js/inference_rules/inference_rules.js" type="text/javascript"></script>
         <script src="../js/inference_rules/available_rules.js" type="text/javascript"></script>
@@ -49,12 +52,11 @@
         <script src="../js/inference_rules/iteration.js" type="text/javascript"></script>
     
         <script src="../js/proof/save_load_proof.js" type="text/javascript"></script>
-        <script src="../js/level/node.js" type="text/javascript"></script>
-        <script src="../js/proof/automated_proof.js" type="text/javascript"></script>
-        <script src="../js/level/level.js" type="text/javascript"></script>
-        <script src="../js/level/level_visual.js" type="text/javascript"></script>
-        <script src="../js/level/level_equivalence.js" type="text/javascript"></script>
-        <script src="../js/level/variable.js" type="text/javascript"></script>
+        <script src="../js/node/node.js" type="text/javascript"></script>
+		<script src="../js/node/node_equivalence.js" type="text/javascript"></script>
+        <script src="../js/ui/uinode.js" type="text/javascript"></script>
+        <script src="../js/ui/level.js" type="text/javascript"></script>
+        <script src="../js/ui/variable.js" type="text/javascript"></script>
     
         <script src="../js/gui/context_menu.js" type="text/javascript"></script>
         <script src="../js/gui/minimap.js" type="text/javascript"></script>
@@ -64,24 +66,20 @@
         <script src="../js/tour.js" type="text/javascript"></script>
     </head>
     <body>
-        <div role="main">
-            <div class="navbar navbar-inverse navbar-fixed-top">
-                <div class="container">
-                    <a class="navbar-brand" href="#">Peirce Logic</a>
-                    <p class="navbar-text pull-right">
-                        {{greeting}}
-                    </p>
-                    <button id="tourbutton" type="button" class="btn btn-primary btn-sm navbar-btn">
-                        Take the tour!
-                    </button>
-                </div>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="#">Peirce Logic</a>
+                <p class="navbar-text pull-right">
+                    {{greeting}}
+                </p>
+                <button id="tourbutton" type="button" class="btn btn-primary btn-sm navbar-btn">
+                    Take the tour!
+                </button>
             </div>
-            <div id="paper"></div>
-            <div id="minimap"></div>
-            <div class="row">
-                <div class="col-sm-12" id="ModeLink" type="button"></div>
-            </div>
-            <div id="timeline"></div>
         </div>
+        <div id="paper"></div>
+        <div id="minimap"></div>
+        <div class="col-sm-12" id="ModeLink" type="button"></div>
+        <div id="timeline"></div>
     </body>
 </html>

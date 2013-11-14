@@ -1,7 +1,7 @@
 InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 	var logic_modes = proof.LOGIC_MODES;
 	var current_mode = proof.CURRENT_MODE;
-	var methods = {} ;
+	var methods = {};
 
 	//properties of node set
 	var all_even_level = true;
@@ -14,11 +14,10 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 	var parent = null;
 	var iteration_nodes = null;
 	nodes.iterate(function(node) {
-		if(!level) {
+		if(level == 0) {
 			level = (node.getLevel())%2;
-			if(level) {
+			if(level == 1)
 				all_even_level = false;
-			}
 			else
 				all_odd_level = false;
 		}
@@ -131,6 +130,8 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 			if(nodes.length==1) {
 				node = nodes.begin().val;
 				if(node instanceof Level) {
+					var name = mode_name+'PL Statement';
+					methods[name] = this.PL_statement_for(name);
 					var name = mode_name+'Variable';
 					methods[name] = this.variable_for(name);
 					var name = mode_name+'Empty Cut';
