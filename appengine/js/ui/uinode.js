@@ -17,12 +17,12 @@ function UINodeTree(R, node_tree, subtree_class, leaf_class, tree_attrs) {
         });
     } else { // just default attr
         this.constructUI(function(id,uinode) {
-            uinode.setShapeAttr(uinode.defaultAttr);
+            uinode.setShapeAttr(uinode.defaultAttr());
         });
     }
 }
 
-UINodeTree.constructUI = function(attr_decorator) {
+UINodeTree.prototype.constructUI = function(attr_decorator) {
     var treeDict = {};
     if (this.tree) // convert node tree into id:node dict
         treeDict = this.tree.toDict();
@@ -33,12 +33,13 @@ UINodeTree.constructUI = function(attr_decorator) {
             uinode = new this.leaf_class(this.R, node, this.uinodes);
         else
             uinode = new this.subtree_class(this.R, node, this.uinodes);
+        uinode.createShape();
         attr_decorator(id, uinode);
         this.uinodes[id] = uinode;
     }
 }
 
-UINodeTree.deconstructUI = function() {
+UINodeTree.prototype.deconstructUI = function() {
     for(var id in this.uinodes) {
         this.uinodes[id].removeShape();
     }

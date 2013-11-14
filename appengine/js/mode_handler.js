@@ -14,31 +14,7 @@ function ModeHandler(R_overlay,x_offset,y_offset,width,height) {
 	this.shape.push(text);
 	this.shape.click(this.OnCLick);
 	this.shape.parent = this;
-
-	this.thunk = null;
 }
-
-ModeHandler.prototype.ChangeMode = function(mode,thunk) {
-	this.PREVIOUS_MODE = this.LogicMode.CURRENT_MODE;
-	if (this.thunk) {
-		this.thunk.Reset(this.thunk);
-	}
-	this.thunk = thunk;
-	if (mode === this.LogicMode.PREMISE_MODE) {
-		this.CURRENT_MODE = this.LogicMode.PREMISE_MODE;
-		this.shape.attr({'text':"Premise Mode"});
-	}
-	if (mode === this.LogicMode.PROOF_MODE) {
-		this.CURRENT_MODE = this.LogicMode.PROOF_MODE;
-		this.shape.attr({'text':"Proof Mode"});
-	}
-	if (mode === this.LogicMode.INSERTION_MODE) {
-		this.CURRENT_MODE = this.LogicMode.INSERTION_MODE;
-		this.shape.attr({'text':"Insertion Mode"});
-	}
-	document.getElementById('mode').innerHTML = '<a href="#">MODE</a>';
-
-};
 
 ModeHandler.prototype.OnCLick = function(e) {
 	var p = this.parent;

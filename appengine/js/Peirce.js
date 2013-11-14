@@ -27,8 +27,9 @@ window.onload = function() {
 	minimap = new Minimap(R);
 	ContextMenu = new ContextHandler(R);
 
+	TheProof.changeMode(TheProof.nextMode());
 	document.getElementById('ModeLink').onclick = function(e){
-		TheProof.execute_transfer();
+		TheProof.changeMode(TheProof.nextMode(TheProof.currentMode));
 	};
 	document.getElementById('backwardtick').onclick = function(e){
 		if(TheProof.current.prev) {

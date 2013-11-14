@@ -14,7 +14,6 @@ function ProofNode(nodeTree) {
 
 ProofNode.prototype.constructUI = function(R) {
     this.uiSet = new UINodeTree(R, this.nodeTree, Level, Variable, this.uiAttr);
-    this.uiSet.constructUI();
 }
 
 function ProofTreeTrim(node){
@@ -64,6 +63,7 @@ function Proof(R) {
     this.nodeSeed = new Node(null);
 
 	this.current = new ProofNode(this.nodeSeed); //current node displayed
+	this.current.constructUI(R);
 	this.current.mode = this.currentMode;
 	this.front = this.current;
 
@@ -83,6 +83,24 @@ Proof.prototype.removeReactor = function(event) {
 Proof.prototype.activateReactor = function(event) {
 	if (event in this.eventReactors)
 		this.eventReactors[event](this);
+}
+
+Proof.prototype.nextMode = function(mode) {
+	if (mode === this.LOGIC_MODES.PREMISE_MODE) {
+		return this.LOGIC_MODES.PROOF_MODE;
+	}
+	if (mode === this.LOGIC_MODES.INSERTION_MODE) {
+		return this.LOGIC_MODES.PROOF_MODE;
+	}
+	if (mode === this.LOGIC_MODES.GOAL_MODE) {
+		return this.LOGIC_MODES.PREMISE_MODE;
+	}
+	if (mode === this.LOGIC_MODES.PROOF_MODE) {
+		return this.LOGIC_MODES.PROOF_MODE;
+	}
+
+
+	return this.LOGIC_MODES.GOAL_MODE;
 }
 
 Proof.prototype.changeMode = function(mode) {

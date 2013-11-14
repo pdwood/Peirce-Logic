@@ -7,7 +7,7 @@ function Level(R, node, nodeDict) {
 
 Level.prototype.createShape = function(attr) {
 	this.removeShape();
-	this.shape = this.R.rect(0,0,1,1);
+	this.shape = this.paper.rect(0,0,1,1);
 	
     if(this.node.parent) { // cuts
 		//mouseover effects

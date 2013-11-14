@@ -36,7 +36,7 @@ Variable.prototype.createShape = function(attr) {
 
 Variable.prototype.createShape = function(attr) {
     this.removeShape();
-	this.shape = this.R.text(0,0,"~")
+	this.shape = this.paper.text(0,0,"~")
     this.setShapeAttr(attr);
 	this.shape.parent = this;
 

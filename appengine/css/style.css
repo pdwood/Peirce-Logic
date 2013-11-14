@@ -33,7 +33,6 @@ body {
 #play-buttons {
     position: absolute;
     z-index: 2;
-    align:right;
 }
 
 #ModeLink {
@@ -44,6 +43,8 @@ body {
     -moz-border-radius: 1px; 
     border-radius: 1px; 
     text-align: center;
+    -moz-user-select: none;
+    -webkit-user-select: none;
 }
 
 .navbar {

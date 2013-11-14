@@ -15,6 +15,7 @@ function Node(parent) {
 Node.prototype.toDict = function () {
     var dict = {};
     this.toDictChild(dict);
+    return dict;
 };
 
 Node.prototype.toDictChild = function (dict) {
@@ -44,7 +45,7 @@ Node.prototype.isChild = function (node) {
 };
 
 Node.prototype.isLeaf = function () {
-    if(this.subtrees.length > 0 || this.leaves.length >0)
+    if(this.subtrees.length > 0 || this.leaves.length >0 || !this.parent)
         return false;
     return true;
 };
