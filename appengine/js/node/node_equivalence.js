@@ -1,5 +1,5 @@
 //Check if two levels, trees, are the same structure
-Level.prototype.equivalence = function(other) {
+Node.prototype.equivalence = function(other) {
 	// get leaves of both trees
 	var L1 = tree_leaves(this);
 	var L2 = tree_leaves(other);
@@ -134,7 +134,7 @@ function tree_leaves(root) {
 
 			// add all variables into leaves list with canonical name of variable name
 			node.leaves.iterate(function(v) {
-				leaves.push([v.parent,v.getName()]);
+				leaves.push([v.parent,v.context]);
 			});
 		}
 		// if there are leaves then add to current level

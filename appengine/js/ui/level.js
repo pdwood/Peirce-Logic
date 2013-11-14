@@ -1,69 +1,103 @@
-/* Visual Methods */
+Level.prototype = Object.create(UINode.prototype);
 
-/*
-Level.renderShape
-~attr: Raphael attributes for rendering
+function Level(R, node, nodeDict) {
+    this.superClass = Object.getPrototypeOf(Level.prototype);	
+    this.superClass.constructor.call(this,R,node,nodeDict);
+}
 
-Remove old rapheal shape and
-replace with new shape with
-input attributes and setup
-handlers
-*/
-Level.prototype.renderShape = function(attr) {
-    // render plane 
-    if(!this.parent) {
-        this.shape = this.paper.rect(0,0,DEFAULT_PLANE_WIDTH,DEFAULT_PLANE_HEIGHT).attr(attr);
-    }
-
-    // render cuts
-    else {
-        this.shape = this.paper.rect(0,0,DEFAULT_CHILD_WIDTH,DEFAULT_CHILD_HEIGHT,DEFAULT_CURVATURE).attr(attr);
-        //mouseover effects
+Level.prototype.createShape = function(attr) {
+	this.removeShape();
+	this.shape = this.R.rect(0,0,1,1);
+	
+    if(this.node.parent) { // cuts
+		//mouseover effects
         this.shape.mouseover(function () {
-            this.attr({
-                "fill-opacity": 0.2
-            });
+            this.attr({"fill-opacity": 0.2});
         });
-        this.shape.mouseout(function () {
-            this.attr({
-                "fill-opacity": 0.0
-            });
+		this.shape.mouseout(function () {
+			this.attr({"fill-opacity": 0.0}); 
         });
-        this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+		
+		this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+	}    
+
+	this.shape.parent = this;
+	this.shape.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
+    $(document).bind('contextmenu', function(e) {
+        e.preventDefault();
+    });
+    this.shape.mousedown(function(e) {
+        if (e.which == 3) {
+            this.parent.clicked(e);
+        }
+    });
+
+    this.shape.setShapeAttr(attr);
+}
+
+Level.prototype.defaultAttr = function() {
+    // plane
+    if(!this.node.parent) {
+        var color = '#888';
+		return {
+            x: 0,
+            y: 0,
+            width: DEFAULT_PLANE_WIDTH,
+            height: DEFAULT_PLANE_HEIGHT,
+			fill: color,
+			stroke: color, "fill-opacity": 0.1
+		};
+    } else { // cut
+        //color spectrum based on level
+		var color = 0; 
+        Raphael.getColor.reset();
+		for(var x =1; x<=this.node.getLevel()+1;x++){
+			color = Raphael.getColor();
+		}
+		return {
+            x: 0,
+            y: 0,
+            width: DEFAULT_CHILD_WIDTH,
+            height: DEFAULT_CHILD_HEIGHT,
+            r: DEFAULT_CURVATURE,
+            fill: color,
+			stroke: color, "fill-opacity": 0
+        };
     }
+}
 
-    //shape has parent pointer back to level
-    //allows for referencing in Raphael callbacks
-    this.shape.parent = this;
-    this.shape.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
-    this.shape.dblclick(this.onDoubleClick);
+/* to be most likely removed 
+Level.prototype.removeNode = function(node) {
+	var parent_list = null;
+	if(node instanceof Level) {
+		parent_list = this.subtrees;
+	}
+	else {
+		parent_list = this.leaves;
+	}
+
+	var itr = parent_list.skipUntil(function(x) {
+		return (x === node);
+	});
+
+	if(node instanceof Level) {
+		itr.val.compressTree();
+	}
+	else {
+		itr.val.compress();
+	}
+	parent_list.erase(itr);
+	node.parent = null;
+	this.contract(true);
 };
-
-/*
-Level.updateLevel
-Update color of level and shift shape to front.
-Used when invalidating level's level
 */
 
-Level.prototype.updateLevel = function() {
-    this.shape.toFront();
-    //color spectrum based on level
-    var color = 0; Raphael.getColor.reset();
-    for(var x =1; x<=this.getLevel()+1;x++){
-        color = Raphael.getColor();
-    }
-    this.shape.attr({
-        fill: color,
-        stroke: color
-    });
-    this.leaves.iterate(function(node) {
-        node.updateLevel();
-    });
-    this.subtrees.iterate(function(node) {
-        node.updateLevel();
-    });
+Level.prototype.setSelected = function(flag) {
+	if(!flag)
+		this.setShapeAttr({"stroke-width": 1});
+	else
+		this.setShapeAttr({"stroke-width": 3});
 };
-
 
 /*
 Level.expand(float cx, float cy, float cw, float ch)
@@ -79,7 +113,7 @@ Then expands its parent;
 */
 Level.prototype.expand = function(cx,cy,cw,ch,animate) {
     //doesn't expand main plane
-    if(this.parent) {
+    if(this.node.parent) {
         var sc = 20; //padding
         //initial state
         var x = this.shape.attrs.x;
@@ -112,16 +146,17 @@ Level.prototype.expand = function(cx,cy,cw,ch,animate) {
             x: new_x,
             y: new_y,
             width: new_width,
-            height: new_height};
+            height: new_height
+        };
         if(animate)
             this.shape.animate(expanded_att,200,"<");
-        this.shape.attr(expanded_att);
+        this.setShapeAttr(expanded_att);
 
         //expand parent
-        this.parent.expand(new_x,new_y,new_width,new_height,animate);
+        this.getUINode(this.node.parent).expand(new_x,new_y,new_width,new_height,animate);
 
         //move collided nodes out of way
-        this.parent.shiftAdjacent(this,this.shape.getBBox());
+        this.getUINode(this.node.parent).shiftAdjacent(this,this.shape.getBBox());
     }
 };
 
@@ -134,7 +169,7 @@ contracts its around all
 children and variables like a hull;
 */
 Level.prototype.contract = function(animate) {
-    if(this.parent) {
+    if(this.node.parent) {
         var sc = 20; //padding
         //state variables
         var new_x = this.shape.attrs.x+(this.shape.attrs.width)/4;
@@ -142,21 +177,24 @@ Level.prototype.contract = function(animate) {
         var new_width = DEFAULT_CHILD_WIDTH, new_height = DEFAULT_CHILD_HEIGHT;
         var initial_hull_set_flag = false; //flag for hull initilization
 
-        if(this.subtrees.length) { //if children
+        if(this.node.subtrees.length) { //if children
             //intial hull around first child with slack
-            var itr = this.subtrees.begin();
-            var cx = itr.val.shape.attrs.x; var cy = itr.val.shape.attrs.y;
-            var cw = itr.val.shape.attrs.width; var ch = itr.val.shape.attrs.height;
+            var itr = this.node.subtrees.begin();
+            var cx = this.getUINode(itr.val).shape.attrs.x; var cy = this.getUINode(itr.val).shape.attrs.y;
+            var cw = this.getUINode(itr.val).shape.attrs.width; var ch = this.getUINode(itr.val).shape.attrs.height;
             //contracted properties
-            new_x = cx-sc; var new_y = cy-sc;
+            new_x = cx-sc; 
+            new_y = cy-sc;
             new_width = cw+sc+sc;
             new_height = ch+sc+sc;
             initial_hull_set_flag = true;
             itr = itr.next; //move to next child
-            while(itr!=this.subtrees.end()) {
+            while(itr!=this.node.subtrees.end()) {
                 //fit hull
-                var cx = itr.val.shape.attrs.x, cy = itr.val.shape.attrs.y;
-                var cw = itr.val.shape.attrs.width, ch = itr.val.shape.attrs.height;
+                cx = this.getUINode(itr.val).shape.attrs.x;
+                cy = this.getUINode(itr.val).shape.attrs.y;
+                cw = this.getUINode(itr.val).shape.attrs.width;
+                ch = this.getUINode(itr.val).shape.attrs.height;
                 if(cx-sc <= new_x) {
                     new_width += new_x-(cx-sc);
                     new_x = cx-sc;
@@ -172,24 +210,25 @@ Level.prototype.contract = function(animate) {
         }
 
         //if variables
-        if(this.leaves.length) {
-            var itr = this.leaves.begin();
+        if(this.node.leaves.length) {
+            var itr = this.node.leaves.begin();
             //if hull not initialized
             if(!initial_hull_set_flag) {
                 //intial hull around first variable with slack
-                var cx = itr.val.text.getBBox().x, cy = itr.val.text.getBBox().y;
-                var cw = itr.val.text.getBBox().width, ch = itr.val.text.getBBox().height;
+                var cx = this.getUINode(itr.val).shape.getBBox().x, cy = this.getUINode(itr.val).shape.getBBox().y;
+                var cw = this.getUINode(itr.val).shape.getBBox().width, ch = this.getUINode(itr.val).shape.getBBox().height;
                 //contracted properties
-                new_x = cx-sc, new_y = cy-sc;
+                new_x = cx-sc;
+                new_y = cy-sc;
                 new_width = cw+sc+sc;
                 new_height = ch+sc+sc;
                 //move to next variable
                 itr = itr.next;
             }
-            while(itr!=this.leaves.end()) {
+            while(itr!=this.node.leaves.end()) {
                 //fit hull
-                var cx = itr.val.text.getBBox().x, cy = itr.val.text.getBBox().y;
-                var cw = itr.val.text.getBBox().width, ch = itr.val.text.getBBox().height;
+                var cx = this.getUINode(itr.val).shape.getBBox().x, cy = this.getUINode(itr.val).shape.getBBox().y;
+                var cw = this.getUINode(itr.val).shape.getBBox().width, ch = this.getUINode(itr.val).shape.getBBox().height;
                 if(cx-sc <= new_x) {
                     new_width += new_x-(cx-sc);
                     new_x = cx-sc;
@@ -213,19 +252,10 @@ Level.prototype.contract = function(animate) {
         };
         if(animate)
             this.shape.animate(expanded_att,200,"<");
-        this.shape.attr(expanded_att);
+        this.setShapeAttr(expanded_att);
 
         //contract parent
-        this.parent.contract(animate);
-    }
-};
-
-
-Level.prototype.drag = function(dx,dy) {
-    if (this.parent){
-        this.dragStart();
-        this.dragMove(dx,dy);
-        this.dragEnd();
+        this.getUINode(this.node.parent).contract(animate);
     }
 };
 
@@ -242,75 +272,54 @@ Adds attributes of orignal
 coordinates to use for shifting
 the shape during drag
 */
-
 Level.prototype.dragStart = function() {
     //save orignal positions of children
-    var itr = this.subtrees.begin();
-    while(itr!=this.subtrees.end()) {
-        itr.val.dragStart();
+    var itr = this.node.subtrees.begin();
+    while(itr!=this.node.subtrees.end()) {
+        this.getUINode(itr.val).dragStart();
         itr = itr.next;
     }
     //save orignal positions of variables
-    var itr = this.leaves.begin();
-    while(itr!=this.leaves.end()) {
-        itr.val.dragStart();
+    itr = this.node.leaves.begin();
+    while(itr!=this.node.leaves.end()) {
+        this.getUINode(itr.val).dragStart();
         itr = itr.next;
     }
     //save level's orignal position
     this.ox = this.shape.attr("x");
     this.oy = this.shape.attr("y");
-};
 
-//Level callback for drag initialization
-Level.prototype.onDragStart = function() {
-    this.parent.dragStart();
     //highlight shape
-    this.attr({"fill-opacity": 0.2});
+    this.setShapeAttr({"fill-opacity": 0.2});
+
+    this.superClass.dragStart.call(this);
 };
 
-
-/*
-Level.dragMove
-~dx: drag difference in x
-~dy: drag difference in y
-
-Object level handler for
-drag event action; shifts
-shape based on drag difference
-then drags children/variables
-*/
 Level.prototype.dragMove = function(dx, dy) {
     var new_x, new_y;
 
     this.collisionMove(dx,dy);
 
     //shift children
-    var itr = this.subtrees.begin();
-    while(itr!=this.subtrees.end()) {
-        itr.val.dragMove(dx,dy);
+    var itr = this.node.subtrees.begin();
+    while(itr!=this.node.subtrees.end()) {
+        this.getUINode(itr.val).dragMove(dx,dy);
         itr = itr.next;
     }
     //shift variables
-    var itr = this.leaves.begin();
-    while(itr!=this.leaves.end()) {
-        itr.val.dragMove(dx,dy);
+    itr = this.node.leaves.begin();
+    while(itr!=this.node.leaves.end()) {
+        this.getUINode(itr.val).dragMove(dx,dy);
         itr = itr.next;
     }
     //move collided nodes out of way
-    this.parent.shiftAdjacent(this,this.shape.getBBox());
+    this.getUINode(this.node.parent).shiftAdjacent(this,this.shape.getBBox());
     //fit hull to new area
-    this.parent.expand(new_x,new_y,this.shape.attrs.width,this.shape.attrs.height);
-    this.parent.contract();
-    minimap.redraw();
+    this.getUINode(this.node.parent).expand(new_x,new_y,this.shape.attrs.width,this.shape.attrs.height);
+    this.getUINode(this.node.parent).contract();
+
+    this.superClass.dragMove.call(this,dx,dy);
 };
-
-//Level callback for dragging
-Level.prototype.onDragMove = function(dx, dy) {
-    this.parent.dragMove(dx,dy);
-    this.paper.renderfix();
-};
-
-
 
 /*
 Level.collisionMove
@@ -330,8 +339,7 @@ Level.prototype.collisionMove = function (dx, dy) {
     var slack = 20;
 
     /* find root */
-    var that = this; 
-    var padding = slack*(this.getLevel()-1);
+    var padding = slack*(this.node.getLevel()-1);
 
     var ox = this.ox;
     var oy = this.oy;
@@ -355,23 +363,14 @@ Level.prototype.collisionMove = function (dx, dy) {
         new_y = padding;
     }
 
-    this.shape.attr({x: new_x, y: new_y});
+    this.setShapeAttr({x: new_x, y: new_y});
 };
 
-/*
-Level.dragEnd
-
-Object level handler for
-drag end event action;
-Does final contraction of level
-*/
 Level.prototype.dragEnd = function() {
-    this.parent.contract();
-};
-//Level callback for drag ending
-Level.prototype.onDragEnd = function() {
-    this.parent.dragEnd();
-    this.attr({"fill-opacity": 0});
+    this.getUINode(this.node.parent).contract();
+    this.setShapeAttr({"fill-opacity": 0});
+
+    this.superClass.dragEnd.call(this);
 };
 
 
@@ -384,16 +383,15 @@ Shift all children on plane away from input child
 when colliding on its bounding box
 */
 Level.prototype.shiftAdjacent = function(child,bbox) {
-    if(!child.visited){
+   if(!child.visited) {
         child.visited = true;
         var slack = 5;
-        var itr = this.leaves.begin();
-        while(itr!=this.leaves.end()){
-            var c = itr.val;
+        var itr = this.node.leaves.begin();
+        while(itr!=this.node.leaves.end()) {
+            var c = this.getUINode(itr.val);
             if(child !== c && !(c.visited)) {
-                var bbox2 = c.text.getBBox();
-                if(this.paper.raphael.isBBoxIntersect(bbox,bbox2)) {
-
+                var bbox2 = c.shape.getBBox();
+                if(this.R.raphael.isBBoxIntersect(bbox,bbox2)) {      
                     var sx = 0, sy = 0;
                     var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
                     var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
@@ -430,7 +428,7 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
                         // if bbox is colliding with bbox2 on the right
                         } else {
                             sy = dy+slack;
-                            child.drag(sx,sy)
+                            child.drag(sx,sy);
                         }
                     }
                     // if bbox2 is already colliding with the right bound
@@ -446,7 +444,7 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
                         // if bbox is colliding with bbox2 on the right
                         } else {
                             sy = dy+slack;
-                            child.drag(sx,sy)
+                            child.drag(sx,sy);
                         }
                     }
                     // if bbox2 is already colliding with the lower bound
@@ -502,13 +500,12 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
             }
             itr = itr.next;
         }
-        var itr = this.subtrees.begin();
-        while(itr!=this.subtrees.end()){
-            var c = itr.val;
+        itr = this.node.subtrees.begin();
+        while(itr!=this.node.subtrees.end()) {
+            var c = this.getUINode(itr.val);
             if(child !== c && !(c.visited)) {
                 var bbox2 = c.shape.getBBox();
                 if(this.paper.raphael.isBBoxIntersect(bbox,bbox2)) {
-
                     var sx = 0, sy = 0;
                     var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
                     var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
@@ -545,7 +542,7 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
                         // if bbox is colliding with bbox2 on the right
                         } else {
                             sy = dy+slack;
-                            child.drag(sx,sy)
+                            child.drag(sx,sy);
                         }
                     }
                     // if bbox2 is already colliding with the right bound
@@ -561,7 +558,7 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
                         // if bbox is colliding with bbox2 on the right
                         } else {
                             sy = dy+slack;
-                            child.drag(sx,sy)
+                            child.drag(sx,sy);
                         }
                     }
                     // if bbox2 is already colliding with the lower bound
@@ -621,3 +618,4 @@ Level.prototype.shiftAdjacent = function(child,bbox) {
         child.visited = false;
     }
 }
+ 
