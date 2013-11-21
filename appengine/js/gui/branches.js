@@ -297,7 +297,6 @@ branches = {
                             r: settings.normal_r
                         });
                         label.hide();
-                        popup.remove();
                         document.body.style.cursor = "default";
                     });
 
