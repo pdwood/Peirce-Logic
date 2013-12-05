@@ -1,4 +1,4 @@
-InferenceRule.prototype.erasure = function (proof, rule_name, nodes) {
+function AddErasure(tree, nodes) {
 	proof.addNode(rule_name,this.RuleToId(rule_name),nodes);
 	nodes.iterate(function(node) {
 		var parent = node.parent;
@@ -6,10 +6,3 @@ InferenceRule.prototype.erasure = function (proof, rule_name, nodes) {
 	});
 };
 
-InferenceRule.prototype.erasure_for = function (mode) {
-	return function(inf){
-	return function(proof, nodes) {
-		inf.erasure(proof, mode, nodes);
-	};
-	}(this);
-};
