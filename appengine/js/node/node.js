@@ -82,13 +82,17 @@ Node.prototype.fmap = function(func) {
 	this.subtrees.iterate(function(node) { node.fmap(func); });
 }
 
-/* To do: make fmap etc.
-Node.prototype.refreshIDs = function() {
+Node.prototype.refreshID = function() {
 	this.id_gen = 0;
-	for children
-		child.refreshIDs();
+	if(this.parent)
+		this.id = this.parent.genChildID();
+	else
+		this.id = 0;
 };
-*/
+
+Node.prototype.refreshIDs = function() {
+	this.fmap(function(node){ node.refreshID(); });
+};
 
 Node.prototype.addLeaf = function() {
     var child = new Node(this);

@@ -1,4 +1,6 @@
-function addNCut(n, tree, nodes, attrs) {
+function addNCut(n, tree, nodes) {
+	var diff = NewDiff();
+
 	nodes_parent = nodes.begin().val.parent;
 
 	//remove children from parent
@@ -13,14 +15,17 @@ function addNCut(n, tree, nodes, attrs) {
 		var itr = parent_list.skipUntil(function(p) {
 			return (p === node);
 		});
+		diff.changes.push([node.getIdentifier(), node]);
 		parent_list.erase(itr);
 	});
 
 	//add n-cut
 	var p = nodes_parent.addSubtree();
+	diff.addtions.push(p);
 	n--;
 	while(n>0) {
 		p = p.addSubtree();
+		diff.addtions.push(p);
 		n--;
 	}
 
@@ -38,15 +43,23 @@ function addNCut(n, tree, nodes, attrs) {
 		//if cut puts in children list
 		children_list.push_back(node);
 	});
+
+	return [tree, NodeDiffToIdDiff(diff)];
 }
 
-function addEmptyNCut(tree, nodes, attrs) {
+function addEmptyNCut(tree, nodes) {
+	var diff = NewDiff();
+
 	var p = nodes.begin().val.addSubtree();
+	diff.addtions.push(p);
 	n--;
 	while(n>0) {
 		p = p.addSubtree();
+		diff.addtions.push(p);
 		n--;
 	}
+
+	return [tree, NodeDiffToIdDiff(diff)];
 }
 
 function validateReverseNCut(tree, nodes) {
@@ -95,6 +108,7 @@ InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
 		else
 			tparent = node.parent;
 	}
+
 	else
 		tparent = nodes.begin().val.parent;
 	tparent.compress();
