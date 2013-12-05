@@ -210,8 +210,8 @@ PL_Node.Print_PL = function(n){
 PL_Node.get_Ands = function(n){
 	var node = Node.NodeSkeleton();
 	if(n.operation == "null"){
-		if(n.truth){node.leaves.push(n.variable);}
-		else{node.subtrees.push(Node.NodeSkeleton()); node.subtrees[0].leaves.push(n.variable);}
+		if(n.truth){node.leaves.push_back(n.variable);}
+		else{node.subtrees.push_back(Node.NodeSkeleton()); node.subtrees[0].leaves.push(n.variable);}
 	}
 	else{
 		node.absorb_graph(PL_Node.get_Ands(n.LNode));
@@ -259,9 +259,9 @@ PL_Node.PL_to_EG = function(s){
  var n = populate_parents(PL_to_EG.parse(s));
  n = PL_Node.Distribute_Nots(n);
  n = PL_Node.Shift_Ands(n);
- var new_node = Node.NodeSkeleton();
- new_node.subtrees.push(Node.NodeSkeleton());
- new_node.subtrees[0].absorb_graph(PL_Node.handle_Ors(n));
+ var new_node = new Node(null);
+ new_node.subtrees.push_back(new Node(new_node));
+ new_node.subtrees.begin().val.absorb_graph(PL_Node.handle_Ors(n));
  new_node.remove_DN();
  return new_node;
 }
