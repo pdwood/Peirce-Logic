@@ -1,4 +1,4 @@
-function addIteration(tree, nodes) {
+function AddIteration(tree, nodes) {
 	var source = nodes.begin().val.duplicate();
 	var dest = nodes.begin().next.val;
 	source.parent = dest;
@@ -13,7 +13,7 @@ function addIteration(tree, nodes) {
 };
 
 
-function deiteration(proof, rule_name, nodes) {
+function AddDeiteration(tree, nodes) {
 	proof.addNode(rule_name,this.RuleToId(rule_name),nodes);
 	var dest = nodes.begin().next.val;
 	var parent = dest.parent;
