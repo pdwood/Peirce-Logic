@@ -115,7 +115,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 					if(p.getIdentifier()===thk.data.Node)
 						return;
 					if((thk.data.OriginalSubtrees.contains(p.getIdentifier())
-						|| Thk.data.OriginalLeaves.contains(p.getIdentifier()))
+						|| thk.data.OriginalLeaves.contains(p.getIdentifier()))
 						&& p !== ok_in_orig_set)
 						in_orig_set = true;
 					p = p.parent;
