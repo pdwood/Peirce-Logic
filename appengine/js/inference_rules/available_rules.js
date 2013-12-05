@@ -46,8 +46,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 			node_source = node1;
 			node_dest = node2;
 		}
-		if (!node_dest.isLeaf() ||
-			(!node_dest.isLeaf() && node_source.isLeaf())) {
+		if (!node_dest.isLeaf()) {
 			var main_parent = node_source.parent;
 			var ancestor = node_dest.parent;
 			var share_ancestor = false;
