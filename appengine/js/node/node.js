@@ -8,7 +8,9 @@ function Node(parent) {
 	this.subtrees = new List();
 	this.leaves = new List();
 	this.id_gen = 0;
-    this.context = null;
+    this.label = null;
+
+	this.attributes = {};
 }
 
 // generate dict of id -> child
@@ -47,7 +49,13 @@ Node.prototype.isChild = function (node) {
 Node.prototype.isLeaf = function () {
     if(this.subtrees.length > 0 || this.leaves.length >0 || !this.parent)
         return false;
-    return true;
+	var nid = this.getIdentifier();
+	for(var itr = this.parent.leaves.begin(); itr != this.parent.leaves.end(); itr = itr.next) {
+		var leaf = itr.val;
+		if(leaf.getIdentifier() == nid)
+			return true;
+	}
+    return false;
 };
 
 Node.prototype.genChildID = function() {
@@ -132,7 +140,6 @@ Node.prototype.duplicate = function() {
 		dup.id = 0;
 	else
 		dup.id = this.parent.genChildID();
-	// Maybe something with gen_id?
 
     this.subtrees.iterate(function(x){
             child_dup = x.duplicate();

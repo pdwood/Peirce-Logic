@@ -1,6 +1,6 @@
 InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 	var logic_modes = proof.LOGIC_MODES;
-	var current_mode = proof.CURRENT_MODE;
+	var current_mode = proof.currentMode;
 	var methods = {};
 
 	//properties of node set
@@ -46,8 +46,8 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 			node_source = node1;
 			node_dest = node2;
 		}
-		if (node_dest instanceof Level ||
-			(node_dest instanceof Variable && node_source instanceof Variable)) {
+		if (!node_dest.isLeaf() ||
+			(!node_dest.isLeaf() && node_source.isLeaf())) {
 			var main_parent = node_source.parent;
 			var ancestor = node_dest.parent;
 			var share_ancestor = false;
@@ -59,12 +59,12 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 				ancestor = ancestor.parent;
 			}
 			if(share_ancestor) {
-				if(node_dest instanceof Level)
+				if(!node_dest.isLeaf())
 					iterable = true;
 				iteration_nodes = new List();
 				iteration_nodes.push_back(node_source);
 				iteration_nodes.push_back(node_dest);
-				if(node_source instanceof Variable && node_dest instanceof Variable) {
+				if(node_source.isLeaf() && node_dest.isLeaf()) {
 					if (node_source.getName() === node_dest.getName()) {
 						deiterable = true;
 					}
@@ -72,7 +72,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 						deiterable = false;
 					}
 				}
-				else if (!(node_source instanceof Variable || node_dest instanceof Variable)) {
+				else if (!(node_source.isLeaf() || node_dest.isLeaf())) {
 					if (node_source.equivalence(node_dest)) {
 						deiterable = true;
 					}
@@ -129,9 +129,9 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 		if(!out_of_plane && !in_orig_set) {
 			if(nodes.length==1) {
 				node = nodes.begin().val;
-				if(node instanceof Level) {
-					var name = mode_name+'PL Statement';
-					methods[name] = this.PL_statement_for(name);
+				if(!node.isLeaf()) {
+					//var name = mode_name+'PL Statement';
+					//methods[name] = this.PL_statement_for(name);
 					var name = mode_name+'Variable';
 					methods[name] = this.variable_for(name);
 					var name = mode_name+'Empty Cut';
@@ -178,7 +178,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 		var mode_name = 'Proof: ';
 		if(nodes.length==1) {
 			node = nodes.begin().val;
-			if(node instanceof Level) {
+			if(!node.isLeaf()) {
 				var name = mode_name+'Empty Double Cut';
 				methods[name] = this.empty_n_cut_for(2,name);
 			}
@@ -203,7 +203,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 		}
 		if(nodes.length==1) {
 			node = nodes.begin().val;
-			if(all_odd_level && node instanceof Level) {
+			if(all_odd_level && !node.isLeaf()) {
 				var name = mode_name+'Insertion';
 				methods[name] = this.insertion_for(name);
 			}

@@ -28,18 +28,18 @@ function InferenceRule(thunk) {
 	this.thunk = thunk;
 }
 
-InferenceRule.prototype.IdToRule = function (rule_name) {
+InferenceRule.prototype.RuleToId = function (rule_name) {
 	return this.rules.indexOf(rule_name);
-};
-
-InferenceRule.prototype.RuleToId = function(rule_id) {
+};								
+								
+InferenceRule.prototype.IdToRule = function(rule_id) {
 	if(rule_id>=0 && rule_id<this.rules.length)
 		return this.rules[rule_id];
 	return 'InvalidRule';
 };
 
 InferenceRule.prototype.variable = function (proof, rule_name, nodes) {
-	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
+	proof.addNode(rule_name,this.RuleToId(rule_name),nodes);
 	return nodes.begin().val.addLeaf();
 };
 

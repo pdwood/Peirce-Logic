@@ -97,7 +97,7 @@ UINode.prototype.clicked = function(event) {
     if (!event.ctrlKey) {
 		//Menu intialized with node,node's level, and mouse x/y
         var coords = mouse_to_svg_coordinates(this,event);
-        ContextMenu.NewContext(this,coords.x+event.clientX,coords.y+event.clientY-PLANE_VOFFSET);
+        ContextMenu.NewContext(this.node,coords.x+event.clientX,coords.y+event.clientY-PLANE_VOFFSET);
 		//var coords = mouse_to_svg_coordinates(this,event);
 //		ContextMenu.NewContext(this.parent,coords.x+event.clientX,coords.y+event.clientY-PLANE_VOFFSET);
 	}

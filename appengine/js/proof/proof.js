@@ -14,7 +14,14 @@ function ProofNode(nodeTree) {
 
 ProofNode.prototype.constructUI = function(R) {
     this.uiSet = new UINodeTree(R, this.nodeTree, Level, Variable, this.uiAttr);
-}
+};
+
+ProofNode.prototype.deconstructUI = function() {
+    if(this.uiSet) {
+        this.uiSet.deconstructUI();
+        this.uiSet = null;
+    }
+};
 
 function ProofTreeTrim(node){
 	if(node.prev == null){
@@ -26,13 +33,6 @@ function ProofTreeTrim(node){
 	node.prev.next.push_back(node);
 
 	return ProofTreeTrim(node.prev);
-}
-
-ProofNode.prototype.deconstructUI = function() {
-    if(this.uiSet) {
-        this.uiSet.deconstructUI();
-        this.uiSet = null;
-    }
 }
 
 function Proof(R) {
@@ -83,7 +83,7 @@ Proof.prototype.removeReactor = function(event) {
 Proof.prototype.activateReactor = function(event) {
 	if (event in this.eventReactors)
 		this.eventReactors[event](this);
-}
+};
 
 Proof.prototype.nextMode = function(mode) {
 	if (mode === this.LOGIC_MODES.PREMISE_MODE) {
@@ -101,7 +101,7 @@ Proof.prototype.nextMode = function(mode) {
 
 
 	return this.LOGIC_MODES.GOAL_MODE;
-}
+};
 
 Proof.prototype.changeMode = function(mode) {
 	this.previousMode = this.currentMode;
@@ -122,14 +122,14 @@ Proof.prototype.changeMode = function(mode) {
 };
 
 //adds a node in the proof, must be called by all inference rules before tree is changed
-Proof.prototype.addNode = function (rule,ruleApplicator,ruleNodes,thunk) {
+Proof.prototype.addNode = function (rule,ruleApplicator,ruleNodes) {
     var newTree = ruleApplicator(this.current.nodeTree);
 	var node = new ProofNode(newTree);
 	node.prev = this.current;
 	node.ruleName = rule;
     node.ruleApplicator = ruleApplicator;
     node.ruleNodes = ruleNodes;
-    node.thunk = thunk;
+	node.mode = this.currentMode;
 
     this.current.deconstructUI();
 	this.current.next.push_back(node);

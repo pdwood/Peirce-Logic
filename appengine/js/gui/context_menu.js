@@ -79,7 +79,7 @@ ContextHandler.prototype.SingleClickHandler = function(node,event) {
 
 ContextHandler.prototype.changeSelection = function(node) {
 	// Can't select the top level
-	if(node.parent === null) return;
+	if(node.parent == null) return;
 	if(this.selectedNodes.contains(node)) {
 		node.setClickActive(false);
 	}

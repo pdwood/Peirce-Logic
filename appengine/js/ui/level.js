@@ -32,7 +32,7 @@ Level.prototype.createShape = function(attr) {
         }
     });
 
-    this.shape.setShapeAttr(attr);
+    this.setShapeAttr(attr);
 }
 
 Level.prototype.defaultAttr = function() {
