@@ -1,3 +1,33 @@
+function ValidateCut(tree, nodes) {
+	return validateNCut(1, tree, nodes);
+}
+
+function ValidateInsertionCut(tree, nodes) {
+	// TODO
+}
+
+function AddCut(tree, nodes) {
+	return addNCut(1, tree, nodes);
+}
+
+function ValidateDoubleCut(tree, nodes) {
+	return validateNCut(2, tree, nodes);
+}
+
+function ValidateInsertionDoubleCut(tree, nodes) {
+	// TODO
+}
+
+function AddDoubleCut(tree, nodes) {
+	return addNCut(2, tree, nodes);
+}
+
+function validateNCut(n, tree, nodes) {
+	if(NodeAllHaveParent(nodes) && NodeAllSameParent(nodes))
+		return true;
+	return false;
+}
+
 function addNCut(n, tree, nodes) {
 	var diff = NewDiff();
 
@@ -47,7 +77,42 @@ function addNCut(n, tree, nodes) {
 	return [tree, NodeDiffToIdDiff(diff)];
 }
 
-function addEmptyNCut(tree, nodes) {
+//=========================================================
+
+function ValidateEmptyCut(tree, nodes) {
+	return validateEmptyNCut(1, tree, nodes);
+}
+
+function ValidateEmptyInsertionCut(tree, nodes) {
+	// TODO
+}
+
+function AddEmptyCut(tree, nodes) {
+	return addEmptyNCut(1, tree, nodes);
+}
+
+function ValidateEmptyDoubleCut(tree, nodes) {
+	return validateEmptyNCut(2, tree, nodes);
+}
+
+function ValidateEmptyInsertionDoubleCut(tree, nodes) {
+	// TODO
+}
+
+function AddEmptyDoubleCut(tree, nodes) {
+	return addEmptyNCut(2, tree, nodes);
+}
+
+function validateEmptyNCut(n, tree, nodes) {
+	if(nodes.length == 1) {
+		var node = nodes.begin().val;
+		if(!node.isLeaf())
+			return true;
+	}
+	return false;
+}
+
+function addEmptyNCut(n, tree, nodes) {
 	var diff = NewDiff();
 
 	var p = nodes.begin().val.addSubtree();
@@ -62,10 +127,41 @@ function addEmptyNCut(tree, nodes) {
 	return [tree, NodeDiffToIdDiff(diff)];
 }
 
-function validateReverseNCut(tree, nodes) {
+//=========================================================
+
+function ValidateReverseCut(tree, nodes) {
+	return validateReverseNCut(1, tree, nodes);
+}
+
+function ValidateReverseInsertionCut(tree, nodes) {
+	// TODO
+}
+
+function AddReverseCut(tree, nodes) {
+	return addReverseNCut(1, tree, nodes);
+}
+
+function ValidateReverseDoubleCut(tree, nodes) {
+	return validateReverseNCut(2, tree, nodes);
+}
+
+function ValidateReverseInsertionDoubleCut(tree, nodes) {
+	// TODO
+}
+
+function AddReverseDoubleCut(tree, nodes) {
+	return addReverseNCut(2, tree, nodes);
+}
+
+function validateReverseNCut(n, tree, nodes) {
+	if(!((NodeAllHaveParent(nodes) && NodeAllSameParent(nodes))))
+		return false;
+	else if(nodes.length == 0) {
+		return false;
+	}
 	var node = nodes.begin().val;
 	var p;
-	if (!node.isLeaf() && node.subtrees.length() == 0 && node.leaves.length() == 0 && node.parent)
+	if (!node.isLeaf() && node.subtrees.length == 0 && node.leaves.length == 0 && node.parent)
 		p = node;
 	else
 		p = node.parent;
@@ -84,22 +180,7 @@ function validateReverseNCut(tree, nodes) {
 	return false;
 };
 
-InferenceRule.prototype.reverse_n_cut = function (proof, rule_name, n, nodes) {
-	var enter = function(t) {
-		return function() {
-			this.data.Node.shape.attr({'stroke-dasharray': '--'});
-		};
-	}(this);
-
-	var exit = function(t) {
-		return function() {
-			this.data.Node.shape.attr({'stroke-dasharray': odash});
-		};
-	}(this);
-
-
-	proof.addNode(rule_name,this.RuleToId(rule_name),nodes);
-
+function addReverseNCut(n, tree, nodes) {
 	var tparent;
 	if(nodes.length==1) {
 		var node = nodes.begin().val;
