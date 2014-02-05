@@ -12,49 +12,88 @@ jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 
-def proof_key(proof_name=None):
-    """Constructs a Datastore key for a Proof entity with proof_name."""
-    return ndb.Key('Proof', proof_name)
+def userlog_key(email=None):
+    return ndb.Key('userlog', email)
 
+class Message(ndb.Model):
+    content = ndb.StringProperty(indexed=False)
 
 class IndexHandler(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        big_log=""
         if user:
             greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
                        (user.nickname(), users.create_logout_url('/')))
+            message_query = Message.query(ancestor=userlog_key(user.email()))
+            messages = message_query.fetch(10)
+            little_log = []
+            
+            for message in messages:
+                little_log.append(message.content)
+            
+            for m in little_log:
+                big_log+="<p>%s</p><br>" %m
         else:
             greeting = ('<a href="%s">Sign in or register</a>.' %
                        users.create_login_url('/'))
 
         template_values = {
             "user": user,
-            "greeting": greeting
+            "greeting": greeting,
+            "big_log": big_log
         }
         template = jinja_environment.get_template('templates/index.html')
         self.response.out.write(template.render(template_values))
 
-
-class ProofHandler(webapp2.RequestHandler):
+class PlayerHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.out.write('<html><body>')
+        user = users.get_current_user()
+        big_log=""
+        if user:
+            greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
+                       (user.nickname(), users.create_logout_url('/')))
+            message_query = Message.query(ancestor=userlog_key(user.email()))
+            messages = message_query.fetch(10)
+            little_log = []
+            
+            for message in messages:
+                little_log.append(message.content)
+            
+            for m in little_log:
+                big_log+="<p>%s</p><br>" %m
+        else:
+            greeting = ('<a href="%s">Sign in or register</a>.' %
+                       users.create_login_url('/'))
 
-        proofs = ndb.GqlQuery("SELECT * "
-                             "FROM Proof "
-                             "WHERE ANCESTOR IS :1 "
-                             "ORDER BY date DESC LIMIT 10",
-                             proof_key(proof_name))
+        template_values = {
+            "user": user,
+            "greeting": greeting,
+            "big_log": big_log
+        }
+        template = jinja_environment.get_template('templates/player.html')
+        self.response.out.write(template.render(template_values))
 
-        for proof in proofs:
-            self.response.out.write('<b>%s</b> wrote:' % proof.author)
-            self.response.out.write('<blockquote>%s</blockquote>' %
-                                    cgi.escape(proof.proof))
+class Userlog(webapp2.RequestHandler):
 
-        self.response.out.write("</body></html>")
+    def post(self):
+        # We set the same parent key on the 'Greeting' to ensure each Greeting
+        # is in the same entity group. Queries across the single entity group
+        # will be consistent. However, the write rate to a single entity group
+        # should be limited to ~1/second.
+        message = Message(parent=userlog_key(users.get_current_user().email()))
+
+        message.content = self.request.get('content')
+        message.put()
+
+        query_params = {'userlog': users.get_current_user().email()}
+        self.redirect('/?' + urllib.urlencode(query_params))
+
 
 app = webapp2.WSGIApplication([
     ('/', IndexHandler),
-    ('/proofs', ProofHandler)
+    ('/player', PlayerHandler),
+    ('/sign', Userlog)
 ], debug=True)

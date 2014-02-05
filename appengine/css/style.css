@@ -1,23 +1,10 @@
+
 svg:not(:root) {
     z-index: 1;
-    overflow: hidden;
-    height: calc(100% - 180px);
-    height: -moz-calc(100% - 180px);
-    height: webkit-calc(100% - 180px);
-    width: 100%;
-}
-
-	
-#paper {
-    width: 100%;
-    height: calc(100% - 180px);
-    height: -moz-calc(100$ - 180px);
-    height: webkit-calc(100% - 180px);
 }
 
 #timeline {
     background: url(../img/patternlight.png);
-    width: 100%;
 }
 
 #no_margin {
@@ -27,7 +14,9 @@ svg:not(:root) {
 
 body {
     background: url(../img/patternlight.png);
-    height: calc(100% - 180px);
+	padding-top: 51px;
+	/* stop native surface actions */
+	-ms-touch-action: none !important; 
 }
 
 .username {
@@ -42,6 +31,27 @@ body {
 
 }
 
+.container .btn-group, 
+.container .navbar-btn, 
+.container #MultiSelectStatus,
+.container #login {
+	padding-right: 15px;
+	padding-left: 15px;
+}
+
+#paper {
+	overflow-x: hidden;
+}
+
+#tourbutton {
+	margin-right:15px;
+}
+
+/* #play-buttons { */
+/*     position: absolute; */
+/*     z-index: 2; */
+/* } */
+
 #ModeLink {
     font-size: 16px;
     color: white;
@@ -50,9 +60,30 @@ body {
     -moz-border-radius: 1px; 
     border-radius: 1px; 
     text-align: center;
+    -moz-user-select: none;
+    -webkit-user-select: none;
 }
+
+/* #MultiSelectStatus { */
+/* 	display: inline-block; */
+/* } */
+
+/* #FileOptions, #proofplayer { */
+/* 	margin-top:4px; */
+/* } */
 
 .navbar {
     background: url(../img/patterndark.png);
     margin-bottom: 0px;
+}	
+	
+.navbar .navbar-container {
+	width: 100%;
+	max-width: none;
+	padding-right: 20px;
+	padding-left: 20px;
+}
+
+#proofplayer {
+	text-align: center;
 }

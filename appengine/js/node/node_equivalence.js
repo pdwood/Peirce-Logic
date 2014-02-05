@@ -114,11 +114,11 @@ function tree_leaves(root) {
 	frontier.push_back(root);
 	frontier.push_back(level);
 	// explore as long as the frontier has items and the item is not a level number
-	while(frontier.length && !(typeof(frontier.begin().val)==='number' && frontier.length===1)) {
+	while(frontier.length && !(typeof(frontier.first())==='number' && frontier.length===1)) {
 		var leaves = []; //leaves on level
 
 		// go through all nodes on level before reaching level number
-		while(typeof(frontier.begin().val)!=='number') {
+		while(typeof(frontier.first())!=='number') {
 			var node = frontier.pop_front();
 
 			// add all empty cuts into leaves list

@@ -35,8 +35,8 @@ function mouse_to_svg_coordinates(raphaelObj,mouseEvent) {
         _scaleX = paper.width  / viewBox[2];
         _scaleY = paper.height / viewBox[3];
 
-        if (element.raphael) {
-            if (jQuery.browser.webkit)  { _x = mouseEvent.offsetX; _y = mouseEvent.offsetY; } // Chrome & Safari
+        if (element.raphael || element.parentElement.raphael) {
+            if (jQuery.browser.chrome)  { _x = mouseEvent.clientX; _y = mouseEvent.clientY; } // Chrome
             if (jQuery.browser.mozilla) { _x = mouseEvent.layerX;  _y = mouseEvent.layerY;  } // Firefox
             if (jQuery.browser.msie)    { _x = mouseEvent.x;       _y = mouseEvent.y;       } // IE
             if (jQuery.browser.opera)   { // Opera
@@ -66,4 +66,14 @@ function mouse_to_svg_coordinates(raphaelObj,mouseEvent) {
         scaleX: _scaleX,
         scaleY: _scaleY
     };
+}
+
+function IsString(s) {
+	if(typeof s == 'string' || s instanceof String)
+		return true;
+	return false;
+}
+
+function DuplicateImmutableDict(dict) {
+	return jQuery.extend({},dict);
 }

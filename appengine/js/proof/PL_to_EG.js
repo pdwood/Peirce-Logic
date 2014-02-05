@@ -55,7 +55,7 @@ PL_Node.return_substatement = function(s){
 	if(s[index] == "("){
 		paren_offset++; index++;
 		while(paren_offset > 0){
-			if(index >= s.length){alert("Missing end parenthesis");}
+			if(index >= s.length){/*alert("Missing end parenthesis");*/ return null;}
 			if(s[index]==")"){paren_offset--;}
 			if(s[index]=="("){paren_offset++;}
 			index++;
@@ -63,7 +63,7 @@ PL_Node.return_substatement = function(s){
 	}
 	else{
 		while(index < s.length && s[index] !=")" && s[index] != "&" && s[index] != "-" && s[index] != "|"){
-			if(index >= s.length){alert("issue with symbol after variable");}
+			if(index >= s.length){/*alert("issue with symbol after variable");*/ return null;}
 			index++;
 		}
 		//index--;
@@ -75,18 +75,20 @@ PL_Node.return_substatement = function(s){
 //Takes in a string representing a PL statement, and returns a corresponding PL_Node
 PL_Node.parse_PL = function(s){
 	var node = new PL_Node();
-	if(s.length == 0){alert("empty string given");}
+	if(s.length == 0){/*alert("empty string given");*/return null;}
 	var index = 0; var paren_offset = 0;
 	if(s[index] == "!"){node.truth = false; index++;}
 	if(s[index] == "("){
 		index++;
 		var s1 = PL_Node.return_substatement(s.substring(index, s.length-1));
+		if(s1 == null){return null;}
 		index += s1.length;
 		while(s[index] == " "){index++;}
 		if(s[index] == "-" && s[index+1] == ">"){node.operation = "implies"; index += 2;}
 		else if(s[index] == "&"){node.operation = "and"; index++;}
 		else if(s[index] == "|" && s[index+1] == "|"){node.operation = "or"; index += 2;}
-		var s2 = PL_Node.return_substatement(s.substring(index, s.length-1));		
+		var s2 = PL_Node.return_substatement(s.substring(index, s.length-1));
+		if(s2 == null){return null;}		
 		node.LNode = PL_Node.parse_PL(s1);
 		node.RNode = PL_Node.parse_PL(s2);
 	}
@@ -254,7 +256,7 @@ remove_spaces = function(s){
 //Only use alpha-numberic characters and "_" for variable names
 PL_Node.PL_to_EG = function(s){
  remove_spaces(s);
- var n = PL_Node.parse_PL(s);
+ var n = populate_parents(PL_to_EG.parse(s));
  n = PL_Node.Distribute_Nots(n);
  n = PL_Node.Shift_Ands(n);
  var new_node = Node.NodeSkeleton();

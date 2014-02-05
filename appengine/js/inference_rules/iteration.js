@@ -1,58 +1,141 @@
-InferenceRule.prototype.iteration = function (proof, rule_name, nodes, x, y) {
-	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
-	var source = nodes.begin().val.duplicate();
-	var dest = nodes.begin().next.val;
-	source.parent = dest;
-	var dx = x-source.saved_attr.x;
-	var dy = y-source.saved_attr.y;
-	if (source instanceof Level) {
-		dest.subtrees.push_back(source);
-		source.restoreTree();
+////////////////////////////////////////////////////////////////////////////////
+// Inference rules for copying nodes from a lower level into an adjacent higher level
+// and removing equivalents of a adjacent higher and lower levels from the higher level (opposite of iteration)
+
+function getSourceAndDestination(nodes) {
+	var node1 = nodes.first();
+	var node2 = nodes.begin().next.val;
+	// find source and destination
+	var node_source;
+	var node_dest;
+	if(node1.getLevel() > node2.getLevel()) {
+		node_source = node2;
+		node_dest = node1;
 	}
 	else {
-		dest.leaves.push_back(source);
-		source.restore();
+		node_source = node1;
+		node_dest = node2;
 	}
-	source.drag(dx,dy);
-	source.updateLevel();
+	return {source: node_source, dest: node_dest};
+}
 
-
-
-	if(dest instanceof Level) {
-		var bbox;
-		if (source instanceof Level) {
-			bbox = source.shape.getBBox();
+// check if destination meets at source's parent as an anscestor
+function shareAncestor(node_source, node_dest) {
+	var main_parent = node_source.parent;
+	var ancestor = node_dest.parent;
+	while(ancestor!==null) {
+		if(main_parent === ancestor) {
+			return true;
 		}
-		else {
-			bbox = source.text.getBBox();
-		}
-		//expands the dest cut
-		dest.expand(bbox.x,bbox.y,bbox.width,bbox.height,true);
-		//move collided nodes out of way
-		dest.shiftAdjacent(source,bbox);
-		dest.contract();
+		ancestor = ancestor.parent;
 	}
-};
+	return false;
+}
 
-InferenceRule.prototype.iteration_for = function (iteration_nodes,mode) {
-	return function(inf){
-	return function(proof, nodes, x, y) {
-		inf.iteration(proof, mode, iteration_nodes, x, y);
-	};
-	}(this);
-};
+function ValidateIteration(tree, nodes) {
+	if (nodes.length==2){
+		var sd = getSourceAndDestination(nodes);
+		var node_source = sd.source;
+		var node_dest = sd.dest;
+	
+		if (!node_dest.isLeaf()) {
+			// find out if from same ancestor root
+			if(shareAncestor(node_source, node_dest)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
-InferenceRule.prototype.deiteration = function (proof, rule_name, nodes) {
-	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
-	var dest = nodes.begin().next.val;
+function ValidateInsertionIteration(tree, nodes) {
+	if(!ValidateIteration(tree,nodes))
+		return false;
+
+	// validate destination node is not in orignal insertion set
+	// source node can be anywhere in insertion subtree
+	var sd = getSourceAndDestination(nodes);
+	var node_dest = sd.dest;
+	return NodesInInsertionSubtree(tree,nodes) && !NodeInOriginalInsertionSet(tree, node_dest);
+}
+
+function AddIteration(tree, nodes) {
+	var diff = NewDiff();
+	
+	var sd = getSourceAndDestination(nodes);
+	var source = sd.source;
+	var dest = sd.dest;
+	// clone
+	var sourceDup = source.duplicate();
+	var child;
+
+	// add to destination
+	if (!sourceDup.isLeaf()) {
+		child = dest.takeNewSubtree(sourceDup);
+	}
+	else {		
+		child = dest.takeNewLeaf(sourceDup);
+	}
+	diff.additions = child.preOrderFlattenToIDs();
+	return {tree: tree, diff: diff};
+}
+
+function ApplyVisualIteration(tree,nodes,diff,attrs,params) {
+	var sd = getSourceAndDestination(nodes);
+	var source = sd.source;
+	
+	var point = PullPointFromParams(params);
+	if(!point) return null;
+
+	// get all source points in an pre-order
+	var sourcePoints = [];
+	source.preOrderFMap(function(node) {
+		var attr = attrs[node.getIdentifier()];
+		sourcePoints.push(NewPoint(attr.x, attr.y));
+	});
+	// calculate shift to input point
+	var deltaPoint = NewPoint(point.x - sourcePoints[0].x, 
+							  point.y - sourcePoints[0].y);
+	// map source points across to input destination area
+	for(var i in sourcePoints) {
+		var id = diff.additions[i];
+		var spoint = sourcePoints[i];
+		var dpoint = NewPoint(deltaPoint.x + spoint.x,
+							  deltaPoint.y + spoint.y);
+		AddPointToID(dpoint, id, attrs);
+	}
+
+	return {attrs: attrs};
+}
+
+function ValidateDeiteration(tree, nodes) {
+	if (nodes.length==2) {
+		var sd = getSourceAndDestination(nodes);
+		var node_source = sd.source;
+		var node_dest = sd.dest;
+
+		// find out if from same ancestor root and equivalent
+		if(shareAncestor(node_source, node_dest) && node_source.equals(node_dest)) {
+			return true;
+		}
+	}
+}
+
+function AddDeiteration(tree, nodes) {
+	var diff = NewDiff();
+
+	var sd = getSourceAndDestination(nodes);
+	var dest = sd.dest;
+	
+	// remove destination
+	diff.deletions = dest.preOrderFlattenToIDs();
 	var parent = dest.parent;
-	parent.removeNode(dest);
-};
+	parent.removeChild(dest);
+	return {tree: tree, diff: diff};
+}
 
-InferenceRule.prototype.deiteration_for = function (iteration_nodes,mode) {
-	return function(inf){
-	return function(proof, nodes) {
-		inf.deiteration(proof, mode, iteration_nodes);
-	};
-	}(this);
-};
+function ApplyVisualDeiteration(tree,nodes,diff,attrs,params) {
+	// deiterated nodes removal does not influence any other attributes
+	return {attrs: attrs};
+}
+

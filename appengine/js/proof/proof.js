@@ -1,217 +1,539 @@
-function ProofNode() {
-	this.plane = null;
+////////////////////////////////////////////////////////////////////////////////
+// Proofnodes used in Proofs, acts as a tree of node and ui trees
+
+function ProofNode(nodeTree) {
+	this.nodeTree = nodeTree; // main node of tree
+	this.uiTree = null; // ui set used to hold ui nodes when rendering node
 
 	this.next = new List();
 	this.prev = null;
-	this.id = 1;
-	this.id_gen = 1;
 
-	this.rule_name = null;
-	this.rule_id = null;
-
-	this.mode = 0;
-	this.thunk = null;
+	// proof node properties, serilizable
+	this.mode =	 null; // mode node is in
+	this.uiAttrs = null; // node id -> attr map
+	this.ruleName =	 null; // rule name
+	this.ruleNodes =  null; // array of node ids
+	this.ruleParams = null;
+	this.visualParams = null;
 }
 
-function Thunk(data) {
-	this.data = data;
+ProofNode.prototype.constructUI = function(R) {
+	this.uiTree = new UINodeTree(R, this.nodeTree, Level, Variable, this.uiAttrs);
+	this.updateAttrs();
+};
 
-	this.transfer = Thunk.Default_Transfer;
-	this.enter = Thunk.Default_Enter;
-	this.exit = Thunk.Default_Exit;
+ProofNode.prototype.deconstructUI = function() {
+	if(this.uiTree) {
+		this.updateAttrs();
+		this.uiTree.deconstructUI();
+		this.uiTree = null;
+	}
+};
+
+ProofNode.prototype.updateAttrs = function() {
+	if(this.uiTree) {
+		this.uiAttrs = this.uiTree.getAttrs();
+	}
+};
+
+function ProofTreeTrim(node){
+	if(node.prev) {
+		return node;
+	}
+
+	//Delete proof offshoots by ensuring each node in the main path is an only child.
+	node.prev.next = new List();
+	node.prev.next.push_back(node);
+
+	return ProofTreeTrim(node.prev);
 }
 
-Proof.Default_Thunk = function (nodes) {
-	var thunk_data = {};
-	thunk_data["Nodes"] = [];
-	nodes.iterate(function(n) {
-		thunk_data["Nodes"].push(n.getIdentifier());
-	});
-	return (new Thunk(thunk_data));
-};
-
-Thunk.Default_Enter = function(proof) {
-	return;
-};
-
-Thunk.Default_Exit = function(proof) {
-	return;
-};
-
-Thunk.Default_Transfer = function(proof) {
-	return;
-};
-
+////////////////////////////////////////////////////////////////////////////////
+// Proof construction
 
 function Proof(R) {
 	this.paper = R;
-	this.LOGIC_MODES = {PREMISE_MODE: 0, PROOF_MODE: 1, INSERTION_MODE: 2, GOAL_MODE: 3};
-	this.CURRENT_MODE = this.LOGIC_MODES.GOAL_MODE;
-	this.PREVIOUS_MODE = this.LOGIC_MODES.GOAL_MODE;
 
-	this.current = new ProofNode();//current node displayed
-	this.current.plane = new Level(R,null);
-	this.current.mode = this.CURRENT_MODE;
-	this.current.thunk = new Thunk({});
-	this.current.thunk.transfer = function(proof) {
-		var t = new InferenceRule();
-		proof.addnode("Proof: Goal Constructed",t.RuleToId("Proof: Goal Constructed"),null,proof.LOGIC_MODES.PREMISE_MODE);
-	};
+	// ui reactor map
+	this.eventReactors = {};	
 
-	this.thunk = this.current.thunk;
-	this.front = this.current;
-
-	this.current.plane = new Level(R,null);
-	this.change_mode(this.CURRENT_MODE);
+	// mode of proof
+	this.currentMode = Proof.LOGIC_MODES.GOAL_MODE;
+	this.previousMode = Proof.LOGIC_MODES.GOAL_MODE;
 }
 
-Proof.prototype.change_mode = function(mode) {
-	this.PREVIOUS_MODE = this.CURRENT_MODE;
-	mode_name = "";
-	warning_color = "";
-	if (mode === this.LOGIC_MODES.PREMISE_MODE) {
-		this.CURRENT_MODE = this.LOGIC_MODES.PREMISE_MODE;
-		mode_name = "Premise Mode";
-		warning_color = "label-success";
+// reset to an intial state
+Proof.prototype.Reset = function() {
+	if(this.current) {
+		this.current.deconstructUI();
+		delete this.current;
 	}
-	if (mode === this.LOGIC_MODES.PROOF_MODE) {
-		this.CURRENT_MODE = this.LOGIC_MODES.PROOF_MODE;
-		mode_name = "Proof Mode";
-		warning_color = "label-info";
+	if(this.front) {
+		delete this.front;
 	}
-	if (mode === this.LOGIC_MODES.INSERTION_MODE) {
-		this.CURRENT_MODE = this.LOGIC_MODES.INSERTION_MODE;
-		mode_name = "Insertion Mode";
-		warning_color = "label-warning";
-	}
-	if (mode === this.LOGIC_MODES.GOAL_MODE) {
-		this.CURRENT_MODE = this.LOGIC_MODES.GOAL_MODE;
-		mode_name = "Goal Mode";
-		warning_color = "label-danger";
-	}
-	document.getElementById('ModeLink').innerHTML = '<div id="ModeLink" class="col-sm-12 '+ warning_color +'">'+mode_name+'</div>';
+
+	// mode of proof
+	this.currentMode = Proof.LOGIC_MODES.GOAL_MODE;
+	this.previousMode = Proof.LOGIC_MODES.GOAL_MODE;
 };
 
-Proof.prototype.execute_transfer = function() {
-	this.current.thunk.transfer(this);
+// initial node construction
+Proof.prototype.Begin = function() {
+	this.current = this.executeRule(this.currentMode,
+									null,
+									null,
+									Proof.MODE_BOOKENDS[this.currentMode].start.name,
+									Proof.MODE_BOOKENDS[this.currentMode].start.rule,
+									new List());
+	this.current.constructUI(R);
+	this.front = this.current;
+	
+	this.activateReactor(Proof.EVENTS.ADD_NODE);
+	this.activateReactor(Proof.EVENTS.SELECT_NODE);
+	this.changeMode(this.currentMode);	
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// Proof constants
 
-//adds a node in the proof, must be called by all inference rules before tree is changed
-Proof.prototype.addnode = function (rule,rule_id,nodes,thunk,mode) {
-	var node = new ProofNode();
-	node.plane = this.current.plane;
-	node.prev = this.current;
-	node.id = this.id_gen++;
-	node.rule_name = rule;
-	node.rule_id = rule_id;
-	if(mode>=0)
-		node.mode = mode;
-	else
-		node.mode = this.CURRENT_MODE;
+Proof.SetupConstants = function() {
 
-	if(!thunk) {
-		node.thunk = Proof.Default_Thunk(nodes);
-		if(node.mode == this.LOGIC_MODES.PREMISE_MODE || node.mode == this.LOGIC_MODES.GOAL_MODE) {
-			mode_name = "";
-			mode_n = 0;
-			if(node.mode == this.LOGIC_MODES.PREMISE_MODE) {
-				mode_name = "Proof: Premise Constructed";
-				mode_n = this.LOGIC_MODES.PROOF_MODE;
+	// main logic modes
+	Proof.LOGIC_MODES = {
+		GOAL_MODE: "goal",
+		PREMISE_MODE: "premise", 
+		PROOF_MODE: "proof", 
+		INSERTION_MODE: "insertion"
+	};
+
+	// proof mode bookend nodes
+	Proof.MODE_BOOKENDS = {
+		// goal mode bookends
+		"goal": {start: {name: 'Proof: Goal Start', 
+						 rule: ResetTreeRule()}, 
+				 end: {name: 'Proof: Goal Constructed', 
+					   rule: ResetTreeRule()}},
+		// premise mode bookends
+		"premise": {start: {name: 'Proof: Premise Start', 
+							rule: ResetTreeRule()}, 
+					end: {name: 'Proof: Premise Constructed', 
+						  rule: NoopTreeRule()}},
+		// proof mode bookends
+		"proof": {start: {name: 'Proof: Proof Start', 
+						  rule: NoopTreeRule()}, 
+				  end: {name: 'Proof: Proof Constructed', 
+						rule: NoopTreeRule()}},
+		// insertion mode bookends
+		"insertion": {start: {name: 'Proof: Insertion Start', 
+							  rule: NewInferenceRule(ValidateInsertionStart,
+													 ApplyInsertionStart,
+													 ApplyVisualInsertionStart)}, 
+					  end: {name: 'Proof: Insertion End', 
+							rule: NewInferenceRule(ValidateInsertionEnd,
+												   ApplyInsertionEnd,
+												   ApplyVisualInsertionEnd)}}
+	};
+
+	// proof events
+	Proof.EVENTS = {
+		CHANGE_MODE: 'changeMode',
+		ADD_NODE: 'addNode',
+		SELECT_NODE: 'select',
+		NEXT_NODE: 'next',
+		PREVIOUS_NODE: 'prev',
+		//AUTOMATED_CHECK: 'automated_check'
+	};
+
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Proof inference rules
+
+// get Proof inference rules based on mode
+Proof.prototype.inferenceRules = function(mode) {
+	var rules = {};
+	if(mode == Proof.LOGIC_MODES.PROOF_MODE) {
+		rules['Proof: Double Cut'] = NewInferenceRule(ValidateDoubleCut,
+													  AddDoubleCut,
+													  ApplyVisualDoubleCut);
+		rules['Proof: Empty Double Cut'] = NewInferenceRule(ValidateEmptyDoubleCut,
+															AddEmptyDoubleCut,
+															ApplyVisualEmptyDoubleCut);
+		rules['Proof: Reverse Double Cut'] = NewInferenceRule(ValidateReverseDoubleCut,
+															  AddReverseDoubleCut,
+															  ApplyVisualReverseDoubleCut);
+		rules['Proof: Erasure'] = NewInferenceRule(ValidateProofErasure,
+												   AddErasure,
+												   ApplyVisualErasure);
+		rules['Proof: Iteration'] = NewInferenceRule(ValidateIteration,
+													 AddIteration,
+													 ApplyVisualIteration);
+		rules['Proof: Deiteration'] = NewInferenceRule(ValidateDeiteration,
+													   AddDeiteration,
+													   ApplyVisualDeiteration);
+		rules[Proof.MODE_BOOKENDS[Proof.LOGIC_MODES.INSERTION_MODE].start.name] =
+			Proof.MODE_BOOKENDS[Proof.LOGIC_MODES.INSERTION_MODE].start.rule;
+	}
+	if(mode == Proof.LOGIC_MODES.GOAL_MODE || mode == Proof.LOGIC_MODES.PREMISE_MODE) {
+		rules['Construction: Variable'] = NewInferenceRule(ValidateVariable, 
+														   AddVariable, 
+														   ApplyVisualAttrs);
+		rules['Construction: Cut'] = NewInferenceRule(ValidateCut,
+													  AddCut,
+													  ApplyVisualCut);
+		rules['Construction: Double Cut'] = NewInferenceRule(ValidateDoubleCut,
+															 AddDoubleCut,
+															 ApplyVisualDoubleCut);
+		rules['Construction: Empty Cut'] = NewInferenceRule(ValidateEmptyCut,
+															AddEmptyCut,
+															ApplyVisualEmptyCut);
+		rules['Construction: Empty Double Cut'] = NewInferenceRule(ValidateEmptyDoubleCut,
+																   AddEmptyDoubleCut,
+																   ApplyVisualEmptyDoubleCut);
+		rules['Construction: Reverse Cut'] = NewInferenceRule(ValidateReverseCut,
+															  AddReverseCut,
+															  ApplyVisualReverseCut);
+		rules['Construction: Reverse Double Cut'] = NewInferenceRule(ValidateReverseDoubleCut,
+																	 AddReverseDoubleCut,
+																	 ApplyVisualReverseDoubleCut);
+		rules['Construction: Erasure'] = NewInferenceRule(ValidateConstructionErasure,
+														  AddErasure,
+														  ApplyVisualErasure);
+		rules['Construction: Iteration'] = NewInferenceRule(ValidateIteration,
+														    AddIteration,
+														    ApplyVisualIteration);
+		rules['Construction: Deiteration'] = NewInferenceRule(ValidateDeiteration,
+															  AddDeiteration,
+															  ApplyVisualDeiteration);
+		//rules['Construction: PL Statement'] = NewInferenceRule();
+	}
+	if(mode == Proof.LOGIC_MODES.INSERTION_MODE) {
+		// get all construction rules
+		rules = this.inferenceRules(Proof.LOGIC_MODES.GOAL_MODE);
+		// lift all validators into insertion validator
+		for(var rule in rules) {
+			rules[rule].valid = ValidateInsertionRule(rules[rule].valid);
+		}
+		// special insertion validators
+		rules['Construction: Cut'].valid = ValidateNotOnInsertionRule(rules['Construction: Cut'].valid);
+		rules['Construction: Double Cut'].valid = ValidateNotOnInsertionRule(rules['Construction: Double Cut'].valid);
+		rules['Construction: Reverse Cut'].valid = ValidateInsertionReverseCut;
+		rules['Construction: Reverse Double Cut'].valid = ValidateInsertionReverseDoubleCut;
+		rules['Construction: Erasure'].valid = ValidateNotOnInsertionRule(rules['Construction: Erasure'].valid);
+		rules['Construction: Iteration'].valid = ValidateInsertionIteration;
+	}
+	return rules;
+};
+
+// get rules for current mode
+Proof.prototype.currentInferenceRules = function() {
+	return this.inferenceRules(this.currentMode);
+};
+
+Proof.prototype.isRuleModeBookend = function(ruleName) {
+	for(var mode in Proof.MODE_BOOKENDS) {
+		var bookends = Proof.MODE_BOOKENDS[mode];
+		if(ruleName == bookends.start.name || ruleName == bookends.end.name)
+			return mode;
+	}
+	return false;
+};
+
+Proof.prototype.getInferenceRule = function(mode, ruleName) {
+	if(ruleName in this.inferenceRules(mode)) {
+		var rules = this.inferenceRules(mode);
+		return rules[ruleName];
+	} else if (this.isRuleModeBookend(ruleName) !== false) {
+		var bookends = Proof.MODE_BOOKENDS[mode];
+		if(ruleName == bookends.start.name)
+			return bookends.start.rule;
+		else if(ruleName == bookends.end.name)
+			return bookends.end.rule;
+	}
+	return null;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Proof rule applications
+
+function cloneAttrs(attrs) {
+	var cattrs = {};
+	for(var id in attrs) {
+		cattrs[id] = DuplicateImmutableDict(attrs[id]);
+	}
+	return cattrs;
+}
+
+Proof.prototype.applyInferenceRule = function(mode, currTree, currAttrs, ruleName, rule, currNodes, currRuleParams, currVisualParams) {
+	if(!(this.isRuleModeBookend(ruleName) !== false || ruleName in this.inferenceRules(mode))) {
+		return null;
+	}
+
+	// duplicate input
+	var dtree = (currTree) ? currTree.duplicate() : currTree;
+	var dattrs = (currAttrs) ? cloneAttrs(currAttrs) : currAttrs;
+	var nodes = new List();
+	currNodes.iterate(function(node) {
+		nodes.push_back(dtree.getChildByIdentifier(node.getIdentifier()));
+	});
+	
+	// apply rule
+	var ruleState = rule.applyRule(dtree, nodes, currRuleParams);
+	if(!(ruleState || ruleState.tree || ruleState.diff))
+		return null;
+	var tree = ruleState.tree;
+	var diff = ruleState.diff;
+	// get final rules params
+	var ruleParams = {};
+	if(ruleState.params)
+		ruleParams = ruleState.params;
+	else if(currRuleParams)
+		ruleParams = currRuleParams;
+	// update visual attributes
+	var updatedAttrs = UpdateAttrsWithDiff(dattrs, diff);
+	// apply visual attributes
+	var visualState = rule.applyVisual(tree, nodes, diff, updatedAttrs, currVisualParams);
+	if(!(visualState || visualState.attrs))
+		return null;	
+	// get final visual params
+	var visualParams = {};
+	if(visualState.params)
+		visualParams = visualState.params;
+	else if(currVisualParams)
+		visualParams = currVisualParams;
+
+	// create proof node
+	var node = new ProofNode(tree);
+	node.mode = mode;
+	node.ruleName = ruleName;
+	node.uiAttrs = visualState.attrs;
+	node.ruleParams = ruleParams || {};
+	node.visualParams = visualParams || {};
+	
+	return node;
+};
+
+function NodeListToNodeIDs(nodes) {
+	var ids = [];
+	nodes.iterate(function(node) {
+		ids.push(node.getIdentifier());
+	});
+	return ids;
+}
+
+// execute an input rule with parameters
+// returns a linked set of proof nodes of rule created nodes
+Proof.prototype.executeRule = function(mode, currTree, currAttrs, ruleName, rule, nodes, ruleParams, visualParams) {
+	// construct proof node 
+	var ruleNodes = NodeListToNodeIDs(nodes);
+	var node = this.applyInferenceRule(mode, currTree, currAttrs, ruleName, rule, nodes, ruleParams, visualParams);
+	if(!node)
+		return null;
+	node.ruleNodes = ruleNodes;
+
+	// construct chain if falling on a bookend
+	if(this.isRuleModeBookend(ruleName) !== false) {
+		// exit current mode and fall into next mode
+		if(ruleName == Proof.MODE_BOOKENDS[mode].end.name) {
+			var nextMode = this.nextMode(mode);
+			var nextBookend = Proof.MODE_BOOKENDS[nextMode].start;
+			var emptySelectedNodes = new List();
+			var bookendStart = this.applyInferenceRule(this.nextMode(mode),
+													   node.nodeTree,
+													   node.uiAttrs,
+													   nextBookend.name,
+													   nextBookend.rule,
+													   emptySelectedNodes,
+													   null,
+													   null);
+			bookendStart.ruleNodes = [];
+			node.next.push_back(bookendStart);
+			bookendStart.prev = node;
+		} else { // start new mode
+			var newMode = this.isRuleModeBookend(ruleName);
+			if(ruleName == Proof.MODE_BOOKENDS[newMode].start.name) {
+				node.mode = newMode;
 			}
-			else {
-				mode_name = "Proof: Goal Constructed";
-				mode_n = this.LOGIC_MODES.PREMISE_MODE;
-			}
-			node.thunk.transfer = function(mode_name) {
-				return function(proof) {
-					var t = new InferenceRule();
-					proof.addnode(mode_name,t.RuleToId(mode_name),nodes,null,mode_n);
-				};
-			}(mode_name,mode_n,nodes);
-		} else if (node.mode == this.LOGIC_MODES.INSERTION_MODE) {
-			node.thunk = this.thunk;
 		}
 	}
-	else
-		node.thunk = thunk;
 
+	return node;
+};
 
-	this.current.next.push_back(node);
-	if(mode >= 0 && mode == this.LOGIC_MODES.PREMISE_MODE && this.CURRENT_MODE ==this.LOGIC_MODES.GOAL_MODE) {
-		this.current.plane.compressTree();
-		node.plane = new Level(this.paper,null);
+Proof.prototype.useRuleOnStep = function(ruleName, nodes, ruleParams, visualParams, proofNode) {
+	var rule = this.getInferenceRule(proofNode.mode, ruleName);
+	if(!rule)
+		return;
+
+	var tree = proofNode.nodeTree;
+	var attrs = proofNode.uiAttrs;
+	// execute rule
+	var chain = this.executeRule(proofNode.mode, 
+								 tree,
+								 attrs,
+								 ruleName,
+								 rule,
+								 nodes,
+								 ruleParams,
+								 visualParams);
+	chain.prev = proofNode;
+
+	// remove any contigious identical bookends in chain
+	var prevRuleName = (this.isRuleModeBookend(proofNode.ruleName)) ? proofNode.ruleName : null;
+	var itr = chain;
+	while(itr) {
+		if(itr.ruleName == prevRuleName) { // contiguous bookend
+			if(itr.prev === proofNode) // replace head of chain
+				chain = itr.next.first();
+			// skip to next node
+			var prev = itr.prev;
+			itr = (itr.next.length) ? itr.next.first() : null;
+			itr.prev = prev;
+		} else {
+			// get next rulename
+			prevRuleName = (this.isRuleModeBookend(itr.ruleName)) ? itr.ruleName : null;
+			itr = (itr.next.length) ? itr.next.first() : null;
+		}
 	}
-	else
-		this.current.plane = this.current.plane.duplicate();
-	this.current = node;
 
-	this.rethunk(this.current.thunk);
-
-	if(mode>=0 && mode != this.CURRENT_MODE)
-		this.change_mode(mode);
-
-	if(node.mode !== this.LOGIC_MODES.GOAL_MODE && node.mode !== this.LOGIC_MODES.PREMISE_MODE)
-		this.automated_check(this.current);
-	branches.draw.call(Timeline, this);
-};
-
-Proof.prototype.rethunk = function(thunk) {
-	this.thunk.exit(this.current);
-	this.thunk = thunk;
-	this.thunk.enter(this.current);
-};
-
-Proof.prototype.automated_check = function(pnode) {
-	gnode = pnode;
-	while(gnode.mode !== this.LOGIC_MODES.GOAL_MODE) {
-		gnode = gnode.prev;
+	// splice in chain
+	proofNode.next.push_back(chain);
+	while(chain.next.length) {
+		chain = chain.next.begin().val;
 	}
-	gnode.plane.restoreTree();
-	var eq = gnode.plane.equivalence(pnode.plane);
-	gnode.plane.compressTree();
-	if(eq)
-		smoke.alert('Reached Goal');
+	return chain; // return end of chain
 };
 
-//moves proof to last step
-Proof.prototype.prev = function() {
-	if(this.current.prev) {
-		this.current.plane.compressTree();
-		this.current = this.current.prev;
-		this.current.plane.restoreTree();
+Proof.prototype.useRuleOnCurrentStep = function(ruleName, nodes, ruleParams, visualParams) {
+	this.current.updateAttrs(); // cache all current ui changes
+	var current = this.useRuleOnStep(ruleName, nodes, ruleParams, visualParams, this.current);
+	this.select(current);
+	this.activateReactor(Proof.EVENTS.ADD_NODE);
+};
+
+Proof.prototype.endCurrentProofMode = function() {
+	// ~a proof never ends, it just reaches a conclusion~
+	if(this.current.mode !== Proof.LOGIC_MODES.PROOF_MODE) {
+		var bookendRule = Proof.MODE_BOOKENDS[this.current.mode].end.name;
+		var current = this.useRuleOnStep(bookendRule, new List(), null, null, this.current);
+		this.select(current);
 	}
 };
 
-//selects step from timeline
+
+////////////////////////////////////////////////////////////////////////////////
+// Proof node/mode selection
+
+// selects step from proof
 Proof.prototype.select = function(node) {
 	if(this.current !== node) {
-		this.current.plane.compressTree();
+		if(this.current)
+			this.current.deconstructUI();
 		this.current = node;
-		this.current.plane.restoreTree();
-		this.rethunk(this.current.thunk);
-		this.change_mode(this.current.mode);
-		if(node.mode !== this.LOGIC_MODES.GOAL_MODE && node.mode !== this.LOGIC_MODES.PREMISE_MODE)
-			this.automated_check(this.current);
-		minimap.redraw();
+		this.current.constructUI(this.paper);
+		this.changeMode(this.current.mode);
+		//if(node.mode !== Proof.LOGIC_MODES.GOAL_MODE && node.mode !== Proof.LOGIC_MODES.PREMISE_MODE)
+		//this.automated_check(this.current);
+		this.activateReactor(Proof.EVENTS.SELECT_NODE);
 	}
 };
 
-//moves proof to next step
+// moves proof to last step
+Proof.prototype.prev = function() {
+	if(this.current.prev) {
+		this.select(this.current.prev);
+		this.activateReactor(Proof.EVENTS.PREVIOUS_NODE);
+	}
+};
+
+// moves proof to next step
 Proof.prototype.next = function () {
-	if(this.current.next) {
-		this.current.plane.compressTree();
-		this.current = this.current.next;
-		this.current.plane.restoreTree();
+	if(this.current.next && this.current.next.length == 1) {
+		this.select(this.current.next.begin().val);
+		this.activateReactor(Proof.EVENTS.NEXT_NODE);
 	}
 };
 
-//swaps proof to the step pointed to by proof node
-Proof.prototype.swap = function (proof_node) {
-	if(proof_node) {
-		this.current.plane.compressTree();
-		this.current = proof_node;
-		this.current.plane.restoreTree();
+// next proof mode given current mode
+// default is goal mode
+Proof.prototype.nextMode = function(mode) {
+	if (mode === Proof.LOGIC_MODES.PREMISE_MODE) {
+		return Proof.LOGIC_MODES.PROOF_MODE;
+	}
+	if (mode === Proof.LOGIC_MODES.INSERTION_MODE) {
+		return Proof.LOGIC_MODES.PROOF_MODE;
+	}
+	if (mode === Proof.LOGIC_MODES.GOAL_MODE) {
+		return Proof.LOGIC_MODES.PREMISE_MODE;
+	}
+	if (mode === Proof.LOGIC_MODES.PROOF_MODE) {
+		return Proof.LOGIC_MODES.PROOF_MODE;
+	}
+
+	return Proof.LOGIC_MODES.GOAL_MODE;
+};
+
+// change proof mode to input mode
+Proof.prototype.changeMode = function(mode) {
+	this.previousMode = this.currentMode;
+	if (mode === Proof.LOGIC_MODES.PREMISE_MODE) {
+		this.currentMode = Proof.LOGIC_MODES.PREMISE_MODE;
+	}
+	if (mode === Proof.LOGIC_MODES.PROOF_MODE) {
+		this.currentMode = Proof.LOGIC_MODES.PROOF_MODE;
+	}
+	if (mode === Proof.LOGIC_MODES.INSERTION_MODE) {
+		this.currentMode = Proof.LOGIC_MODES.INSERTION_MODE;
+	}
+	if (mode === Proof.LOGIC_MODES.GOAL_MODE) {
+		this.currentMode = Proof.LOGIC_MODES.GOAL_MODE;
+	}
+
+	this.activateReactor(Proof.EVENTS.CHANGE_MODE);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Proof reactors
+
+// add reactor to proof event
+Proof.prototype.addReactor = function(event, func) {
+	if(event in this.eventReactors)
+		this.eventReactors[event].push(func);
+	else
+		this.eventReactors[event] = [func];
+};
+
+// remove reactor to proof event
+Proof.prototype.removeReactor = function(event) {
+	if (event in this.eventReactors)
+		delete this.eventReactors[event];
+};
+
+// execute callback on proof event
+Proof.prototype.activateReactor = function(event) {
+	if (event in this.eventReactors) {
+		for(var i in this.eventReactors[event]) {
+			this.eventReactors[event][i](this);
+		}
 	}
 };
 
+
+/*
+  Proof.prototype.automated_check = function(pnode) {
+  gnode = pnode;
+  while(gnode.mode !== Proof.LOGIC_MODES.GOAL_MODE) {
+  gnode = gnode.prev;
+  }
+  gnode.constructUI();
+  var eq = gnode.plane.equivalence(pnode.plane);
+  gnode.plane.compressTree();
+  if(eq) {
+  smoke.alert('Reached Goal');
+  playerButtons();
+  }
+  };
+  gnode.deconstructUI();
+  if(eq)
+  smoke.alert('Reached Goal');
+  };*/
