@@ -1,73 +1,97 @@
-proofToString = function() {
-	var someJson = {
-		"this":"is",
- 	 "some":"fake",
- 	 "js-n":{
-			"string":"that",
-			"bharath":"told"
- 	 },
-		"me":"tomake"
-  };
-	return JSON.stringify(someJson);
+function serializeProofNode(proofnode) {
+	var json = {};
+	json.mode = proofnode.mode;
+	json.ruleName = proofnode.ruleName;
+	json.ruleNodes = proofnode.ruleNodes || [];
+	json.ruleParams = proofnode.ruleParams || {};
+	json.visualParams = proofnode.visualParams || {};
+	return json;
 }
 
-stringToProof = function(proofString) {
-	// load the proof from some string
-	return
+function serializeProofTree(rootnode,selected) {
+	var json = serializeProofNode(rootnode);
+	if(rootnode === selected)
+		json.selected = true;
+	json.children = [];
+	rootnode.next.iterate(function(proofnode){
+		json.children.push(serializeProofTree(proofnode,selected));
+	});
+	return json;
 }
 
-fillSaveString = function() {
-	$("#content").val(proofToString());                                               
-}
-// on click
-$("#saveButton").click(fillSaveString())
+Proof.prototype.SaveProof = function() {
+	var json = {};
+	json.proofTree = serializeProofTree(this.front, this.current);
+	D("Saving\n"+JSON.stringify(json));
+	return JSON.stringify(json);
+};
 
-// THIS IS THE OLD CODE
-// I LEFT IT HERE BECUZ mAYbe IT"S USEFUL 2 u
-//
-//
-//function save_proof(proof){
-//    var proof_json = {};
-//    proof_json["proof"] = proofnode_to_json(proof.front);
-//    return proof_json;
-//}
-//
-//function proofnode_to_json(proofnode) {
-//    var proofnode_json = {};
-//    proofnode_json["id"] = proofnode.id;
-//    proofnode_json["id_gen"] = proofnode.id_gen;
-//    proofnode_json["rule_name"] = proofnode.rule_name;
-//    proofnode_json["rule_id"] = proofnode.rule_id;
-//    proofnode_json["mode"] = proofnode.mode;
-//    proofnode_json["thunk"] = proofnode.thunk;
-//    proofnode_json["plane"] = plane_to_json(proofnode.plane);
-//    proofnode_json["next"] = [];
-//    proofnode.next.iterate(function (pn) {
-//        proofnode_json["next"].push(proofnode_to_json(pn));
-//    });
-//    return proofnode_json;
-//}
-//
-//function plane_to_json(node){
-//    var node_json = {};
-//    node_json["id"] = node.id;
-//    node_json["id_gen"] = node.id_gen;
-//    if(node.shape)
-//        node_json["point"] = [node.shape.attr("x"),node.shape.attr("y")];
-//    else
-//        node_json["point"] = [node.saved_attr["x"],node.saved_attr["y"]];
-//    node_json["leaves"] = [];
-//    node.leaves.iterate(function (nc) {
-//        if(node.shape)
-//            node_json["leaves"].push({"text":nc.text.attr("text"),
-//                                      "point": [nc.text.attr("x"),nc.text.attr("y")]});
-//        else
-//            node_json["leaves"].push({"text":nc.text.attr("text"),
-//                                      "point": [nc.saved_attr["x"],nc.saved_attr["y"]]});
-//    });
-//    node_json["subtrees"] = [];
-//    node.subtrees.iterate(function (ns) {
-//        node_json["subtrees"].push(plane_to_json(ns));
-//    });
-//    return node_json;
-//}
+function NodeIDArrayToNodeList(nodes, tree) {
+	var nodeList = new List();
+	for(var i in nodes) {
+		var id = nodes[i];
+		var node = tree.getChildByIdentifier(id);
+		nodeList.push_back(node);
+	}
+	return nodeList;
+}
+
+Proof.prototype.deserializeExecuteTree = function(json, prevnode) {
+	var proofnode;
+	if(!prevnode) {
+		// root construction
+		var rule = this.getInferenceRule(json.mode, json.ruleName);
+		proofnode = this.applyInferenceRule(json.mode,
+											null,
+											null,
+											json.ruleName,
+											rule,
+											new List());
+		proofnode.ruleNodes = json.ruleNodes;
+		proofnode.constructUI(this.paper);
+		proofnode.deconstructUI();
+	} else {
+		var rule = this.getInferenceRule(json.mode, json.ruleName);
+		var ptree = prevnode.nodeTree;
+		var pattrs = prevnode.uiAttrs;
+		// rebuild nodes
+		var nodes = NodeIDArrayToNodeList(json.ruleNodes, ptree);
+
+		// apply rule
+		proofnode = this.applyInferenceRule(json.mode, 
+											ptree,
+											pattrs,
+											json.ruleName,
+											rule,
+											nodes,
+											json.ruleParams,
+											json.visualParams);
+		proofnode.ruleNodes = json.ruleNodes;
+	}
+	proofnode.prev = prevnode;
+	var selectedNode = null;
+	for(var i in json.children) {
+		var nextNodeJson = json.children[i];
+		var nextNodeState = this.deserializeExecuteTree(nextNodeJson, proofnode);
+		proofnode.next.push_back(nextNodeState.node);
+		if(nextNodeState.selected)
+			selectedNode = nextNodeState.selected;
+	}				 
+	if(json.selected)
+		selectedNode = proofnode;
+	return {node: proofnode, selected: selectedNode};
+};
+
+Proof.prototype.LoadProof = function(jsonString) {
+	D("Loading\n"+jsonString);
+	var json = JSON.parse(jsonString);
+	if(!json) {
+		alert("Could not load proof");
+		return;
+	}
+
+	this.Reset();
+	var treeState = this.deserializeExecuteTree(json.proofTree);
+	this.front = treeState.node;
+	this.select(treeState.selected);
+};

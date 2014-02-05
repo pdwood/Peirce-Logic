@@ -1,4 +1,8 @@
-//use popup plugin
+////////////////////////////////////////////////////////////////////////////////
+// Upgraded Raphael plugin for rendering Proof Timeline
+
+// Updated popup.js plugin
+// Taken from http://raphaeljs.com/analytics.html
 (function() {
     var tokenRegex = /\{([^\}]+)\}/g,
         objNotationRegex = /(?:(?:^|\.)(.+?)(?=\[|\.|$|\()|\[('|")(.+?)\2\])(\(\))?/g,
@@ -136,7 +140,12 @@ branches = {
             highlight_r: options.highlight_r || 8,
             normal_stroke: options.normal_stroke || "#000",
             highlight_stroke: options.highlight_stroke || "#fff",
-            normal_fill: options.normal_fill || {0:"#0f0",1:"#00f",2:"#FF6600",3:"#f00"},
+            normal_fill: options.normal_fill || {
+				"goal":"#f00",
+				"premise":"#0f0",
+				"proof":"#00f",
+				"insertion":"#FF6600"
+			},
             highlight_fill: options.highlight_fill || options.color || '#fff',
             popup_text_attr: options.popup_text_attr || {
                 fill: '#000',
@@ -160,6 +169,7 @@ branches = {
         dots_and_curr_index = branches.draw_dots.call(this, tree, settings, fclick);
         BranchHelper.highlight(dots_and_curr_index[0], dots_and_curr_index[1], settings);
     },
+
 
     draw_dots: function(tree, settings, fclick) {
         var dots = [],
@@ -265,11 +275,11 @@ branches = {
                             r: settings.highlight_r
                         });
                         //var name = (treenode.rule_name.length > 40) ? treenode.rule_name.substring(0, 40) + "..." : treenode.rule_name;
-                        var name = treenode.rule_name;
+                        var name = treenode.ruleName;
                         title.attr({
                             text: name
                             });
-                        if(layer>0) {
+                        if(layer>=0) {
                             var x = this.getBBox().x + this.getBBox().width / 2;
                             var posx = "middle";
                             var posy = "top";
@@ -281,7 +291,7 @@ branches = {
                             if(popup.getBBox().x <  x_slack) {
                                 posx = "left";
                             }
-                            if((popup.getBBox().x + popup.getBBox().width) > (canvas.width - x_slack)) {
+                            if(layer == layers.length-1) {
                                 posx = "right";
                             }
                             if(popup.getBBox().y < y_slack) {
@@ -321,8 +331,6 @@ branches = {
         }
         return [dots, curr_index];
     }
-
-
 };
 
 function BranchHelper() {}

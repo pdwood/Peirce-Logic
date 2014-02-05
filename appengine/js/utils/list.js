@@ -99,6 +99,14 @@ List.prototype.contains = function(value) {
 	else return itr;
 };
 
+List.prototype.first = function() {
+	return this.head.val;
+};
+
+List.prototype.last = function() {
+	return this.tail.val;
+};
+
 List.prototype.begin = function() {
 	return this.head;
 };
@@ -134,7 +142,6 @@ List.prototype.iterate = function(iterate_func) {
 		itr = itr.next;
 	}
 };
-
 
 //iterate until condtion is true, return location or end
 List.prototype.skipUntil = function(cond_func) {

@@ -3,8 +3,6 @@ svg:not(:root) {
     z-index: 1;
 }
 
-	
-
 #timeline {
     background: url(../img/patternlight.png);
 }
@@ -16,6 +14,9 @@ svg:not(:root) {
 
 body {
     background: url(../img/patternlight.png);
+	padding-top: 51px;
+	/* stop native surface actions */
+	-ms-touch-action: none !important; 
 }
 
 .username {
@@ -30,10 +31,26 @@ body {
 
 }
 
-#play-buttons {
-    position: absolute;
-    z-index: 2;
+.container .btn-group, 
+.container .navbar-btn, 
+.container #MultiSelectStatus,
+.container #login {
+	padding-right: 15px;
+	padding-left: 15px;
 }
+
+#paper {
+	overflow-x: hidden;
+}
+
+#tourbutton {
+	margin-right:15px;
+}
+
+/* #play-buttons { */
+/*     position: absolute; */
+/*     z-index: 2; */
+/* } */
 
 #ModeLink {
     font-size: 16px;
@@ -47,9 +64,24 @@ body {
     -webkit-user-select: none;
 }
 
+/* #MultiSelectStatus { */
+/* 	display: inline-block; */
+/* } */
+
+/* #FileOptions, #proofplayer { */
+/* 	margin-top:4px; */
+/* } */
+
 .navbar {
     background: url(../img/patterndark.png);
     margin-bottom: 0px;
+}	
+	
+.navbar .navbar-container {
+	width: 100%;
+	max-width: none;
+	padding-right: 20px;
+	padding-left: 20px;
 }
 
 #proofplayer {

@@ -1,54 +1,72 @@
 var debug;
 var D = function(d) {
-		debug = d;
-		console.log(d);
-	};
+	debug = d;
+	console.log(d);
+};
 var R;
 
 window.onload = function() {
-	PLANE_VOFFSET = 0;
-	BOOTSTRAP_HEIGHT = 40;//35;
+	// global constants
+	Proof.SetupConstants();
+	PLANE_VOFFSET = 0; // used to position things onto main plane
+	BOOTSTRAP_HEIGHT = $(".navbar").outerHeight(); // header height
+	PLANE_VOFFSET += 50;
+	MODE_BUTTON_HEIGHT = 22; // height of mode status button
 	TIMELINE_HEIGHT = 100;
 	DEFAULT_PLANE_WIDTH = 5000;
 	DEFAULT_PLANE_HEIGHT = 5000;
 	DEFAULT_CHILD_WIDTH = 50;
 	DEFAULT_CHILD_HEIGHT = 50;
 	DEFAULT_CURVATURE = 20;
-	PLANE_VOFFSET += BOOTSTRAP_HEIGHT;
 	PLANE_CANVAS_WIDTH = function() { return $(window).width(); };
-	PLANE_CANVAS_HEIGHT = function() { return $(window).height() - TIMELINE_HEIGHT - PLANE_VOFFSET; };
+	PLANE_CANVAS_HEIGHT = function() { return $(window).height() -BOOTSTRAP_HEIGHT -MODE_BUTTON_HEIGHT -TIMELINE_HEIGHT; };
 	TIMELINE_CANVAS_WIDTH = PLANE_CANVAS_WIDTH;
 	TIMELINE_CANVAS_HEIGHT = function() { return TIMELINE_HEIGHT; };
+	
+	// main raphael paper
+	R = Raphael("paper", PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
 
-	R = Raphael("paper", PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT() );
-
-	TheProof = new Proof(R);
-	AddUIReactors(TheProof);
+	// ui minimap
 	minimap = new Minimap(R);
-	ContextMenu = new ContextHandler(R);
 
-	TheProof.changeMode(TheProof.nextMode());
-	document.getElementById('ModeLink').onclick = function(e){
-		TheProof.changeMode(TheProof.nextMode(TheProof.currentMode));
-	};
+	// ui timeline
+	Timeline = Raphael('timeline', '100%', TIMELINE_CANVAS_HEIGHT());
+
+	// main proof
+	TheProof = new Proof(R);
+	// add ui reactors to proof events
+	AddUIReactors(TheProof);
+	// add cookie storing reactor
+	TheProof.addReactor(Proof.EVENTS.SELECT_NODE, function(proof) {
+		sessionStorage.setItem("PeirceLogicTempProof", proof.SaveProof());
+	});
+	// setup reset
+	$("#newButton").click(function () {
+		TheProof.Reset();
+		TheProof.Begin();
+	});
+
+	// load temp proof if in sessionStorage
+	if(sessionStorage.getItem("PeirceLogicTempProof"))						 
+		TheProof.LoadProof(sessionStorage.getItem("PeirceLogicTempProof"));
+	else // start new proof
+		TheProof.Begin();
+
+	// ui context menu
+	ContextMenu = new ContextHandler(R, TheProof);
+
+	// ui next and prev
 	document.getElementById('backwardtick').onclick = function(e){
-		if(TheProof.current.prev) {
-			TheProof.select(TheProof.current.prev);
-		}
+		TheProof.prev();
 	};
 	document.getElementById('forwardtick').onclick = function(e){
-		if(TheProof.current.next.head) {
-			TheProof.select(TheProof.current.next.head.val);
-		}
+		TheProof.next();
 	};
 
-	Timeline = Raphael('timeline', '100%', TIMELINE_CANVAS_HEIGHT());
-	branches.draw.call(Timeline, TheProof);
-
+	// window resizeing
 	$(window).resize( function() {
-	    minimap.windowResizeView();
-	    branches.draw.call(Timeline);
-	    R.setSize(PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
-	}
-	);
+		minimap.windowResizeView();
+		branches.draw.call(Timeline);
+		R.setSize(PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
+	});
 };
