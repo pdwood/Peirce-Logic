@@ -1,0 +1,21 @@
+*We want to be able to see the goal during the proof.
+
+*fix back and forth buttons for proof state navigation
+
+*saving and loading proofs has to get done this semester
+
+*basic logic templates ( like or structures ) should be in some easily
+accesable location
+
+*maybe switch variable system into saved variables, like a box with
+add new variable and all existing vars saves.
+
+*big emphasis on minimizing clicks and complexity.
+
+*when in insertion we overlay the cuts instead of spacing correctly.
+
+*multi select is painful when selecting little variables on touch screens.
+
+*pushing stuff around is kinda messed up.
+
+*click space between the double cuts to remove them.
