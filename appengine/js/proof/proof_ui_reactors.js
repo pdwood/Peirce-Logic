@@ -36,11 +36,11 @@ function AddNode(proof) {
 	if(proof.currentMode !== Proof.LOGIC_MODES.GOAL_MODE && proof.currentMode !== Proof.LOGIC_MODES.PREMISE_MODE)
 		proof.automated_check(proof.current);
 		*/
-	branches.draw.call(Timeline, proof);		
+	branches.draw.call(Timeline, proof);
 	minimap.redraw();
 }
 
 function ChangeNode(proof) {
-	branches.draw.call(Timeline, proof);		
+	branches.draw.call(Timeline, proof);
 	minimap.redraw();
 }

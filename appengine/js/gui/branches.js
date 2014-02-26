@@ -316,7 +316,7 @@ branches = {
                         for(var j = 0; j < dots.length; j++) {
                             dots[j].attr({
                                 fill: settings.normal_fill[dots[j].node_mode],
-                                stroke: settings.normal_stroke
+                                stroke: settings.normal_stroke*2
                             });
                         }
                         this.attr({
