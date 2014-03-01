@@ -42,5 +42,6 @@ function AddNode(proof) {
 
 function ChangeNode(proof) {
 	branches.draw.call(Timeline, proof);
+	TheProof.TickRefresh();
 	minimap.redraw();
 }

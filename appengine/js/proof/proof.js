@@ -454,6 +454,23 @@ Proof.prototype.next = function () {
 	}
 };
 
+// checks if the proof has a fork at the current step
+Proof.prototype.TickRefresh = function () {
+	if(!this.current.prev) {
+		$('#backwardtick').attr("disabled","disabled");
+	}
+	else {
+		$('#backwardtick').removeAttr("disabled");
+	}
+	if(!this.current.next || this.current.next.length != 1) {
+		$('#forwardtick').attr("disabled","disabled");
+	}
+	else if (this.current.next) {
+		$('#forwardtick').removeAttr("disabled");
+	}
+	
+};
+
 // next proof mode given current mode
 // default is goal mode
 Proof.prototype.nextMode = function(mode) {
