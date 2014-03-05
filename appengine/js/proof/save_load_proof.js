@@ -58,7 +58,7 @@ Proof.prototype.deserializeExecuteTree = function(json, prevnode) {
 		var nodes = NodeIDArrayToNodeList(json.ruleNodes, ptree);
 
 		// apply rule
-		proofnode = this.applyInferenceRule(json.mode, 
+		proofnode = this.applyInferenceRule(json.mode,
 											ptree,
 											pattrs,
 											json.ruleName,
@@ -76,7 +76,7 @@ Proof.prototype.deserializeExecuteTree = function(json, prevnode) {
 		proofnode.next.push_back(nextNodeState.node);
 		if(nextNodeState.selected)
 			selectedNode = nextNodeState.selected;
-	}				 
+	}
 	if(json.selected)
 		selectedNode = proofnode;
 	return {node: proofnode, selected: selectedNode};

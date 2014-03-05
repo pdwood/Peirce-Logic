@@ -12,10 +12,10 @@
 			<button id="newButton" type="button" class="btn navbar-btn btn-success">
 			  <span class="glyphicon glyphicon-file"></span>
 			</button>
-			<button disabled="disabled" data-toggle="modal" href="#loadModal" class="btn navbar-btn btn-danger">
+			<button id="loadButton" data-toggle="modal" href="#loadModal" class="btn navbar-btn btn-danger">
 			  <span class="glyphicon glyphicon-folder-open"></span>
 			</button>
-			<button disabled="disabled" id="saveButton" data-toggle="modal" href="#saveModal" class="btn navbar-btn btn-primary">
+			<button id="saveButton" data-toggle="modal" href="#saveModal" class="btn navbar-btn btn-primary">
 			  <span class="glyphicon glyphicon-floppy-disk"></span>
 			</button>
 		  </div>
@@ -42,57 +42,6 @@
 	<div id="minimap"></div>
 	<div class="col-sm-12" id="ModeLinkContainer" type="button"></div>
 	<div id="timeline"></div>
-
-	<!-- Save Modal -->
-	<div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	  <div class="modal-dialog">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			<h4 class="modal-title">Save Proof</h4>
-		  </div>
-		  <form action="/sign" method="post">
-			<div class="modal-body">
-              saved stuff:
-			  <p> {{big_log}} </p>
-			  <input type="hidden" name="content" id="content"></input>
-			</div>
-			<div class="modal-footer">
-			  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-			  <button type="submit" class="btn btn-primary">Save changes</button>
-			</div>
-		  </form>
-		</div>
-	  </div>
-	</div>
-
-	<!-- Load Modal -->
-	<div class="modal fade" id="loadModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	  <div class="modal-dialog">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			<h4 class="modal-title">Load Proof</h4>
-		  </div>
-		  <div class="modal-body">
-			Select the file you would like to open:
-			<br>
-			<select size="5" style="width:75%">
-			  <option value="o1">sample1</option>
-			  <option value="o2">sample2</option>
-			  <option value="o3">sample3</option>
-			  <option value="o4">sample4</option>
-			  <option value="o5">sample5</option>
-			  <option value="o6">sample6</option>
-			  <option value="o7">sample7</option>
-			</select>
-		  </div>
-		  <div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-			<button type="button" class="btn btn-primary">Open</button>
-		  </div>
-		</div>
-	  </div>
-	</div>
+	{% include 'templates/modals.html' %}
   </body>
 </html>
