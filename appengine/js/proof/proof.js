@@ -112,7 +112,7 @@ Proof.SetupConstants = function() {
 		"goal": {start: {name: 'Proof: Goal Start', 
 						 rule: ResetTreeRule()}, 
 				 end: {name: 'Proof: Goal Constructed', 
-					   rule: ResetTreeRule()}},
+					   rule: NoopTreeRule()}},
 		// premise mode bookends
 		"premise": {start: {name: 'Proof: Premise Start', 
 							rule: ResetTreeRule()}, 
@@ -378,7 +378,7 @@ Proof.prototype.useRuleOnStep = function(ruleName, nodes, ruleParams, visualPara
 								 visualParams);
 	chain.prev = proofNode;
 
-	// remove any contigious identical bookends in chain
+	// remove any contiguous identical bookends in chain
 	var prevRuleName = (this.isRuleModeBookend(proofNode.ruleName)) ? proofNode.ruleName : null;
 	var itr = chain;
 	while(itr) {
