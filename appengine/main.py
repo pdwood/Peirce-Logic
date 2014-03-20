@@ -29,10 +29,8 @@ class IndexHandler(webapp2.RequestHandler):
             message_query = Message.query(ancestor=userlog_key(user.email()))
             messages = message_query.fetch(10)
             little_log = []
-            
             for message in messages:
                 little_log.append(message.content)
-            
             for m in little_log:
                 big_log+="<p>%s</p><br>" %m
         else:
@@ -58,10 +56,8 @@ class PlayerHandler(webapp2.RequestHandler):
             message_query = Message.query(ancestor=userlog_key(user.email()))
             messages = message_query.fetch(10)
             little_log = []
-            
             for message in messages:
                 little_log.append(message.content)
-            
             for m in little_log:
                 big_log+="<p>%s</p><br>" %m
         else:
@@ -85,7 +81,7 @@ class Userlog(webapp2.RequestHandler):
         # should be limited to ~1/second.
         message = Message(parent=userlog_key(users.get_current_user().email()))
 
-        message.content = self.request.get('content')
+        message.content = self.request.get('serProof')
         message.put()
 
         query_params = {'userlog': users.get_current_user().email()}

@@ -42,12 +42,16 @@ window.onload = function() {
 	});
 	// setup reset
 	$("#newButton").click(function () {
-		TheProof.Reset();
-		TheProof.Begin();
+		if( confirm( "All unsaved changed will be lost!" )) {
+			TheProof.Reset();
+			TheProof.Begin();
+		} else {
+			// Do nothing!
+		}
 	});
 
 	// load temp proof if in sessionStorage
-	if(sessionStorage.getItem("PeirceLogicTempProof"))						 
+	if(sessionStorage.getItem("PeirceLogicTempProof"))
 		TheProof.LoadProof(sessionStorage.getItem("PeirceLogicTempProof"));
 	else // start new proof
 		TheProof.Begin();
