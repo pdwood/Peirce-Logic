@@ -10,10 +10,11 @@ function serializeProofNode(proofnode) {
 
 function serializeProofTree(rootnode,selected) {
 	var json = serializeProofNode(rootnode);
-	if(rootnode === selected)
+	if(rootnode === selected) {
 		json.selected = true;
+	}
 	json.children = [];
-	rootnode.next.iterate(function(proofnode){
+	rootnode.next.iterate(function(proofnode) {
 		json.children.push(serializeProofTree(proofnode,selected));
 	});
 	return json;
@@ -22,7 +23,6 @@ function serializeProofTree(rootnode,selected) {
 Proof.prototype.SaveProof = function() {
 	var json = {};
 	json.proofTree = serializeProofTree(this.front, this.current);
-	D("Saving\n"+JSON.stringify(json));
 	return JSON.stringify(json);
 };
 
@@ -41,12 +41,9 @@ Proof.prototype.deserializeExecuteTree = function(json, prevnode) {
 	if(!prevnode) {
 		// root construction
 		var rule = this.getInferenceRule(json.mode, json.ruleName);
-		proofnode = this.applyInferenceRule(json.mode,
-											null,
-											null,
-											json.ruleName,
-											rule,
-											new List());
+		proofnode = this.applyInferenceRule(
+			json.mode, null, null, json.ruleName, rule, new List()
+		);
 		proofnode.ruleNodes = json.ruleNodes;
 		proofnode.constructUI(this.paper);
 		proofnode.deconstructUI();
@@ -58,14 +55,10 @@ Proof.prototype.deserializeExecuteTree = function(json, prevnode) {
 		var nodes = NodeIDArrayToNodeList(json.ruleNodes, ptree);
 
 		// apply rule
-		proofnode = this.applyInferenceRule(json.mode,
-											ptree,
-											pattrs,
-											json.ruleName,
-											rule,
-											nodes,
-											json.ruleParams,
-											json.visualParams);
+		proofnode = this.applyInferenceRule(
+			json.mode, ptree, pattrs, json.ruleName, rule, nodes, json.ruleParams,
+			json.visualParams
+		);
 		proofnode.ruleNodes = json.ruleNodes;
 	}
 	proofnode.prev = prevnode;
@@ -74,16 +67,21 @@ Proof.prototype.deserializeExecuteTree = function(json, prevnode) {
 		var nextNodeJson = json.children[i];
 		var nextNodeState = this.deserializeExecuteTree(nextNodeJson, proofnode);
 		proofnode.next.push_back(nextNodeState.node);
-		if(nextNodeState.selected)
+		if(nextNodeState.selected) {
 			selectedNode = nextNodeState.selected;
+		}
 	}
-	if(json.selected)
+	if(json.selected) {
 		selectedNode = proofnode;
-	return {node: proofnode, selected: selectedNode};
+	}
+	return {
+		node: proofnode,
+		selected: selectedNode
+	}
 };
 
 Proof.prototype.LoadProof = function(jsonString) {
-	D("Loading\n"+jsonString);
+	//D("Loading\n"+jsonString);
 	var json = JSON.parse(jsonString);
 	if(!json) {
 		alert("Could not load proof");

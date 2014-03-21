@@ -22,7 +22,7 @@ window.onload = function() {
 	PLANE_CANVAS_HEIGHT = function() { return $(window).height() -BOOTSTRAP_HEIGHT -MODE_BUTTON_HEIGHT -TIMELINE_HEIGHT; };
 	TIMELINE_CANVAS_WIDTH = PLANE_CANVAS_WIDTH;
 	TIMELINE_CANVAS_HEIGHT = function() { return TIMELINE_HEIGHT; };
-	
+
 	// main raphael paper
 	R = Raphael("paper", PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
 
@@ -60,12 +60,21 @@ window.onload = function() {
 	ContextMenu = new ContextHandler(R, TheProof);
 
 	// ui next and prev
-	document.getElementById('backwardtick').onclick = function(e){
+	$('#backwardtick').click(function(e) {
 		TheProof.prev();
-	};
-	document.getElementById('forwardtick').onclick = function(e){
+	});
+	$('#forwardtick').click(function(e) {
 		TheProof.next();
-	};
+	});
+
+	// run these bef re submission
+	$('#saveFormSubmit').click( function( event ) {
+		var spJSON = JSON.parse(TheProof.SaveProof());
+		spJSON.title = $('#saveFormTitle').val();
+		spJSON.description = $('#saveFormDesc').val();
+		$('#serializedProof').val(JSON.stringify(spJSON));
+		$('#saveFormData').submit()
+	});
 
 	// window resizeing
 	$(window).resize( function() {
