@@ -141,7 +141,7 @@ Proof.SetupConstants = function() {
 		SELECT_NODE: 'select',
 		NEXT_NODE: 'next',
 		PREVIOUS_NODE: 'prev',
-		//AUTOMATED_CHECK: 'automated_check'
+		AUTOMATED_CHECK: 'automated_check'
 	};
 
 };
@@ -432,8 +432,8 @@ Proof.prototype.select = function(node) {
 		this.current = node;
 		this.current.constructUI(this.paper);
 		this.changeMode(this.current.mode);
-		//if(node.mode !== Proof.LOGIC_MODES.GOAL_MODE && node.mode !== Proof.LOGIC_MODES.PREMISE_MODE)
-		//this.automated_check(this.current);
+		if(node.mode !== Proof.LOGIC_MODES.GOAL_MODE && node.mode !== Proof.LOGIC_MODES.PREMISE_MODE)
+			this.automated_check(this.current);
 		this.activateReactor(Proof.EVENTS.SELECT_NODE);
 	}
 };
@@ -536,21 +536,18 @@ Proof.prototype.activateReactor = function(event) {
 };
 
 
-/*
-  Proof.prototype.automated_check = function(pnode) {
-  gnode = pnode;
-  while(gnode.mode !== Proof.LOGIC_MODES.GOAL_MODE) {
-  gnode = gnode.prev;
-  }
-  gnode.constructUI();
-  var eq = gnode.plane.equivalence(pnode.plane);
-  gnode.plane.compressTree();
-  if(eq) {
-  smoke.alert('Reached Goal');
-  playerButtons();
-  }
-  };
-  gnode.deconstructUI();
-  if(eq)
-  smoke.alert('Reached Goal');
-  };*/
+
+Proof.prototype.automated_check = function(pnode) {
+	var gnode = pnode;
+	while(gnode.mode !== Proof.LOGIC_MODES.GOAL_MODE) {
+		gnode = gnode.prev;
+	}
+	//gnode.constructUI();
+	var eq = gnode.nodeTree.equivalence(pnode.nodeTree);
+	//gnode.plane.compressTree();
+	if(eq) {
+		smoke.alert('Reached Goal');
+		//playerButtons();
+	}
+	//gnode.deconstructUI();
+};
