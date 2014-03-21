@@ -69,17 +69,16 @@ class PlayerHandler(webapp2.RequestHandler):
 class Userlog(webapp2.RequestHandler):
 
     def post(self):
-        # We set the same parent key on the 'Greeting' to ensure each Greeting
-        # is in the same entity group. Queries across the single entity group
-        # will be consistent. However, the write rate to a single entity group
-        # should be limited to ~1/second.
-        message = Message(parent=userlog_key(users.get_current_user().email()))
+        user = users.get_current_user()
+        if(user):
+            message = Message(parent=userlog_key(users.get_current_user().email()))
+            message.content = self.request.get('serializedProof')
+            message.put()
 
-        message.content = self.request.get('serializedProof')
-        message.put()
-
-        query_params = {'userlog': users.get_current_user().email()}
-        self.redirect('/?' + urllib.urlencode(query_params))
+            query_params = {'userlog': users.get_current_user().email()}
+            self.redirect('/?' + urllib.urlencode(query_params))
+        else:
+            self.redirect('/')
 
 
 app = webapp2.WSGIApplication([
