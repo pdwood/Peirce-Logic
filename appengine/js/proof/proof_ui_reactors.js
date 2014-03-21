@@ -1,4 +1,3 @@
-
 function AddUIReactors(proof) {
 	proof.addReactor(Proof.EVENTS.CHANGE_MODE, ChangeMode);
 	proof.addReactor(Proof.EVENTS.ADD_NODE, AddNode);
@@ -27,14 +26,17 @@ function ChangeMode(proof) {
 		mode_name = "Goal Mode";
 		warning_color = "label-danger";
 	}
-	document.getElementById('ModeLinkContainer').innerHTML = '<div id="ModeLink"class="col-sm-12 '+ warning_color +'">'+mode_name+'</div>';
-	document.getElementById('ModeLink').onclick = function() { proof.endCurrentProofMode(); };
+	$('#ModeLinkContainer').html('<div id="ModeLink"class="col-sm-12 '+ warning_color +'">'+mode_name+'</div>');
+	$('#ModeLink').click(function() {
+		proof.endCurrentProofMode();
+	});
 }
 
 function AddNode(proof) {
-	if(proof.currentMode !== Proof.LOGIC_MODES.GOAL_MODE && proof.currentMode !== Proof.LOGIC_MODES.PREMISE_MODE)
+	if(proof.currentMode !== Proof.LOGIC_MODES.GOAL_MODE
+	&& proof.currentMode !== Proof.LOGIC_MODES.PREMISE_MODE) {
 		proof.automated_check(proof.current);
-		
+	}
 	branches.draw.call(Timeline, proof);
 	minimap.redraw();
 }
