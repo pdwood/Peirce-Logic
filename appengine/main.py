@@ -22,12 +22,12 @@ class IndexHandler(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        proofList = []
         if user:
             greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
                        (user.nickname(), users.create_logout_url('/')))
             message_query = Message.query(ancestor=userlog_key(user.email()))
             messages = message_query.fetch(10)
-            proofList = []
             for message in messages:
                 proofList.append(message.content)
         else:
