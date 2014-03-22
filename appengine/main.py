@@ -42,31 +42,7 @@ class IndexHandler(webapp2.RequestHandler):
         template = jinja_environment.get_template('templates/index.html')
         self.response.out.write(template.render(template_values))
 
-class PlayerHandler(webapp2.RequestHandler):
-
-    def get(self):
-        user = users.get_current_user()
-        if user:
-            greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
-                       (user.nickname(), users.create_logout_url('/')))
-            message_query = Message.query(ancestor=userlog_key(user.email()))
-            messages = message_query.fetch(10)
-            proofList = []
-            for message in messages:
-                proofList.append(message.content)
-        else:
-            greeting = ('<a href="%s">Sign in or register</a>.' %
-                       users.create_login_url('/'))
-
-        template_values = {
-            "user": user,
-            "greeting": greeting,
-            "proofList": proofList
-        }
-        template = jinja_environment.get_template('templates/player.html')
-        self.response.out.write(template.render(template_values))
-
-class Userlog(webapp2.RequestHandler):
+class SaveTheProof(webapp2.RequestHandler):
 
     def post(self):
         user = users.get_current_user()
@@ -83,6 +59,5 @@ class Userlog(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/', IndexHandler),
-    ('/player', PlayerHandler),
-    ('/sign', Userlog)
+    ('/saveproof', SaveTheProof)
 ], debug=True)
