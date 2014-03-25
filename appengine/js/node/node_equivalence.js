@@ -1,5 +1,15 @@
+//Tests if a graph is empty
+Node.prototype.empty = function(){
+	if(this.subtrees.length !== 0){return false;}
+	if(this.leaves.length !== 0){return false;}
+	return true;
+}
+
 //Check if two levels, trees, are the same structure
 Node.prototype.equivalence = function(other) {
+	//checks if one of the trees is empty (no graph)
+	if ((this.empty() && !other.empty()) || (other.empty() && !this.empty()))
+		return false;
 	// get leaves of both trees
 	var L1 = tree_leaves(this);
 	var L2 = tree_leaves(other);

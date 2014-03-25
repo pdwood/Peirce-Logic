@@ -543,11 +543,10 @@ Proof.prototype.automated_check = function(pnode) {
 		gnode = gnode.prev;
 	}
 	//gnode.constructUI();
-	var eq = gnode.nodeTree.equivalence(pnode.nodeTree);
+	var eq = gnode.nodeTree.equals(pnode.nodeTree);
 	//gnode.plane.compressTree();
 	if(eq) {
 		smoke.alert('Reached Goal');
-		//playerButtons();
 	}
 	//gnode.deconstructUI();
 };
