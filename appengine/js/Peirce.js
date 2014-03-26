@@ -68,13 +68,13 @@ window.onload = function() {
 	});
 
 	// run these bef re submission
-	$('#saveFormSubmit').click( function( event ) {
-		var spJSON = JSON.parse(TheProof.SaveProof());
-		spJSON.title = $('#saveFormTitle').val();
-		spJSON.description = $('#saveFormDesc').val();
-		$('#serializedProof').val(JSON.stringify(spJSON));
-		$('#saveFormData').submit()
-	});
+	//$('#saveFormSubmit').click( function( event ) {
+		//var spJSON = JSON.parse(TheProof.SaveProof());
+		//spJSON.title = $('#saveFormTitle').val();
+		//spJSON.description = $('#saveFormDesc').val();
+		//$('#serializedProof').val(JSON.stringify(spJSON));
+		//$('#saveFormData').submit();
+	//});
 
 	// window resizeing
 	$(window).resize( function() {
