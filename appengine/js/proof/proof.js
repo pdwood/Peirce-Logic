@@ -435,6 +435,17 @@ Proof.prototype.select = function(node) {
 		if(node.mode !== Proof.LOGIC_MODES.GOAL_MODE && node.mode !== Proof.LOGIC_MODES.PREMISE_MODE)
 			this.automated_check(this.current);
 		this.activateReactor(Proof.EVENTS.SELECT_NODE);
+		// Update Goal button.
+		var goalbutton = document.getElementById("goalbutton");
+		goalbutton.innerHTML = 'See Goal';
+		goalbutton.setAttribute('value', 'goGoal');
+		goalbutton.setAttribute('class', 'btn btn-danger navbar-btn');
+		if (this.current.mode === Proof.LOGIC_MODES.GOAL_MODE) {
+			goalbutton.disabled = true;
+			goalbutton.setAttribute('class', 'btn btn-default navbar-btn');
+		} else {
+			goalbutton.disabled = false;
+		}
 	}
 };
 
@@ -442,7 +453,7 @@ Proof.prototype.select = function(node) {
 Proof.prototype.prev = function() {
 	if(this.current.prev) {
 		this.select(this.current.prev);
-		this.activateReactor(Proof.EVENTS.PREVIOUS_NODE);
+		// this.activateReactor(Proof.EVENTS.PREVIOUS_NODE);
 	}
 };
 
@@ -450,7 +461,7 @@ Proof.prototype.prev = function() {
 Proof.prototype.next = function () {
 	if(this.current.next && this.current.next.length == 1) {
 		this.select(this.current.next.begin().val);
-		this.activateReactor(Proof.EVENTS.NEXT_NODE);
+		// this.activateReactor(Proof.EVENTS.NEXT_NODE);
 	}
 };
 
@@ -543,11 +554,10 @@ Proof.prototype.automated_check = function(pnode) {
 		gnode = gnode.prev;
 	}
 	//gnode.constructUI();
-	var eq = gnode.nodeTree.equivalence(pnode.nodeTree);
+	var eq = gnode.nodeTree.equals(pnode.nodeTree);
 	//gnode.plane.compressTree();
 	if(eq) {
 		smoke.alert('Reached Goal');
-		//playerButtons();
 	}
 	//gnode.deconstructUI();
 };
