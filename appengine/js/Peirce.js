@@ -67,6 +67,28 @@ window.onload = function() {
 		TheProof.next();
 	});
 
+	// ui return to goal button
+	var backNode;
+	$('#goalbutton').click(function() {
+		if ($(this).attr('value') == 'goGoal') {
+			backNode = TheProof.current;
+			while ( TheProof.current.mode !== Proof.LOGIC_MODES.GOAL_MODE ) {
+				TheProof.prev();
+			}
+			this.disabled = false;
+			this.innerHTML = 'Go Back';
+			$(this).attr('value', 'goBack');
+			$(this).attr('class', 'btn btn-primary navbar-btn');
+		} else {
+			TheProof.select(backNode);
+			this.disabled = false;
+			this.innerHTML = 'See Goal';
+			$(this).attr('value', 'goGoal');
+			$(this).attr('class', 'btn btn-danger navbar-btn');
+		}
+
+	});
+
 	// run these bef re submission
 	$('#saveFormSubmit').click( function( event ) {
 		var spJSON = JSON.parse(TheProof.SaveProof());
