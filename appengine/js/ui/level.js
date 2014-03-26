@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////
+// Level UI class for subtrees
+
+// derives from UINode
 Level.prototype = Object.create(UINode.prototype);
 
 function Level(R, node, nodeDict) {
@@ -5,47 +9,44 @@ function Level(R, node, nodeDict) {
     this.superClass.constructor.call(this,R,node,nodeDict);
 }
 
-Level.prototype.createShape = function(attr) {
+Level.prototype.createShape = function() {
 	this.removeShape();
-	this.shape = this.R.rect(0,0,1,1);
+	this.shape = this.paper.rect(0,0,1,1);
 	
     if(this.node.parent) { // cuts
 		//mouseover effects
         this.shape.mouseover(function () {
-            this.attr({"fill-opacity": 0.2});
+        //    this.attr({"fill-opacity": 0.2});
         });
 		this.shape.mouseout(function () {
-			this.attr({"fill-opacity": 0.0}); 
+		//	this.attr({"fill-opacity": 0.0}); 
         });
 		
-		this.shape.drag(this.onDragMove,this.onDragStart,this.onDragEnd);
+		this.setDragHandlers(this.onDragMove,this.onDragStart,this.onDragEnd);
 	}    
 
 	this.shape.parent = this;
-	this.shape.click(function(e) {ContextMenu.SingleClickHandler(this.parent,e);});
-    $(document).bind('contextmenu', function(e) {
-        e.preventDefault();
-    });
-    this.shape.mousedown(function(e) {
-        if (e.which == 3) {
-            this.parent.clicked(e);
-        }
-    });
-
-    this.shape.setShapeAttr(attr);
-}
+	this.shape.mousedown(this.clicked());
+	this.shape.dblclick(this.clicked());
+	// turn off right menu
+    $(document).bind('contextmenu', function(e) { e.preventDefault(); });
+};
 
 Level.prototype.defaultAttr = function() {
+	// level fills
+	var oddFill = "#FFFFFF";
+	var evenFill = "#888";
     // plane
     if(!this.node.parent) {
-        var color = '#888';
 		return {
+			"stroke-dasharray": "",
             x: 0,
             y: 0,
-            width: DEFAULT_PLANE_WIDTH,
-            height: DEFAULT_PLANE_HEIGHT,
-			fill: color,
-			stroke: color, "fill-opacity": 0.1
+            width: DEFAULT_PLANE_WIDTH || 5000,
+            height: DEFAULT_PLANE_HEIGHT || 5000,
+			fill: evenFill,
+			stroke: evenFill, 
+			"fill-opacity": 0.1
 		};
     } else { // cut
         //color spectrum based on level
@@ -55,42 +56,29 @@ Level.prototype.defaultAttr = function() {
 			color = Raphael.getColor();
 		}
 		return {
+			"stroke-dasharray": "",
             x: 0,
             y: 0,
-            width: DEFAULT_CHILD_WIDTH,
-            height: DEFAULT_CHILD_HEIGHT,
-            r: DEFAULT_CURVATURE,
-            fill: color,
-			stroke: color, "fill-opacity": 0
+            width: DEFAULT_CHILD_WIDTH || 50,
+            height: DEFAULT_CHILD_HEIGHT || 50,
+            r: DEFAULT_CURVATURE || 20,
+            fill: (this.node.getLevel() % 2) ? evenFill : oddFill,
+			stroke: color, 
+			"fill-opacity": 0.6
         };
     }
-}
-
-/* to be most likely removed 
-Level.prototype.removeNode = function(node) {
-	var parent_list = null;
-	if(node instanceof Level) {
-		parent_list = this.subtrees;
-	}
-	else {
-		parent_list = this.leaves;
-	}
-
-	var itr = parent_list.skipUntil(function(x) {
-		return (x === node);
-	});
-
-	if(node instanceof Level) {
-		itr.val.compressTree();
-	}
-	else {
-		itr.val.compress();
-	}
-	parent_list.erase(itr);
-	node.parent = null;
-	this.contract(true);
 };
-*/
+
+Level.prototype.getShapeAttr = function() {
+	var attr = {};
+	var shapeAttr = (this.shape.attr() ? this.shape.attr() : this.defaultAttr());
+	if("x" in shapeAttr && "y" in shapeAttr && "stroke-dasharray" in shapeAttr) {
+		attr.x = shapeAttr.x;
+		attr.y = shapeAttr.y;
+		attr["stroke-dasharray"] = shapeAttr["stroke-dasharray"];
+	}
+	return attr;
+};
 
 Level.prototype.setSelected = function(flag) {
 	if(!flag)
@@ -99,169 +87,65 @@ Level.prototype.setSelected = function(flag) {
 		this.setShapeAttr({"stroke-width": 3});
 };
 
-/*
-Level.expand(float cx, float cy, float cw, float ch)
-~cx: child x
-~cy: child y
-~cw: child width
-~ch: child height
-
-Assumes child just added/moved inside level;
-Assumes state prior to change is valid;
-Expands level appropriatly to fit child;
-Then expands its parent;
-*/
-Level.prototype.expand = function(cx,cy,cw,ch,animate) {
-    //doesn't expand main plane
-    if(this.node.parent) {
-        var sc = 20; //padding
-        //initial state
-        var x = this.shape.attrs.x;
-        var y = this.shape.attrs.y;
-        var w = this.shape.attrs.width;
-        var h = this.shape.attrs.height;
-        //expanded x,y
-        var new_x = x; var new_y = y;
-        //child is out of bounds on left
-
-        if(x > cx-sc) {
-            new_x = cx-sc;
-            //match width to expansion
-            w += x-new_x;
-        }
-        //child is out of bounds on top
-        if(y > cy-sc) { 
-            new_y = cy-sc;
-            //match height to expansion
-            h += y-new_y;
-        }
-        //expanded width,height
-        //child is out of bounds on right
-        var new_width = (new_x+w < cx+cw+sc) ? cx+cw+sc-new_x: w;
-        //child is out of bounds on bottom
-        var new_height = (new_y+h < cy+ch+sc) ? cy+ch+sc-new_y: h;
-
-        //update shape
-        var expanded_att = {
-            x: new_x,
-            y: new_y,
-            width: new_width,
-            height: new_height
-        };
-        if(animate)
-            this.shape.animate(expanded_att,200,"<");
-        this.setShapeAttr(expanded_att);
-
-        //expand parent
-        this.getUINode(this.node.parent).expand(new_x,new_y,new_width,new_height,animate);
-
-        //move collided nodes out of way
-        this.getUINode(this.node.parent).shiftAdjacent(this,this.shape.getBBox());
-    }
+Level.prototype.getMousePoint = function(event) {
+	//D(event);
+	var coords = mouse_to_svg_coordinates(this.paper,event);
+	var ex = 200;
+	var ey = 200;
+	if(jQuery.browser.chrome) {
+		ex = coords.x;
+		ey = coords.y - this.paper.canvas.offsetTop;
+	} else if(jQuery.browser.mozilla) {
+		ex = coords.x;
+		ey = coords.y;
+	} else {
+		ex = coords.x;
+		ey = coords.y;
+	}
+	return {x:ex,y:ey};
 };
 
-
-/*
-Level.contract
-
-Takes level's shape and
-contracts its around all
-children and variables like a hull;
-*/
-Level.prototype.contract = function(animate) {
-    if(this.node.parent) {
-        var sc = 20; //padding
-        //state variables
-        var new_x = this.shape.attrs.x+(this.shape.attrs.width)/4;
-        var new_y = this.shape.attrs.y+(this.shape.attrs.height)/4;
-        var new_width = DEFAULT_CHILD_WIDTH, new_height = DEFAULT_CHILD_HEIGHT;
-        var initial_hull_set_flag = false; //flag for hull initilization
-
-        if(this.node.subtrees.length) { //if children
-            //intial hull around first child with slack
-            var itr = this.node.subtrees.begin();
-            var cx = this.getUINode(itr.val).shape.attrs.x; var cy = this.getUINode(itr.val).shape.attrs.y;
-            var cw = this.getUINode(itr.val).shape.attrs.width; var ch = this.getUINode(itr.val).shape.attrs.height;
-            //contracted properties
-            new_x = cx-sc; 
-            new_y = cy-sc;
-            new_width = cw+sc+sc;
-            new_height = ch+sc+sc;
-            initial_hull_set_flag = true;
-            itr = itr.next; //move to next child
-            while(itr!=this.node.subtrees.end()) {
-                //fit hull
-                cx = this.getUINode(itr.val).shape.attrs.x;
-                cy = this.getUINode(itr.val).shape.attrs.y;
-                cw = this.getUINode(itr.val).shape.attrs.width;
-                ch = this.getUINode(itr.val).shape.attrs.height;
-                if(cx-sc <= new_x) {
-                    new_width += new_x-(cx-sc);
-                    new_x = cx-sc;
-                }
-                if(cy-sc <= new_y) {
-                    new_height += new_y-(cy-sc);
-                    new_y = cy-sc;
-                }
-                new_width = (cx+cw+sc<=new_x+new_width) ? new_width : cx+cw+sc-new_x;
-                new_height = (cy+ch+sc<=new_y+new_height) ? new_height : cy+ch+sc-new_y;
-                itr = itr.next;
-            }
-        }
-
-        //if variables
-        if(this.node.leaves.length) {
-            var itr = this.node.leaves.begin();
-            //if hull not initialized
-            if(!initial_hull_set_flag) {
-                //intial hull around first variable with slack
-                var cx = this.getUINode(itr.val).shape.getBBox().x, cy = this.getUINode(itr.val).shape.getBBox().y;
-                var cw = this.getUINode(itr.val).shape.getBBox().width, ch = this.getUINode(itr.val).shape.getBBox().height;
-                //contracted properties
-                new_x = cx-sc;
-                new_y = cy-sc;
-                new_width = cw+sc+sc;
-                new_height = ch+sc+sc;
-                //move to next variable
-                itr = itr.next;
-            }
-            while(itr!=this.node.leaves.end()) {
-                //fit hull
-                var cx = this.getUINode(itr.val).shape.getBBox().x, cy = this.getUINode(itr.val).shape.getBBox().y;
-                var cw = this.getUINode(itr.val).shape.getBBox().width, ch = this.getUINode(itr.val).shape.getBBox().height;
-                if(cx-sc <= new_x) {
-                    new_width += new_x-(cx-sc);
-                    new_x = cx-sc;
-                }
-                if(cy-sc <= new_y) {
-                    new_height += new_y-(cy-sc);
-                    new_y = cy-sc;
-                }
-                new_width = (cx+cw+sc<=new_x+new_width) ? new_width : cx+cw+sc-new_x;
-                new_height = (cy+ch+sc<=new_y+new_height) ? new_height : cy+ch+sc-new_y;
-                itr = itr.next;
-            }
-        }
-
-        //update shape if children exist else revert to base state
-        var expanded_att = {
-            x: new_x,
-            y: new_y,
-            width: new_width,
-            height: new_height
-        };
-        if(animate)
-            this.shape.animate(expanded_att,200,"<");
-        this.setShapeAttr(expanded_att);
-
-        //contract parent
-        this.getUINode(this.node.parent).contract(animate);
-    }
+Level.prototype.updateShape = function() {
+	this.envelopeChildren();
 };
 
-Level.prototype.touchend = function(dx,dy) {
-	
-}
+// wrap level around level's children
+Level.prototype.envelopeChildren = function() {
+	if(this.node.parent) {
+		var edgeSlack = 20; //padding
+		// children hull
+		var newX1 = null; var newY1 = null; var newX2 = null; var newY2 = null;
+		if(this.node.subtrees.length + this.node.leaves.length >= 1) {
+			// get boundaries around children
+			var self = this;
+			var updateHull = function(node) {
+				var childAttrs = self.getUINode(node).shape.getBBox();
+				if(newX1 == null) newX1 = childAttrs.x - edgeSlack;
+				else newX1 = Math.min(newX1, childAttrs.x - edgeSlack);
+				if(newY1 == null) newY1 = childAttrs.y - edgeSlack;
+				else newY1 = Math.min(newY1, childAttrs.y - edgeSlack);
+				if(newX2 == null) newX2 = childAttrs.x2 + edgeSlack;
+				else newX2 = Math.max(newX2, childAttrs.x2 + edgeSlack);
+				if(newY2 == null) newY2 = childAttrs.y2 + edgeSlack;
+				else newY2 = Math.max(newY2, childAttrs.y2 + edgeSlack);
+			};
+			this.node.subtrees.iterate(updateHull);
+			this.node.leaves.iterate(updateHull);
+		} else { // no update due to no children
+			newX1 = this.shape.attrs.x;
+			newY1 = this.shape.attrs.y;
+			newX2 = this.shape.attrs.x + this.shape.attrs.width;
+			newY2 = this.shape.attrs.y + this.shape.attrs.height;
+		}
+
+		// update self and parent
+		this.setShapeAttr({x:newX1, y:newY1, width:newX2-newX1, height:newY2-newY1});
+		this.getUINode(this.node.parent).envelopeChildren();  
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Dragging events
 
 /*
 Level.dragStart
@@ -285,337 +169,176 @@ Level.prototype.dragStart = function() {
         this.getUINode(itr.val).dragStart();
         itr = itr.next;
     }
+	// save parents attributes
+	var p = this.node.parent;
+	while(p) {
+		var uiparent = this.getUINode(p);
+		uiparent.ox = uiparent.shape.attr("x");
+		uiparent.oy = uiparent.shape.attr("y");
+		p = p.parent;
+	}
     //save level's orignal position
     this.ox = this.shape.attr("x");
     this.oy = this.shape.attr("y");
 
     //highlight shape
-    this.setShapeAttr({"fill-opacity": 0.2});
-
-    this.superClass.dragStart.call(this);
+    //this.setShapeAttr({"fill-opacity": 0.5});
 };
 
-Level.prototype.dragMove = function(dx, dy) {
-    var new_x, new_y;
+Level.prototype.dragMove = function(dx, dy, noCollision) {
+	var dpoint; // delta point for movement
 
-    this.collisionMove(dx,dy);
+	if(!noCollision) {
+		// find maximum delta within collision
+		dpoint = this.collisionDelta(this.ox,this.oy,dx,dy);
+	} else {
+		dpoint = {x: dx, y: dy};
+	}
+	var point = {x: dpoint.x+this.ox,
+				 y: dpoint.y+this.oy};
+	this.setShapeAttr(point);
 
     //shift children
-    var itr = this.node.subtrees.begin();
-    while(itr!=this.node.subtrees.end()) {
-        this.getUINode(itr.val).dragMove(dx,dy);
-        itr = itr.next;
-    }
-    //shift variables
-    itr = this.node.leaves.begin();
-    while(itr!=this.node.leaves.end()) {
-        this.getUINode(itr.val).dragMove(dx,dy);
-        itr = itr.next;
-    }
-    //move collided nodes out of way
-    this.getUINode(this.node.parent).shiftAdjacent(this,this.shape.getBBox());
+	var self = this;
+	var moveChildren = function(node) {
+		self.getUINode(node).dragMove(dpoint.x, dpoint.y, true);
+	};
+	this.node.subtrees.iterate(moveChildren);
+	this.node.leaves.iterate(moveChildren);
+	// envelope children
+	//if(!noCollision)
+	//	this.envelopeChildren();
+
     //fit hull to new area
-    this.getUINode(this.node.parent).expand(new_x,new_y,this.shape.attrs.width,this.shape.attrs.height);
-    this.getUINode(this.node.parent).contract();
-
-    this.superClass.dragMove.call(this,dx,dy);
-};
-
-/*
-Level.collisionMove
-~dx: drag difference in x
-~dy: drag difference in y
-
-Object level handler for
-drag event action; detects collisions
-with the bounds of the plane.
-*/
-Level.prototype.collisionMove = function (dx, dy) {
-    var width = DEFAULT_PLANE_WIDTH;
-    var height = DEFAULT_PLANE_HEIGHT;
-    var shape_width = this.shape.attr("width");
-    var shape_height = this.shape.attr("height");
-    var bbox = this.shape.getBBox();
-    var slack = 20;
-
-    /* find root */
-    var padding = slack*(this.node.getLevel()-1);
-
-    var ox = this.ox;
-    var oy = this.oy;
-    var new_x = this.ox + dx;
-    var new_y = this.oy + dy;
-
-    // collision with right bound
-    if (ox + dx + shape_width + padding >= width) {
-        new_x = width - shape_width - padding;
-    }
-    // collision with bottom bound
-    if (oy + dy + shape_height + padding >= height) {
-        new_y = height - shape_height - padding;
-    }
-    // collision with left bound
-    if (ox + dx <= padding) {
-        new_x = padding;
-    }
-    // collision with upper bound
-    if (oy + dy <= padding) {
-        new_y = padding;
-    }
-
-    this.setShapeAttr({x: new_x, y: new_y});
+	if(!noCollision)
+		this.getUINode(this.node.parent).envelopeChildren();
 };
 
 Level.prototype.dragEnd = function() {
-    this.getUINode(this.node.parent).contract();
-    this.setShapeAttr({"fill-opacity": 0});
-
-    this.superClass.dragEnd.call(this);
+    this.getUINode(this.node.parent).envelopeChildren();
+    //this.setShapeAttr({"fill-opacity": 0.3});
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// Collision logic
 
-/*
-Level.shiftAdjacent
-~child: child to be shifted on own level
-~bbox: bounding box of child
+Level.prototype.bboxCollisionDelta = function(bbox, del, cbbox) {
+	var delta = {x: del.x, y: del.y};
+	var dbbox = { x: bbox.x + delta.x, 
+				  y: bbox.y + delta.y,
+				  x2: bbox.x2 + delta.x,
+				  y2: bbox.y2 + delta.y};	
+	if(!this.paper.raphael.isBBoxIntersect(dbbox,cbbox))
+		return delta;
+	
+	// differences from opposite walls in order of cbbox walls
+	var dl, dr, du, dd;
+	dl = dbbox.x2 - cbbox.x;
+	dr = cbbox.x2 - dbbox.x;
+	du = dbbox.y2 - cbbox.y;
+	dd = cbbox.y2 - dbbox.y;
+	// delta adjustments
+	var dx = 0; var dy = 0;
 
-Shift all children on plane away from input child
-when colliding on its bounding box
-*/
-Level.prototype.shiftAdjacent = function(child,bbox) {
-   if(!child.visited) {
-        child.visited = true;
-        var slack = 5;
-        var itr = this.node.leaves.begin();
-        while(itr!=this.node.leaves.end()) {
-            var c = this.getUINode(itr.val);
-            if(child !== c && !(c.visited)) {
-                var bbox2 = c.shape.getBBox();
-                if(this.R.raphael.isBBoxIntersect(bbox,bbox2)) {      
-                    var sx = 0, sy = 0;
-                    var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
-                    var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
-                    var width = DEFAULT_PLANE_WIDTH;
-                    var height = DEFAULT_PLANE_HEIGHT;
+	if(dl > 0 || dr > 0) {
+		if(dl < 0) dx = dr;
+		else if(dr < 0) dx = -dl;
+		else if(dl < dr) dx = -dl;
+		else dx = dr;
+	}
+	// flip if cbbox is in bbox
+	if(dbbox.x <= cbbox.x && cbbox.x2 <= dbbox.x2) {
+		//dx = -dx;
+	}
+	if(du > 0 || dd > 0) {
+		if(du < 0) dy = dd;
+		else if(dd < 0) dy = -du;
+		else if(du < dd) dy = -du;
+		else dy = dd;
+	}		
+	// flip if cbbox is in bbox
+	if(dbbox.y <= cbbox.y && cbbox.y2 <= dbbox.y2) {
+		//dy = -dy;
+	}
+	
+	// move in delta axis that minimizes overall change
+	if(Math.abs(dx) > Math.abs(dy))
+		delta.y += dy;
+	else
+		delta.x += dx;
 
-                    // if bbox2 is already colliding with the upper
-                    // prevents bbox from intersecting with bbox2
-                    if (bbox2.y <= 0) {
-                        // if bbox is colliding with bbox2 on the right
-                        if (bbox.x > bbox2.x && bbox.x < bbox2.x2) {
-                            sx = (dx+slack)*-1;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the left side
-                        } else if (bbox.x2 < bbox2.x2 && bbox.x2 > bbox2.x) {
-                            sx = dx-slack;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the bottom
-                        } else {
-                            sy = dy+slack;
-                            child.drag(sx,sy);
-                        }
-                    }
-                    // if bbox2 is already colliding with the left bound
-                    else if (bbox2.x <= 0) {
-                        // if bbox is colliding with bbox2 on the top
-                        if (bbox.y2 > bbox2.y && bbox.y2 < bbox2.y2) {
-                            sy = dy-slack;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the bottom
-                        } else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
-                            sy = (dy+slack)*-1;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the right
-                        } else {
-                            sy = dy+slack;
-                            child.drag(sx,sy);
-                        }
-                    }
-                    // if bbox2 is already colliding with the right bound
-                    else if (bbox2.x2 >= width) {
-                        // if bbox is colliding with bbox2 on the top
-                        if (bbox.y2 > bbox2.y && bbox.y2 < bbox2.y2) {
-                            sy = dy+slack;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the bottom
-                        } else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
-                            sy = (dy-slack)*-1;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the right
-                        } else {
-                            sy = dy+slack;
-                            child.drag(sx,sy);
-                        }
-                    }
-                    // if bbox2 is already colliding with the lower bound
-                    else if (bbox2.y2 >= height) {
-                        // if bbox is colliding with bbox2 on the right
-                        if (bbox.x >= bbox2.x && bbox.x <= bbox2.x2) {
-                            sx = (dx-slack)*-1;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the left side
-                        } else if (bbox.x2 <= bbox2.x2 && bbox.x2 >= bbox2.x) {
-                            sx = dx+slack;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the bottom
-                        } else {
-                            sy = dy+slack;
-                            child.drag(sx,sy);
-                        }
-                    }
-                    // Otherwise, bbox2 is not colliding with any edge and must be
-                    // in the center of the plane.
-                    else {
-                        // bbox hitting upper bound
-                        if (bbox2.y-dy <= 0)
-                            sy = -1*bbox2.y;
-                        // bbox hitting left bound
-                        else if (bbox2.x-dx <= 0)
-                            sx = -1*bbox2.x;
-                        // bbox hitting lower bound
-                        else if (bbox2.y2+dy >= height) {
-                            if (bbox2.y2 <= height) sy = height-bbox2.y2;
-                            else sy = 0;
-                        }
-                        // bbox hitting right bound
-                        else if (bbox2.x2+dx >= width) {
-                            if (bbox2.x2 <= width) sx = width-bbox2.x2;
-                            else sx = 0;
-                        }
+	return delta;
+};
 
-                        else if (dx >= bbox.x2-bbox.x || dx >= bbox2.x2-bbox2.x)
-                            sy = (dy+slack)*(bbox2.y <= bbox.y ? -1:1);
-                        else if (dy >= bbox.y2-bbox.y || dy >= bbox2.y2-bbox2.y)
-                            sx = (dx+slack)*(bbox2.x <= bbox.x ? -1:1);
-                        else {
-                            if(dx<dy)
-                                sx = (dx+slack)*(bbox2.x <= bbox.x ? -1:1);
+Level.prototype.globalCollisionDelta = function(bbox, del, delslack) {
+	var delta = {x: del.x, y: del.y};
+	var slack = delslack || 5;
 
-                            else
-                                sy = (dy+slack)*(bbox2.y <= bbox.y ? -1:1);
-                        }
-                        c.drag(sx,sy);
-                    }
-                }
-            }
-            itr = itr.next;
-        }
-        itr = this.node.subtrees.begin();
-        while(itr!=this.node.subtrees.end()) {
-            var c = this.getUINode(itr.val);
-            if(child !== c && !(c.visited)) {
-                var bbox2 = c.shape.getBBox();
-                if(this.paper.raphael.isBBoxIntersect(bbox,bbox2)) {
-                    var sx = 0, sy = 0;
-                    var dx = Math.min(bbox2.x2-bbox.x,bbox.x2-bbox2.x);
-                    var dy = Math.min(bbox2.y2-bbox.y,bbox.y2-bbox2.y);
-                    var width = DEFAULT_PLANE_WIDTH;
-                    var height = DEFAULT_PLANE_HEIGHT;
+	// global bounds
+	var globalBoundingBox = this.getUINode(this.node.getRoot()).shape.getBBox();
+	if(bbox.x-slack+delta.x < globalBoundingBox.x)
+		delta.x = globalBoundingBox.x + - bbox.x + slack;
+	if(bbox.x2+slack+delta.x > globalBoundingBox.x2)
+		delta.x = globalBoundingBox.x2 + - bbox.x2 - slack;
+	if(bbox.y-slack+delta.y < globalBoundingBox.y)
+		delta.y = globalBoundingBox.y + - bbox.y + slack;
+	if(bbox.y2+slack+delta.y > globalBoundingBox.y2)
+		delta.y = globalBoundingBox.y2 + - bbox.y2 - slack;
+	return delta;
+};
 
-                    // if bbox2 is already colliding with the upper
-                    // prevents bbox from intersecting with bbox2
-                    if (bbox2.y <= 0) {
-                        // if bbox is colliding with bbox2 on the right
-                        if (bbox.x > bbox2.x && bbox.x < bbox2.x2) {
-                            sx = (dx+slack)*-1;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the left side
-                        } else if (bbox.x2 < bbox2.x2 && bbox.x2 > bbox2.x) {
-                            sx = dx-slack;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the bottom
-                        } else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
-                            sy = dy+slack;
-                            child.drag(sx,sy);
-                        }
-                    }
-                    // if bbox2 is already colliding with the left bound
-                    else if (bbox2.x <= 0) {
-                        // if bbox is colliding with bbox2 on the top
-                        if (bbox.y2 > bbox2.y && bbox.y2 < bbox2.y2) {
-                            sy = dy-slack;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the bottom
-                        } else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
-                            sy = (dy+slack)*-1;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the right
-                        } else {
-                            sy = dy+slack;
-                            child.drag(sx,sy);
-                        }
-                    }
-                    // if bbox2 is already colliding with the right bound
-                    else if (bbox2.x2 >= width) {
-                        // if bbox is colliding with bbox2 on the top
-                        if (bbox.y2 > bbox2.y && bbox.y2 < bbox2.y2) {
-                            sy = dy+slack;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the bottom
-                        } else if (bbox.y < bbox2.y2 && bbox.y > bbox2.y) {
-                            sy = (dy-slack)*-1;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the right
-                        } else {
-                            sy = dy+slack;
-                            child.drag(sx,sy);
-                        }
-                    }
-                    // if bbox2 is already colliding with the lower bound
-                    else if (bbox2.y2 >= height) {
-                        // if bbox is colliding with bbox2 on the right
-                        if (bbox.x > bbox2.x && bbox.x < bbox2.x2) {
-                            sx = (dx+slack)*-1;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the left side
-                        } else if (bbox.x2 < bbox2.x2 && bbox.x2 > bbox2.x) {
-                            sx = dx-slack;
-                            c.drag(sx,sy);
-                        // if bbox is colliding with bbox2 on the bottom
-                        } else {
-                            sy = dy+slack;
-                            child.drag(sx,sy);
-                        }
-                    }
-                    // Otherwise, bbox2 is not colliding with any edge and must be
-                    // in the center of the plane.
-                    else {
-                        // bbox hitting upper bound
-                        if (bbox2.y-dy <= 0)
-                            sy = -1*bbox2.y;
-                        // bbox hitting left bound
-                        else if (bbox2.x-dx <= 0)
-                            sx = -1*bbox2.x;
-                        // bbox hitting lower bound
-                        else if (bbox2.y2+dy >= height) {
-                            if (bbox2.y2 <= height) sy = height-bbox2.y2;
-                            else sy = 0;
-                        }
-                        // bbox hitting right bound
-                        else if (bbox2.x2+dx >= width) {
-                            if (bbox2.x2 <= width) sx = width-bbox2.x2;
-                            else sx = 0;
-                        }
+Level.prototype.collideChildDelta = function(child, bbox, del) {
+	var delta = {x: del.x, y: del.y};
+	var slack = 3;
+	var deltaBBox = function() { 
+		return { x: bbox.x + delta.x, 
+				 y: bbox.y + delta.y,
+				 x2: bbox.x2 + delta.x,
+				 y2: bbox.y2 + delta.y};
+	};
+	// adjust delta to avoid collision with input bbox
+	var self = this;
+	var adjustDelta = function(node) {
+		if(node.getIdentifier() != child.node.getIdentifier()) {
+			var obbox = self.getUINode(node).shape.getBBox();
+			delta = self.bboxCollisionDelta(bbox, delta, obbox);
+		}
+	};
+	this.node.subtrees.iterate(adjustDelta);
+	this.node.leaves.iterate(adjustDelta);
+	return delta;
+};
 
-                        else if (dx >= bbox.x2-bbox.x || dx >= bbox2.x2-bbox2.x)
-                            sy = (dy+slack)*(bbox2.y <= bbox.y ? -1:1);
-                        else if (dy >= bbox.y2-bbox.y || dy >= bbox2.y2-bbox2.y)
-                            sx = (dx+slack)*(bbox2.x <= bbox.x ? -1:1);
-                        else {
-                            if(dx<dy)
-                                sx = (dx+slack)*(bbox2.x <= bbox.x ? -1:1);
+Level.prototype.collisionDelta = function(ox, oy, dx, dy) {
+	var delta = {x: dx, y: dy};
+	if(!this.node.parent)
+		return delta;
+	var bbox = this.shape.getBBox();
+	bbox = {x: ox, 
+			x2: ox+bbox.width,
+			y: oy, 
+			y2:	oy+bbox.height};
+	var uiparent = this.getUINode(this.node.parent);
 
-                            else
-                                sy = (dy+slack)*(bbox2.y <= bbox.y ? -1:1);
-                        }
-                        c.drag(sx,sy);
-                    }
+	// parent collision filter
+	var pbbox = {x: uiparent.ox, 
+				 x2: uiparent.ox+uiparent.shape.getBBox().width,
+				 y: uiparent.oy, 
+				 y2: uiparent.oy+uiparent.shape.getBBox().height};
+	// if delta movement out of parent with slack
+	//	var bslack = 0;
+	// if((delta.x > 0 && !(bbox.x2+delta.x+bslack <= pbbox.x2)) ||
+	//    (delta.x < 0 && !(pbbox.x <= bbox.x+delta.x-bslack)) ||
+	//    (delta.y > 0 && !(bbox.y2+delta.y+bslack <= pbbox.y2)) ||
+	//    (delta.y < 0 && !(pbbox.y <= bbox.y+delta.y-bslack)))
+		delta = uiparent.collisionDelta(pbbox.x, pbbox.y, delta.x, delta.y);
+	
+	// global bounds filter
+	delta = this.globalCollisionDelta(bbox,delta);
 
-                }
-            }
-            itr = itr.next;
-        }
-        child.visited = false;
-    }
-}
- 
+	// adjacent children collision filter
+	delta = uiparent.collideChildDelta(this,bbox,delta);
+
+	
+	return delta;
+};

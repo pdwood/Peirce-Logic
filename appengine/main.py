@@ -12,49 +12,52 @@ jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 
-def proof_key(proof_name=None):
-    """Constructs a Datastore key for a Proof entity with proof_name."""
-    return ndb.Key('Proof', proof_name)
+def userlog_key(email=None):
+    return ndb.Key('userlog', email)
 
+class Message(ndb.Model):
+    content = ndb.StringProperty(indexed=False)
 
 class IndexHandler(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        proofList = []
         if user:
             greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
                        (user.nickname(), users.create_logout_url('/')))
+            message_query = Message.query(ancestor=userlog_key(user.email()))
+            messages = message_query.fetch(10)
+            for message in messages:
+                proofList.append(message.content)
         else:
             greeting = ('<a href="%s">Sign in or register</a>.' %
                        users.create_login_url('/'))
 
         template_values = {
             "user": user,
-            "greeting": greeting
+            "greeting": greeting,
+            "proofList": proofList
         }
         template = jinja_environment.get_template('templates/index.html')
         self.response.out.write(template.render(template_values))
 
+class SaveTheProof(webapp2.RequestHandler):
 
-class ProofHandler(webapp2.RequestHandler):
+    def post(self):
+        user = users.get_current_user()
+        if(user):
+            message = Message(parent=userlog_key(users.get_current_user().email()))
+            message.content = self.request.get('serializedProof')
+            message.put()
 
-    def get(self):
-        self.response.out.write('<html><body>')
+            query_params = {'userlog': users.get_current_user().email()}
+            self.redirect('/?' + urllib.urlencode(query_params))
+        else:
+            self.redirect('/')
 
-        proofs = ndb.GqlQuery("SELECT * "
-                             "FROM Proof "
-                             "WHERE ANCESTOR IS :1 "
-                             "ORDER BY date DESC LIMIT 10",
-                             proof_key(proof_name))
-
-        for proof in proofs:
-            self.response.out.write('<b>%s</b> wrote:' % proof.author)
-            self.response.out.write('<blockquote>%s</blockquote>' %
-                                    cgi.escape(proof.proof))
-
-        self.response.out.write("</body></html>")
 
 app = webapp2.WSGIApplication([
     ('/', IndexHandler),
-    ('/proofs', ProofHandler)
+    ('/saveproof', SaveTheProof)
 ], debug=True)

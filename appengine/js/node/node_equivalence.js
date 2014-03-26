@@ -1,5 +1,15 @@
+//Tests if a graph is empty
+Node.prototype.empty = function(){
+	if(this.subtrees.length !== 0){return false;}
+	if(this.leaves.length !== 0){return false;}
+	return true;
+}
+
 //Check if two levels, trees, are the same structure
 Node.prototype.equivalence = function(other) {
+	//checks if one of the trees is empty (no graph)
+	if ((this.empty() && !other.empty()) || (other.empty() && !this.empty()))
+		return false;
 	// get leaves of both trees
 	var L1 = tree_leaves(this);
 	var L2 = tree_leaves(other);
@@ -114,11 +124,11 @@ function tree_leaves(root) {
 	frontier.push_back(root);
 	frontier.push_back(level);
 	// explore as long as the frontier has items and the item is not a level number
-	while(frontier.length && !(typeof(frontier.begin().val)==='number' && frontier.length===1)) {
+	while(frontier.length && !(typeof(frontier.first())==='number' && frontier.length===1)) {
 		var leaves = []; //leaves on level
 
 		// go through all nodes on level before reaching level number
-		while(typeof(frontier.begin().val)!=='number') {
+		while(typeof(frontier.first())!=='number') {
 			var node = frontier.pop_front();
 
 			// add all empty cuts into leaves list

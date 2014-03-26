@@ -1,15 +1,27 @@
-InferenceRule.prototype.erasure = function (proof, rule_name, nodes) {
-	proof.addnode(rule_name,this.RuleToId(rule_name),nodes);
+////////////////////////////////////////////////////////////////////////////////
+// Inference rule for removing nodes
+
+function ValidateConstructionErasure(tree, nodes) {
+	return NodesAllHaveParent(nodes);
+}
+
+function ValidateProofErasure(tree, nodes) {
+	// Anything enclosed in an even amount of levels means its on an odd level
+	return NodesAllHaveParent(nodes) && NodesAllOddLevel(nodes);
+}
+
+function AddErasure(tree, nodes) {
+	var diff = NewDiff();
 	nodes.iterate(function(node) {
 		var parent = node.parent;
-		parent.removeNode(node);
+		parent.removeChild(node);
+		diff.deletions = node.preOrderFlattenToIDs();
 	});
-};
+	return {tree: tree, diff: diff};
+}
 
-InferenceRule.prototype.erasure_for = function (mode) {
-	return function(inf){
-	return function(proof, nodes) {
-		inf.erasure(proof, mode, nodes);
-	};
-	}(this);
-};
+function ApplyVisualErasure(tree,nodes,diff,attrs,params) {
+	// erasure does not influence any other attributes
+	return {attrs: attrs};
+}
+

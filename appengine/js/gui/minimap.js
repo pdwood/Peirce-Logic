@@ -1,6 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////
+// Minimap for rendering quick view of an entire Raphael paper and controlling its view
+
 function Minimap(R) {
     this.x = 3;
-    this.y = 9;
+    this.y = 3;
     this.width = 100;
     this.height = 100;
     this.relief = 4;
@@ -41,6 +44,9 @@ function Minimap(R) {
     R.setViewBox(this.zoom_x, this.zoom_y, this.zoom_width, this.zoom_height, false);
 
     this.minimap.drag(this.move, this.start, this.end);
+	this.minimap.touchmove(this.move);
+	this.minimap.touchstart(this.start);
+	this.minimap.touchend(this.end);
     this.minimap.dblclick(this.minimapClick);
 }
 
@@ -130,20 +136,23 @@ Minimap.prototype.windowResizeView = function() {
 };
 
 Minimap.prototype.redraw = function() {
-    var plane = TheProof.current.plane;
+    var tree = TheProof.current.nodeTree;
+	var attrs = TheProof.current.uiTree.getAttrs();
     for(var p in this.points) {
         this.points[p].remove();
     }
     this.points = [];
     var mm = this;
-    plane.subtrees.iterate(function(n) {
-        var x = n.shape.attr("x");
-        var y = n.shape.attr("y");
+    tree.subtrees.iterate(function(node) {
+		var attr = attrs[node.getIdentifier()];
+        var x = attr.x;
+        var y = attr.y;
         mm.addPoint(x,y,"red");
     });
-    plane.leaves.iterate(function(n) {
-        var x = n.text.attr("x");
-        var y = n.text.attr("y");
+    tree.leaves.iterate(function(node) {
+		var attr = attrs[node.getIdentifier()];
+        var x = attr.x;
+        var y = attr.y;
         mm.addPoint(x,y,"gray");
     });
 };

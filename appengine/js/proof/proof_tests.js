@@ -95,7 +95,7 @@ N2.add_lit("P", false);
 
 var N1 = Node.NodeSkeleton();
 N1.add_lit("P", false);
-N1.subtrees[0].add_lit("Q",false); 
+N1.subtrees[0].add_lit("Q",false);
 var N2 = Node.NodeSkeleton();
 N2.subtrees.push(Node.NodeSkeleton());
 N2.subtrees[0].add_lit("R",false);
@@ -107,7 +107,7 @@ N3.subtrees[0].add_lit("Q",true);
 //P->Q and Q, then P (INCORRECT)
 var N1 = Node.NodeSkeleton();
 N1.add_lit("P", false);
-N1.subtrees[0].add_lit("Q",false); 
+N1.subtrees[0].add_lit("Q",false);
 N1.add_lit("Q",true);
 var N2 = Node.NodeSkeleton();
 N2.add_lit("P", true);
@@ -150,5 +150,3 @@ N2.add_lit("P",false);
 N2.subtrees[0].add_lit("Q",false);
 N2.add_lit("Q",false);
 N2.subtrees[1].add_lit("P",false);
-
-//file:///C:/Users/caulfb2/Documents/GitHub/Peirce-Logic/appengine/templates/index.html
