@@ -28,10 +28,19 @@ class IndexHandler(webapp2.RequestHandler):
         if user:
             greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
                        (user.nickname(), users.create_logout_url('/')))
-            message_query = Proofs.query(ancestor=userlog_key(user.email()))
-            messages = message_query.fetch(10)
-            for message in messages:
-                proofList.append('<div><h3>%s<button class="btn btn-default">Load</button></h3><blockquote><p>%s</p></blockquote></div> ' % (message.title, message.description))
+            proof_query = Proofs.query(ancestor=userlog_key(user.email()))
+            proofs = proof_query.fetch(10)
+            for proof in proofs:
+                proofList.append( """
+                <div class="panel panel-default loadProof">
+                  <div class="panel-body">
+                    <h3>%s</h3>
+                    <blockquote>
+                        <p>%s</p>
+                    </blockquote>
+                    <input type="hidden" id="jsonProof" value='%s' />
+                  </div>
+                </div> """ % (proof.title, proof.description, proof.serializedProof))
         else:
             greeting = ('<a href="%s">Sign in or register</a>.' %
                        users.create_login_url('/'))
