@@ -48,6 +48,7 @@ window.onload = function() {
 		} else {
 			// Do nothing!
 		}
+		this.blur();
 	});
 
 	// load temp proof if in sessionStorage
@@ -86,7 +87,7 @@ window.onload = function() {
 			$(this).attr('value', 'goGoal');
 			$(this).attr('class', 'btn btn-danger navbar-btn');
 		}
-
+		this.blur();
 	});
 
 	// run these bef re submission
