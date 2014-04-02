@@ -378,6 +378,22 @@ Proof.prototype.useRuleOnStep = function(ruleName, nodes, ruleParams, visualPara
 								 visualParams);
 	chain.prev = proofNode;
 
+	// Check to make sure the returned node isn't equivalent to
+	// a next step
+	if(proofNode.next.length > 0) {
+		var nextItr = proofNode.next.head;
+		for(var ind = 0; ind < proofNode.next.length; ind++) {
+			// check equivalence, node.equivalence
+			if(nextItr.val.nodeTree.equals(chain.nodeTree)) {
+				// select the proper node thing for the user?
+				var aTestls = 1000;
+				return nextItr.val;
+			}
+			nextItr = nextItr.next;
+		}
+	}
+
+
 	// remove any contiguous identical bookends in chain
 	var prevRuleName = (this.isRuleModeBookend(proofNode.ruleName)) ? proofNode.ruleName : null;
 	var itr = chain;
@@ -401,7 +417,7 @@ Proof.prototype.useRuleOnStep = function(ruleName, nodes, ruleParams, visualPara
 	while(chain.next.length) {
 		chain = chain.next.begin().val;
 	}
-	return chain; // return end of chain
+	return chain; // return end of chain 
 };
 
 Proof.prototype.useRuleOnCurrentStep = function(ruleName, nodes, ruleParams, visualParams) {
