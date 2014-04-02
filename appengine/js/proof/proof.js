@@ -383,11 +383,11 @@ Proof.prototype.useRuleOnStep = function(ruleName, nodes, ruleParams, visualPara
 	if(proofNode.next.length > 0) {
 		var nextItr = proofNode.next.head;
 		for(var ind = 0; ind < proofNode.next.length; ind++) {
-			// check equivalence, node.equivalence
+			// check equivalence, node.equals checks Nodes
 			if(nextItr.val.nodeTree.equals(chain.nodeTree)) {
-				// select the proper node thing for the user?
-				var aTestls = 1000;
-				return nextItr.val;
+				// Returns existing node to display
+				var stillBroken = 10;
+				//return nextItr.val;
 			}
 			nextItr = nextItr.next;
 		}
@@ -417,7 +417,7 @@ Proof.prototype.useRuleOnStep = function(ruleName, nodes, ruleParams, visualPara
 	while(chain.next.length) {
 		chain = chain.next.begin().val;
 	}
-	return chain; // return end of chain 
+	return chain; // return end of chain
 };
 
 Proof.prototype.useRuleOnCurrentStep = function(ruleName, nodes, ruleParams, visualParams) {
