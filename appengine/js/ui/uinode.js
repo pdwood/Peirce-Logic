@@ -83,8 +83,9 @@ function UINode(R, node, nodeDict) {
 }
 
 UINode.prototype.getUINode = function(node) {
-    if(node)
+    if(node) {
         return this.nodeDict[node.getIdentifier()];
+    }
     return null;
 };
 

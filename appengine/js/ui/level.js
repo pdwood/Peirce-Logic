@@ -206,16 +206,20 @@ Level.prototype.dragMove = function(dx, dy, noCollision) {
 	this.node.subtrees.iterate(moveChildren);
 	this.node.leaves.iterate(moveChildren);
 	// envelope children
-	//if(!noCollision)
-	//	this.envelopeChildren();
 
     //fit hull to new area
 	if(!noCollision)
-		this.getUINode(this.node.parent).envelopeChildren();
+		if (this.node.parent)
+			this.getUINode(this.node.parent).envelopeChildren();
+		else
+			this.envelopeChildren();
 };
 
 Level.prototype.dragEnd = function() {
-    this.getUINode(this.node.parent).envelopeChildren();
+	if (this.node.parent)
+    	this.getUINode(this.node.parent).envelopeChildren();
+    else
+    	this.envelopeChildren();
     //this.setShapeAttr({"fill-opacity": 0.3});
 };
 
