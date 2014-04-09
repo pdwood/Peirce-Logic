@@ -64,5 +64,5 @@ function UIGetVariableName() {
 	if(!variable_name.length)
 		variable_name = "UNKNOWN VARIABLE";
 
-	return variable_name;
+	return ReplaceWhitespace(variable_name);
 }
