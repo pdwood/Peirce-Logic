@@ -43,7 +43,7 @@ function tree_isomorphic(L1,L2,level) {
 	if (arrays_equal(N1[0],N2[0])) {
 		if (level!==0) {
 			// add aliased canonical names to upper level
-			// these are the names of the subtrees of the above level
+			// these are the nathimes of the subtrees of the above level
 			L1[level-1].concat(leaf_name_alias(N1[0],N1[1]));
 			L2[level-1].concat(leaf_name_alias(N2[0],N2[1]));
 		}
@@ -155,4 +155,65 @@ function tree_leaves(root) {
 		frontier.push_back(++level);
 	}
 	return levels;
+}
+
+// Checks to see if two nodes have identical names and structures
+Node.prototype.hardNodeEquivalence = function(other) {
+	//checks if one of the trees is empty (no graph)
+	if ((this.empty() && !other.empty()) || (other.empty() && !this.empty()))
+		return false;
+	// get leaves of both trees
+	var L1 = this;
+	var L2 = other;
+	// run recursive treeisomorphism check
+	return node_tree_hard_match(L1.leaves,L2.leaves,L1.subtrees,L2.subtrees);
+};
+
+function node_tree_hard_match(L1leaves, L2leaves, L1subtrees, L2subtrees) {
+	// Check leaves is defined
+	if((L1leaves && !L2leaves) || (!L1leaves && L2leaves))
+		return false;
+
+	// check # leaves is the same
+	if(L1leaves !== undefined) {
+		if(L1leaves.length != L2leaves.length)
+			return false;
+
+		// Check actual values of leaves
+		if(L1leaves.length > 0) {
+			var L1itr = L1leaves.head;
+			var L2itr = L2leaves.head;
+			for(var index = 0; index < L1leaves.length; index++) {
+				if(L1itr.val.attributes.label !== L2itr.val.attributes.label)
+					return false;
+				L1itr = L1itr.next;
+				L2itr = L2itr.next;
+			}
+		}
+	}
+
+	// check subtrees are equivalently defined
+	if((L1subtrees && !L2subtrees) || (!L1subtrees && L2subtrees))
+		return false;
+
+
+	// check # subtrees is the same
+	if(L1subtrees) {
+		if(L1subtrees.length != L2subtrees.length)
+			return false;
+
+		// Check actual values of leaves with recursion
+		if(L1subtrees.length > 0) {
+			var L1itr = L1subtrees.head;
+			var L2itr = L2subtrees.head;
+			for(var index = 0; index < L1subtrees.length; index++) {
+				if(!node_tree_hard_match(L1itr.val.leaves,L2itr.val.leaves,
+						L1itr.val.subtrees,L2itr.val.subtrees))
+					return false;
+				L1itr = L1itr.next;
+				L2itr = L2itr.next;
+			}
+		}
+	}
+	return true;
 }

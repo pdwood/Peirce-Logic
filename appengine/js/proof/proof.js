@@ -382,12 +382,14 @@ Proof.prototype.useRuleOnStep = function(ruleName, nodes, ruleParams, visualPara
 	// a next step
 	if(proofNode.next.length > 0) {
 		var nextItr = proofNode.next.head;
-		for(var ind = 0; ind < proofNode.next.length; ind++) {
+		for(var index = 0; index < proofNode.next.length; index++) {
 			// check equivalence, node.equals checks Nodes
-			if(nextItr.val.nodeTree.equals(chain.nodeTree)) {
+			var nodeA = nextItr.val.nodeTree;
+			var nodeB = chain.nodeTree;
+			if(nodeA.hardNodeEquivalence(nodeB)) {
 				// Returns existing node to display
 				var stillBroken = 10;
-				//return nextItr.val;
+				return nextItr.val;
 			}
 			nextItr = nextItr.next;
 		}
