@@ -12,8 +12,8 @@ jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 
-def userlog_key(email=None):
-    return ndb.Key('userlog', email)
+def userproofs_key(email=None):
+    return ndb.Key('userproofs', email)
 
 class Proofs(ndb.Model):
     title = ndb.StringProperty(indexed=False)
@@ -28,7 +28,7 @@ class IndexHandler(webapp2.RequestHandler):
         if user:
             greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
                        (user.nickname(), users.create_logout_url('/')))
-            proof_query = Proofs.query(ancestor=userlog_key(user.email()))
+            proof_query = Proofs.query(ancestor=userproofs_key(user.email()))
             proofs = proof_query.fetch(10)
             for proof in proofs:
                 proofList.append( """
@@ -58,16 +58,13 @@ class SaveTheProof(webapp2.RequestHandler):
     def post(self):
         user = users.get_current_user()
         if(user):
-            message = Proofs(parent=userlog_key(users.get_current_user().email()))
-            message.title = self.request.get('saveFormTitle')
-            message.description = self.request.get('saveFormDesc')
-            message.serializedProof = self.request.get('serializedProof')
-            message.put()
+            proofData = Proofs(parent=userproofs_key(users.get_current_user().email()))
+            proofData.title = self.request.get('saveFormTitle')
+            proofData.description = self.request.get('saveFormDesc')
+            proofData.serializedProof = self.request.get('serializedProof')
+            proofData.put()
 
-            query_params = {'userlog': users.get_current_user().email()}
-            self.redirect('/?' + urllib.urlencode(query_params))
-        else:
-            self.redirect('/')
+        self.redirect('/')
 
 
 app = webapp2.WSGIApplication([

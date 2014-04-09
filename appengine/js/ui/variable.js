@@ -31,7 +31,7 @@ Variable.prototype.defaultAttr = function() {
 		y: 0,
 		text: this.node.getAttribute("label"),
 		"font-family": "Arial",
-		"font-size": "16px"
+		"font-size": "22px"
 	};
 };
 
