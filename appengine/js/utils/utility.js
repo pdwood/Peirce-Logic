@@ -77,3 +77,9 @@ function IsString(s) {
 function DuplicateImmutableDict(dict) {
 	return jQuery.extend({},dict);
 }
+
+function ReplaceWhitespace(s) {
+	if(IsString(s)) {
+		return s.replace(/ /g,"_");
+	}
+}
