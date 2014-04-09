@@ -48,6 +48,7 @@ window.onload = function() {
 		} else {
 			// Do nothing!
 		}
+		this.blur();
 	});
 
 	// load temp proof if in sessionStorage
@@ -86,17 +87,19 @@ window.onload = function() {
 			$(this).attr('value', 'goGoal');
 			$(this).attr('class', 'btn btn-danger navbar-btn');
 		}
-
+		this.blur();
 	});
 
-	// run these bef re submission
-	//$('#saveFormSubmit').click( function( event ) {
-		//var spJSON = JSON.parse(TheProof.SaveProof());
-		//spJSON.title = $('#saveFormTitle').val();
-		//spJSON.description = $('#saveFormDesc').val();
-		//$('#serializedProof').val(JSON.stringify(spJSON));
-		//$('#saveFormData').submit();
-	//});
+	// run these before submission
+	$('#saveFormSubmit').click( function( event ) {
+		$('#serializedProof').val(TheProof.SaveProof());
+		$('#saveFormData').submit();
+	});
+
+	$('.loadProof').click( function( event ) {
+		TheProof.LoadProof($(this).find('#jsonProof').val());
+    $("#loadModal").modal('toggle');
+	});
 
 	// window resizeing
 	$(window).resize( function() {

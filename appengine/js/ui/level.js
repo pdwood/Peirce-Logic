@@ -112,7 +112,7 @@ Level.prototype.updateShape = function() {
 // wrap level around level's children
 Level.prototype.envelopeChildren = function() {
 	if(this.node.parent) {
-		var edgeSlack = 20; //padding
+		var padding = 30;
 		// children hull
 		var newX1 = null; var newY1 = null; var newX2 = null; var newY2 = null;
 		if(this.node.subtrees.length + this.node.leaves.length >= 1) {
@@ -120,14 +120,14 @@ Level.prototype.envelopeChildren = function() {
 			var self = this;
 			var updateHull = function(node) {
 				var childAttrs = self.getUINode(node).shape.getBBox();
-				if(newX1 == null) newX1 = childAttrs.x - edgeSlack;
-				else newX1 = Math.min(newX1, childAttrs.x - edgeSlack);
-				if(newY1 == null) newY1 = childAttrs.y - edgeSlack;
-				else newY1 = Math.min(newY1, childAttrs.y - edgeSlack);
-				if(newX2 == null) newX2 = childAttrs.x2 + edgeSlack;
-				else newX2 = Math.max(newX2, childAttrs.x2 + edgeSlack);
-				if(newY2 == null) newY2 = childAttrs.y2 + edgeSlack;
-				else newY2 = Math.max(newY2, childAttrs.y2 + edgeSlack);
+				if(newX1 == null) newX1 = childAttrs.x - padding;
+				else newX1 = Math.min(newX1, childAttrs.x - padding);
+				if(newY1 == null) newY1 = childAttrs.y - padding;
+				else newY1 = Math.min(newY1, childAttrs.y - padding);
+				if(newX2 == null) newX2 = childAttrs.x2 + padding;
+				else newX2 = Math.max(newX2, childAttrs.x2 + padding);
+				if(newY2 == null) newY2 = childAttrs.y2 + padding;
+				else newY2 = Math.max(newY2, childAttrs.y2 + padding);
 			};
 			this.node.subtrees.iterate(updateHull);
 			this.node.leaves.iterate(updateHull);
@@ -206,16 +206,20 @@ Level.prototype.dragMove = function(dx, dy, noCollision) {
 	this.node.subtrees.iterate(moveChildren);
 	this.node.leaves.iterate(moveChildren);
 	// envelope children
-	//if(!noCollision)
-	//	this.envelopeChildren();
 
     //fit hull to new area
 	if(!noCollision)
-		this.getUINode(this.node.parent).envelopeChildren();
+		if (this.node.parent)
+			this.getUINode(this.node.parent).envelopeChildren();
+		else
+			this.envelopeChildren();
 };
 
 Level.prototype.dragEnd = function() {
-    this.getUINode(this.node.parent).envelopeChildren();
+	if (this.node.parent)
+    	this.getUINode(this.node.parent).envelopeChildren();
+    else
+    	this.envelopeChildren();
     //this.setShapeAttr({"fill-opacity": 0.3});
 };
 

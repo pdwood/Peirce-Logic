@@ -7,7 +7,6 @@ function Node(parent) {
 	this.id = 0; // id of node
 	this.id_gen = 0; // id seed for generating children ids
 	this.attributes = {}; // immutable attributes
-
 	this.setParent(parent);
 }
 

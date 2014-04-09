@@ -38,11 +38,13 @@ function AddNode(proof) {
 	//	proof.automated_check(proof.current);
 	//}
 	branches.draw.call(Timeline, proof);
+	TheProof.UIReset();
 	minimap.redraw();
 }
 
 function ChangeNode(proof) {
 	branches.draw.call(Timeline, proof);
 	TheProof.TickRefresh();
+	TheProof.UIReset();
 	minimap.redraw();
 }

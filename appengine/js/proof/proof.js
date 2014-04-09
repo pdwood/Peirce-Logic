@@ -579,3 +579,13 @@ Proof.prototype.automated_check = function(pnode) {
 	}
 	//gnode.deconstructUI();
 };
+
+Proof.prototype.UIReset = function() {
+	if (this.current.uiTree) {
+		var uitree = this.current.uiTree;
+		var uinodes = uitree.uinodes;
+		for (var i in uinodes) {
+			uinodes[i].drag(0,0);
+		}
+	}
+}
