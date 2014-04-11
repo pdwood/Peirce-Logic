@@ -76,8 +76,8 @@ body {
     background: url(../img/patterndark.png);
     margin-bottom: 0px;
 	position: absolute;
-}	
-	
+}
+
 .navbar .navbar-container {
 	width: 100%;
 	max-width: none;
@@ -89,6 +89,8 @@ body {
 	text-align: center;
 }
 
-.panel:hover {
-  background-color: #eeeeff !important;
+.shadow:hover {
+  -moz-box-shadow:    4px 4px 5px 2px #ccc;
+  -webkit-box-shadow: 4px 4px 5px 2px #ccc;
+  box-shadow:         4px 4px 5px 2px #ccc;
 }

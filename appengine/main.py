@@ -32,7 +32,7 @@ class IndexHandler(webapp2.RequestHandler):
             proofs = proof_query.fetch(10)
             for proof in proofs:
                 proofList.append( """
-                <div class="panel panel-default loadProof">
+                <div class="panel panel-default loadProof shadow">
                   <div class="panel-body">
                     <h3>%s</h3>
                     <blockquote>
