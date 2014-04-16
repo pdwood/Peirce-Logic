@@ -16,7 +16,7 @@ body {
     background: url(../img/patternlight.png);
 	padding-top: 51px;
 	/* stop native surface actions */
-	-ms-touch-action: none !important; 
+	-ms-touch-action: none !important;
 }
 
 .username {
@@ -31,8 +31,8 @@ body {
 
 }
 
-.container .btn-group, 
-.container .navbar-btn, 
+.container .btn-group,
+.container .navbar-btn,
 .container #MultiSelectStatus,
 .container #login {
 	padding-right: 15px;
@@ -90,6 +90,10 @@ body {
 }
 
 .shadow:hover {
+  margin-top: -5px;
+  margin-left: -5px;
+  padding-bottom: 5px;
+  padding-right: 5px;
   -moz-box-shadow:    4px 4px 5px 2px #ccc;
   -webkit-box-shadow: 4px 4px 5px 2px #ccc;
   box-shadow:         4px 4px 5px 2px #ccc;
