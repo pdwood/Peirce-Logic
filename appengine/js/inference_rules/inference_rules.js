@@ -4,7 +4,7 @@
 // creates structs of inference rules based on three main functions of a rule
 // valid(tree:Node,nodes:List[Node]) -> bool
 // applyRule(tree:Node,nodes:List[Node],[params:{string:any}]) -> {tree: Node, diff: Diff}
-    // if optional params are input they may be updated in the process of application
+// if optional params are input they may be updated in the process of application
 // applyVisual(tree:Node,nodes:List[Node],diff:{Diff},attrs:{nodeid:{string:any}},[params:{string:any}]) -> newattrs
 function NewInferenceRule(validChecker,ruleApplicator,visualApplicator) {
 	return {valid: validChecker, applyRule: ruleApplicator, applyVisual: visualApplicator};
