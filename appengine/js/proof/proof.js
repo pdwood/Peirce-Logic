@@ -589,3 +589,11 @@ Proof.prototype.UIReset = function() {
 		}
 	}
 }
+
+Proof.prototype.getVarNames = function() {
+	var pn = this.front;
+	while (pn.next) {
+		pn = pn.next;
+	}
+	D(pn);
+}

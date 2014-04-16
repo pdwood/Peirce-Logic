@@ -98,7 +98,11 @@ window.onload = function() {
 
 	$('.loadProof').click( function( event ) {
 		TheProof.LoadProof($(this).find('#jsonProof').val());
-    $("#loadModal").modal('toggle');
+    	$("#loadModal").modal('toggle');
+	});
+
+	$('#tempButton').click( function( event ) {
+    	TheProof.getVarNames();
 	});
 
 	// window resizeing
