@@ -188,8 +188,8 @@ function ApplyVisualReverseDoubleCut(tree,nodes,diff,attrs,params) {
 function isEmptyReverseCut(n, nodes) {
 	var node = nodes.first();
 	// First try to move one cut deeper to allow for easier double cut removal
-	//if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2)
-	//	node = node.subtrees.head.val;
+	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2)
+		node = node.subtrees.head.val;
 
 	if (nodes.length === 1 && !node.isLeaf() && node.subtrees.length == 0 && node.leaves.length == 0 && node.parent) 
 		return true;
@@ -205,8 +205,8 @@ function validateReverseNCut(n, tree, nodes) {
 	var p;
 
 	// First try to move one cut deeper to allow for easier double cut removal
-	//if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2)
-	//	node = node.subtrees.head.val;
+	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2 && isEmptyReverseCut(n, nodes))
+		node = node.subtrees.head.val;
 
 	// if node is empty cut
 	var emptyCut = isEmptyReverseCut(n, nodes);
@@ -270,8 +270,8 @@ function addReverseNCut(n, tree, nodes) {
 	var tparent;
 
 	// First try to move one cut deeper to allow for easier double cut removal
-	//if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2)
-	//	node = node.subtrees.head.val;
+	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2 && isEmptyReverseCut(n, nodes))
+		node = node.subtrees.head.val;
 
 	// delete a cut
 	var reverseCut = function(reversableCut) {
