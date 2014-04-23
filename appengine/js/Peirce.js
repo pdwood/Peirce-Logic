@@ -73,9 +73,11 @@ window.onload = function() {
 	$('#goalbutton').click(function() {
 		if ($(this).attr('value') == 'goGoal') {
 			backNode = TheProof.current;
-			while ( TheProof.current.mode !== Proof.LOGIC_MODES.GOAL_MODE ) {
-				TheProof.prev();
+			node = TheProof.current;
+			while ( node.mode !== Proof.LOGIC_MODES.GOAL_MODE ) {
+				node = node.prev;
 			}
+			TheProof.select(node);
 			this.disabled = false;
 			this.innerHTML = 'Go Back';
 			$(this).attr('value', 'goBack');
@@ -98,7 +100,11 @@ window.onload = function() {
 
 	$('.loadProof').click( function( event ) {
 		TheProof.LoadProof($(this).find('#jsonProof').val());
-    $("#loadModal").modal('toggle');
+    	$("#loadModal").modal('toggle');
+	});
+
+	$('#tempButton').click( function( event ) {
+    	TheProof.getVarNames();
 	});
 
 	// window resizeing
