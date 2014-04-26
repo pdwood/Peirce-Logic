@@ -590,10 +590,27 @@ Proof.prototype.UIReset = function() {
 	}
 }
 
-Proof.prototype.getVarNames = function() {
-	var pn = this.front;
-	while (pn.next) {
-		pn = pn.next;
+Proof.prototype.getVarNames = function (root, currentList) {
+	if (root) {
+		if (root.ruleName == "Construction: Variable") {
+			var var_name = root.ruleParams.variable_name;
+			if (jQuery.inArray(var_name, currentList) == -1) {
+				currentList.push(var_name);
+			}
+		}
+		if (root.next.length !== 0) {
+			for (i in root.next) {
+				this.getVarNames(root.next[i].val, currentList);
+			}
+		}
 	}
-	D(pn);
 }
+
+Proof.prototype.var_list = function() {
+	var pn = this.front;
+	var varList = [];
+	this.getVarNames(pn, varList);
+	D(varList);
+	return varList;
+}
+

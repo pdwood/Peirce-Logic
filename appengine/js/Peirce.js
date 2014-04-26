@@ -104,7 +104,7 @@ window.onload = function() {
 	});
 
 	$('#tempButton').click( function( event ) {
-    	TheProof.getVarNames();
+    	TheProof.var_list();
 	});
 
 	// window resizeing
