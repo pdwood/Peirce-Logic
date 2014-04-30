@@ -92,10 +92,69 @@ window.onload = function() {
 		this.blur();
 	});
 
+	// set titles and what not when we open the modal
+	$('#saveButton').click( function( event ) {
+		$("#saveFormSubmit").html('Save Proof');
+		$("#saveFormSubmit").removeClass("btn-success");
+		$("#saveFormSubmit").addClass("btn-primary");
+	});
+
 	// run these before submission
 	$('#saveFormSubmit').click( function( event ) {
-		$('#serializedProof').val(TheProof.SaveProof());
-		$('#saveFormData').submit();
+
+		// tell people that we're trying to save
+		$("#saveFormSubmit").removeClass("btn-default");
+		$("#saveFormSubmit").addClass("btn-info");
+		$("#saveFormSubmit").html('Saving <div id="saveFormSubmitSpinner" class="three-quarters"></div>');
+
+		// check to make sure the proof title doesn't already exist in the db
+		function checkProofExists() {
+			var Dtitle = $("#saveFormTitle").val();
+			return $.ajax({
+				type: "GET",
+				url: "/saveproof",
+				data: { title: Dtitle }
+			});
+		}
+
+		checkProofExists()
+		.done( function(r) {
+			if(r == 0) {
+				var Dtitle = $("#saveFormTitle").val();
+				var Ddescription = $("#saveFormDesc").val();
+				var Dproof = TheProof.SaveProof();
+				$.ajax({
+					type: "POST",
+					url: "/saveproof",
+					data: { title: Dtitle, description: Ddescription, proof: Dproof }
+				});
+				// tell people that everything went well ( actually this doesn't check
+				// to make sure the server got everything good... but for now this is
+				// okay )
+				$("#saveFormSubmit").removeClass("btn-info");
+				$("#saveFormSubmit").addClass("btn-success");
+				$("#saveFormSubmit").html('Saved!');
+				// wait a bit and close/ cleanup
+				setTimeout(function() {
+					$("#saveModal").modal('hide');
+				}, 750);
+
+			} else {
+				$("#saveFormInputGroup").addClass("has-error");
+				$("#saveFormTitle").focus();
+				$('#saveFormTitle').tooltip({title: "This proof already exists!", placement:"left"});
+				$('#saveFormTitle').tooltip("show");
+				// clean up the errors
+				setTimeout(function() {
+					$('#saveFormTitle').tooltip("destroy");
+					$("#saveFormInputGroup").removeClass("has-error");
+				}, 2000);
+
+			}
+		})
+		.fail( function(x) {
+			D("we failed x:" + x);
+		});
 	});
 
 	$('.loadProof').click( function( event ) {

@@ -6,16 +6,17 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title">Save This Proof</h4>
 			</div>
-			<form id="saveFormData" action="/saveproof" method="post">
+			<form id="saveFormData">
 				<div class="modal-body">
-					<input name="saveFormTitle" id="saveFormTitle" type="text" class="form-control" placeholder="Untitled Proof">
-					<br />
-					<textarea name="saveFormDesc" id="saveFormDesc" class="form-control" rows="3" placeholder="Comments"></textarea>
-					<input id="serializedProof" type="hidden" name="serializedProof"></input>
+					<div class="form-group" id="saveFormInputGroup">
+						<input name="saveFormTitle" id="saveFormTitle" type="text" class="form-control" placeholder="Untitled Proof">
+					</div>
+						<br />
+						<textarea name="saveFormDesc" id="saveFormDesc" class="form-control" rows="3" placeholder="Comments"></textarea>
 				</div>
 				<div class="modal-footer">
 					<button type="submit" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					<button id="saveFormSubmit" class="btn btn-primary">Save Proof</button>
+					<button type="button" id="saveFormSubmit" class="btn btn-primary">Save Proof</button>
 				</div><!--modal-footer-->
 			</form>
 		</div><!--modal-content-->

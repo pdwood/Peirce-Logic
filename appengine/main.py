@@ -16,7 +16,7 @@ def userproofs_key(email=None):
     return ndb.Key('userproofs', email)
 
 class Proofs(ndb.Model):
-    title = ndb.StringProperty(indexed=False)
+    title = ndb.StringProperty(indexed=True)
     description = ndb.StringProperty(indexed=False)
     serializedProof = ndb.StringProperty(indexed=False)
 
@@ -55,13 +55,26 @@ class IndexHandler(webapp2.RequestHandler):
 
 class SaveTheProof(webapp2.RequestHandler):
 
+    def get(self):
+        user = users.get_current_user()
+        if(user):
+            title = self.request.get('title')
+            self.request.get('saveFormTitle')
+            qry = Proofs.query(ancestor=userproofs_key(user.email()))
+            qry2 = qry.filter(Proofs.title == title )
+            exists = qry2.fetch(1);
+            if(exists):
+                self.response.out.write(1)
+            else:
+                self.response.out.write(0);
+
     def post(self):
         user = users.get_current_user()
         if(user):
             proofData = Proofs(parent=userproofs_key(users.get_current_user().email()))
-            proofData.title = self.request.get('saveFormTitle')
-            proofData.description = self.request.get('saveFormDesc')
-            proofData.serializedProof = self.request.get('serializedProof')
+            proofData.title = self.request.get('title')
+            proofData.description = self.request.get('description')
+            proofData.serializedProof = self.request.get('proof')
             proofData.put()
 
         self.redirect('/')
