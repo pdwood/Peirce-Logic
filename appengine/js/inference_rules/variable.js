@@ -13,14 +13,22 @@ function ValidateVariable(tree, nodes) {
 
 function AddVariable(tree, nodes, params) {
 	var diff = NewDiff();
-
+	D("blah");
 	var variable_name = "UNKNOWN";
 	if(params && params.variable_name && params.variable_name.length) {
 		variable_name = params.variable_name;
 	} else {
 		var input_name = UIGetVariableName();
-		if(input_name && input_name.length)
+		D('This:');
+		D(input_name);
+		if(input_name && input_name.length) {
 			variable_name = input_name;
+			D(variable_name);
+		}
+		else {
+			D("Not working or something...");
+		}
+
 	}
 	if(!params)
 		params = {};
@@ -59,10 +67,37 @@ function UIGetVariableName() {
 	// 		variable_name = "EMPTY VARIABLE";
 	// 	}
 	// });
-	variable_name = window.prompt("Enter Variable Name");
-	variable_name = variable_name.replace(/^\s+|\s+$/g,"");
-	if(!variable_name.length)
-		variable_name = "UNKNOWN VARIABLE";
+	smoke.quiz("New Variable/Existing Variable", function(e){
+		if (e == "New"){
+			variable_name = smoke.prompt("Enter Variable Name", function(e) {
+				if (e) {
+					variable_name = "" + e;
+					variable_name = variable_name.replace(/^\s+|\s+$/g,"");
+					//D(variable_name);
+				}
+				else {
+					D("blah");
+					variable_name = "UNKNOWN VARIABLE";
+				}
 
+				}, {
+				reverse_buttons: true,
+				ok:"OK",
+				cancel:"Cancel"
+			});
+			
+		}
+		else if (e == "Existing"){
+			var list = TheProof.var_list();
+			for (i in list) {
+				D(list[i]);
+			}
+		}
+	}, {
+		button_1: "New",
+		button_2: "Existing",
+		button_cancel: "Cancel"
+	});
+	D(ReplaceWhitespace(variable_name));
 	return ReplaceWhitespace(variable_name);
 }
