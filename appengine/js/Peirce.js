@@ -144,6 +144,9 @@ window.onload = function() {
 				$("#saveFormTitle").focus();
 				$('#saveFormTitle').tooltip({title: "This proof already exists!", placement:"left"});
 				$('#saveFormTitle').tooltip("show");
+				$("#saveFormSubmit").html('Save Proof');
+				$("#saveFormSubmit").removeClass("btn-info");
+				$("#saveFormSubmit").addClass("btn-primary");
 				// clean up the errors
 				setTimeout(function() {
 					$('#saveFormTitle').tooltip("destroy");
