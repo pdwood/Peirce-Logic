@@ -89,16 +89,27 @@ body {
 	text-align: center;
 }
 
-.shadow:hover {
-  margin-top: -5px;
-  margin-left: -5px;
-  padding-bottom: 5px;
-  padding-right: 5px;
-  -moz-box-shadow:    4px 4px 0px 1px #ccc;
-  -webkit-box-shadow: 4px 4px 0px 1px #ccc;
-  box-shadow:         4px 4px 0px 1px #ccc;
+.shadow-blue:hover {
+	-moz-transition: box-shadow 200ms;
+	-webkit-transition: box-shadow 200ms;
+	transition: box-shadow 200ms;
+	-moz-box-shadow:    0px 0px 7px 0px #285e8e;
+	-webkit-box-shadow: 0px 0px 7px 0px #285e8e;
+	box-shadow:         0px 0px 7px 0px #285e8e;
 }
 
+.shadow-red:hover {
+	-moz-transition: box-shadow 200ms;
+	-webkit-transition: box-shadow 200ms;
+	transition: box-shadow 200ms;
+	-moz-box-shadow:    0px 0px 7px 0px #d43f3a;
+	-webkit-box-shadow: 0px 0px 7px 0px #d43f3a;
+	box-shadow:         0px 0px 7px 0px #d43f3a;
+}
+
+.loadable-proof {
+	padding: 10px;
+}
 .three-quarters-save {
 	width: 10px !important;
 	height: 10px !important;

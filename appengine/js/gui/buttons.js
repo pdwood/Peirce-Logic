@@ -152,22 +152,28 @@ $(document).ready( function() {
 			// loop over all proofs inserting them to html
 			for( var p = 0; p<r.length; ++p  ) {
 				curProof = r[p];
-				$('#availableProofs').html( $('#availableProofs').html()              +
-				'<div class="panel panel-default loadProof shadow">'                  +
-					'<div class="panel-body">'                                          +
-						'<h3>' + curProof.title + '</h3>'                                 +
-						'<blockquote>'                                                    +
-								'<p>' + curProof.description +'</p>'                          +
-						'</blockquote>'                                                   +
-						'<input type="hidden" id="json" value=\''+ curProof.proof +'\'/>' +
-					'</div>'                                                            +
-				'</div>'
+				$('#availableProofs').html( $('#availableProofs').html() +
+					'<li class="list-group-item">' +
+							'<div class="pull-right">' +
+									'<div class="btn-group">' +
+											'<button class="btn btn-default btn-xs shadow-blue proof-load">' +
+													'<span class="glyphicon glyphicon-folder-open"></span>' +
+											'</button>' +
+											'<button class="btn btn-danger btn-xs shadow-red">' +
+													'<span class="glyphicon glyphicon-trash"></span>' +
+											'</button>' +
+									'</div>' +
+							'</div>' +
+							'<strong>'+ curProof.title +'</strong> ' + curProof.description +
+					'</li>' +
+				'<input type="hidden" id="json" value=\''+ curProof.proof +'\'/>'
 				);
 			}
 
 			// when these get clicked load the proof
-			$('.loadProof').click( function( event ) {
-				TheProof.LoadProof($(this).find('#json').val());
+			$('.proof-load').click( function( event ) {
+				var proofData = $(this).parent().parent().parent().parent().find('#json').val();
+				TheProof.LoadProof(proofData);
 				$("#loadModal").modal('toggle');
 			});
 
