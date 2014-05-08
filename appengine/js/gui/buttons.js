@@ -203,7 +203,6 @@ $(document).ready( function() {
 							alert("something went horribly terribly wrong...");
 						} else {
 							// the proof exists, let's delete it!
-							D(proofTitle);
 							deleteProofByTitle(proofTitle).done( function(r) {
 								listItem.slideUp('fast', function() { $(this).remove(); });
 							});
