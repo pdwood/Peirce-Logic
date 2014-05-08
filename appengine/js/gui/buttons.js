@@ -4,16 +4,16 @@ $(document).ready( function() {
 	// should move this to another file soon
 	function requestProofByTitle( proofTitle ) {
 		return $.ajax({
-			type: "GET",
-			url: "/saveproof",
+			type: 'GET',
+			url: '/saveproof',
 			data: { title: proofTitle }
 		});
 	}
 	// should be using DELETE, but it failed for me.... FIXME
 	function deleteProofByTitle( proofTitle ) {
 		return $.ajax({
-			type: "GET",
-			url: "/deleteproof",
+			type: 'GET',
+			url: '/deleteproof',
 			data: { title: proofTitle }
 		});
 	}
@@ -21,8 +21,8 @@ $(document).ready( function() {
 	/* ----------------------------------------------------------------------- */
 	/* New Button ( clear all proof state )                                    */
 	/* ----------------------------------------------------------------------- */
-	$("#newButton").click(function () {
-		if( confirm( "All unsaved changed will be lost!" )) {
+	$('#newButton').click(function () {
+		if( confirm( 'All unsaved changed will be lost!' )) {
 			TheProof.Reset();
 			TheProof.Begin();
 		} else {
@@ -36,75 +36,75 @@ $(document).ready( function() {
 	/* ----------------------------------------------------------------------- */
 
 	// reset titles and what not when we open the modal
-	$('#saveButton').click( function( event ) {
-		$("#saveFormSubmit").html('Save Proof');
-		$("#saveFormSubmit").removeClass("btn-success");
-		$("#saveFormSubmit").addClass("btn-primary");
+	$('#saveButton').click( function() {
+		$('#saveFormSubmit').html('Save Proof');
+		$('#saveFormSubmit').removeClass('btn-success');
+		$('#saveFormSubmit').addClass('btn-primary');
 	});
 
 	// run these before submission
-	$('#saveFormSubmit').click( function( event ) {
+	$('#saveFormSubmit').click( function() {
 
 		// tell people that we're trying to save
-		$("#saveFormSubmit").removeClass("btn-default");
-		$("#saveFormSubmit").addClass("btn-info");
-		$("#saveFormSubmit").html('Saving <div id="saveFormSubmitSpinner"></div>');
-		$("#saveFormSubmitSpinner").addClass('three-quarters');
-		$("#saveFormSubmitSpinner").addClass('three-quarters-save');
+		$('#saveFormSubmit').removeClass('btn-default');
+		$('#saveFormSubmit').addClass('btn-info');
+		$('#saveFormSubmit').html('Saving <div id="saveFormSubmitSpinner"></div>');
+		$('#saveFormSubmitSpinner').addClass('three-quarters');
+		$('#saveFormSubmitSpinner').addClass('three-quarters-save');
 
 		// check to make sure the proof title doesn't already exist in the db
 
-		var Dtitle = $("#saveFormTitle").val();
+		var Dtitle = $('#saveFormTitle').val();
 		requestProofByTitle(Dtitle).done( function(r) {
-			if(r == 0) {
-				var Dtitle = $("#saveFormTitle").val();
-				var Ddescription = $("#saveFormDesc").val();
+			if(r === 0) {
+				var Dtitle = $('#saveFormTitle').val();
+				var Ddescription = $('#saveFormDesc').val();
 				var Dproof = TheProof.SaveProof();
 				$.ajax({
-					type: "POST",
-					url: "/saveproof",
+					type: 'POST',
+					url: '/saveproof',
 					data: { title: Dtitle, description: Ddescription, proof: Dproof }
 				});
 				// tell people that everything went well ( actually this doesn't check
 				// to make sure the server got everything good... but for now this is
 				// okay )
-				$("#saveFormSubmit").removeClass("btn-info");
-				$("#saveFormSubmit").addClass("btn-success");
-				$("#saveFormSubmit").html('Saved!');
+				$('#saveFormSubmit').removeClass('btn-info');
+				$('#saveFormSubmit').addClass('btn-success');
+				$('#saveFormSubmit').html('Saved!');
 				// wait a bit and close/ cleanup
 				setTimeout(function() {
-					$("#saveModal").modal('hide');
+					$('#saveModal').modal('hide');
 				}, 750);
 
 			} else {
-				$("#saveFormInputGroup").addClass("has-error");
-				$("#saveFormTitle").focus();
-				var tipProps = {title: "This proof already exists!", placement:"left"};
+				$('#saveFormInputGroup').addClass('has-error');
+				$('#saveFormTitle').focus();
+				var tipProps = {title: 'This proof already exists!', placement:'left'};
 				$('#saveFormTitle').tooltip(tipProps);
-				$('#saveFormTitle').tooltip("show");
-				$("#saveFormSubmit").html('Save Proof');
-				$("#saveFormSubmit").removeClass("btn-info");
-				$("#saveFormSubmit").addClass("btn-primary");
+				$('#saveFormTitle').tooltip('show');
+				$('#saveFormSubmit').html('Save Proof');
+				$('#saveFormSubmit').removeClass('btn-info');
+				$('#saveFormSubmit').addClass('btn-primary');
 				// clean up the errors
 				setTimeout(function() {
-					$('#saveFormTitle').tooltip("destroy");
-					$("#saveFormInputGroup").removeClass("has-error");
+					$('#saveFormTitle').tooltip('destroy');
+					$('#saveFormInputGroup').removeClass('has-error');
 				}, 2000);
 
 			}
 		})
 		.fail( function(x) {
-			D("we failed x:" + x);
+			D('we failed x:' + x);
 		});
 	});
 
 	/* ----------------------------------------------------------------------- */
 	/* Next and Previous buttons                                               */
 	/* ----------------------------------------------------------------------- */
-	$('#backwardtick').click(function(e) {
+	$('#backwardtick').click(function() {
 		TheProof.prev();
 	});
-	$('#forwardtick').click(function(e) {
+	$('#forwardtick').click(function() {
 		TheProof.next();
 	});
 
@@ -113,7 +113,7 @@ $(document).ready( function() {
 	/* ----------------------------------------------------------------------- */
 	var backNode;
 	$('#goalbutton').click(function() {
-		if ($(this).attr('value') == 'goGoal') {
+		if ($(this).attr('value') === 'goGoal') {
 			backNode = TheProof.current;
 			node = TheProof.current;
 			while ( node.mode !== Proof.LOGIC_MODES.GOAL_MODE ) {
@@ -138,13 +138,13 @@ $(document).ready( function() {
 	/* ----------------------------------------------------------------------- */
 	/* Load Button                                                             */
 	/* ----------------------------------------------------------------------- */
-	$('#loadButton').click( function( event ) {
+	$('#loadButton').click( function() {
 		$('#loadProofSpinner').show();
 		$('#availableProofs').html('<h1> Loading your proofs </h1>');
 		function requestUserProofs() {
 			return $.ajax({
-				type: "GET",
-				url: "/loadproof",
+				type: 'GET',
+				url: '/loadproof',
 			});
 		}
 
@@ -183,33 +183,33 @@ $(document).ready( function() {
 			}
 
 			// when load get clicked load the proof
-			$('.proof-load').click( function( event ) {
+			$('.proof-load').click( function() {
 				var listItem = $(this).parent().parent().parent();
 				var proofData = listItem.find('#json').val();
 				TheProof.LoadProof(proofData);
-				$("#loadModal").modal('toggle');
+				$('#loadModal').modal('toggle');
 			});
 
 			// when delete gets clicked delete the proof
-			$('.proof-delete').click( function( event ) {
+			$('.proof-delete').click( function() {
 				var listItem = $(this).parent().parent().parent();
 				var proofTitle = listItem.find('#title').val();
-				if( confirm( "Are you sure you want to delete '"+proofTitle+"'?" )) {
+				if( confirm( 'Are you sure you want to delete "'+proofTitle+'"?' )) {
 					// delete the proof
 					requestProofByTitle(proofTitle).done( function(r) {
-						if(r == 0) {
+						if(r === 0) {
 							// someone messed something up, tried to delete a proof that
 							// doesn't exist
-							alert("something went horribly terribly wrong...");
+							alert('something went horribly terribly wrong...');
 						} else {
 							// the proof exists, let's delete it!
-							deleteProofByTitle(proofTitle).done( function(r) {
+							deleteProofByTitle(proofTitle).done( function() {
 								listItem.slideUp('fast', function() { $(this).remove(); });
 							});
 						}
 					})
 					.fail( function(x) {
-						D("we failed x:" + x);
+						D('we failed x:' + x);
 					});
 				} else {
 					// fix the button state!
@@ -217,15 +217,15 @@ $(document).ready( function() {
 				}
 			});
 
-		})
+		});
 	});
 
 
 	/* ----------------------------------------------------------------------- */
 	/* Derek's temp button                                                     */
 	/* ----------------------------------------------------------------------- */
-	$('#tempButton').click( function( event ) {
-			TheProof.var_list();
+	$('#tempButton').click( function() {
+		TheProof.var_list();
 	});
 
 	/* ----------------------------------------------------------------------- */

@@ -44,3 +44,6 @@ Thumbs.db
 *~
 todo.txt
 
+# Node stuff #
+#############
+node_modules/*

@@ -3,13 +3,15 @@ var D = function(d) {
 	debug = d;
 	console.log(d);
 };
+D('Debug loaded');
+
 var R;
 
 window.onload = function() {
 	// global constants
 	Proof.SetupConstants();
 	PLANE_VOFFSET = 0; // used to position things onto main plane
-	BOOTSTRAP_HEIGHT = $(".navbar").outerHeight(); // header height
+	BOOTSTRAP_HEIGHT = $('.navbar').outerHeight(); // header height
 	PLANE_VOFFSET += 50;
 	MODE_BUTTON_HEIGHT = 22; // height of mode status button
 	TIMELINE_HEIGHT = 100;
@@ -24,28 +26,32 @@ window.onload = function() {
 	TIMELINE_CANVAS_HEIGHT = function() { return TIMELINE_HEIGHT; };
 
 	// main raphael paper
-	R = Raphael("paper", PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
+	R = new Raphael('paper', PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
 
 	// ui minimap
 	minimap = new Minimap(R);
 
 	// ui timeline
-	Timeline = Raphael('timeline', '100%', TIMELINE_CANVAS_HEIGHT());
+	Timeline = new Raphael('timeline', '100%', TIMELINE_CANVAS_HEIGHT());
 
 	// main proof
 	TheProof = new Proof(R);
+
 	// add ui reactors to proof events
-	AddUIReactors(TheProof);
+	new AddUIReactors(TheProof);
+
 	// add cookie storing reactor
 	TheProof.addReactor(Proof.EVENTS.SELECT_NODE, function(proof) {
-		sessionStorage.setItem("PeirceLogicTempProof", proof.SaveProof());
+		sessionStorage.setItem('PeirceLogicTempProof', proof.SaveProof());
 	});
 
 	// load temp proof if in sessionStorage
-	if(sessionStorage.getItem("PeirceLogicTempProof"))
-		TheProof.LoadProof(sessionStorage.getItem("PeirceLogicTempProof"));
-	else // start new proof
+	if(sessionStorage.getItem('PeirceLogicTempProof')) {
+		TheProof.LoadProof(sessionStorage.getItem('PeirceLogicTempProof'));
+	// start new proof
+	} else {
 		TheProof.Begin();
+	}
 
 	// ui context menu
 	ContextMenu = new ContextHandler(R, TheProof);
