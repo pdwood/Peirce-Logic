@@ -1,6 +1,23 @@
 // on document ready start up all the button hooks
 $(document).ready( function() {
 
+	// should move this to another file soon
+	function requestProofByTitle( proofTitle ) {
+		return $.ajax({
+			type: "GET",
+			url: "/saveproof",
+			data: { title: proofTitle }
+		});
+	}
+	// should be using DELETE, but it failed for me.... FIXME
+	function deleteProofByTitle( proofTitle ) {
+		return $.ajax({
+			type: "GET",
+			url: "/deleteproof",
+			data: { title: proofTitle }
+		});
+	}
+
 	/* ----------------------------------------------------------------------- */
 	/* New Button ( clear all proof state )                                    */
 	/* ----------------------------------------------------------------------- */
@@ -36,16 +53,9 @@ $(document).ready( function() {
 		$("#saveFormSubmitSpinner").addClass('three-quarters-save');
 
 		// check to make sure the proof title doesn't already exist in the db
-		function checkProofExists() {
-			var Dtitle = $("#saveFormTitle").val();
-			return $.ajax({
-				type: "GET",
-				url: "/saveproof",
-				data: { title: Dtitle }
-			});
-		}
 
-		checkProofExists().done( function(r) {
+		var Dtitle = $("#saveFormTitle").val();
+		requestProofByTitle(Dtitle).done( function(r) {
 			if(r == 0) {
 				var Dtitle = $("#saveFormTitle").val();
 				var Ddescription = $("#saveFormDesc").val();
@@ -130,6 +140,7 @@ $(document).ready( function() {
 	/* ----------------------------------------------------------------------- */
 	$('#loadButton').click( function( event ) {
 		$('#loadProofSpinner').show();
+		$('#availableProofs').html('<h1> Loading your proofs </h1>');
 		function requestUserProofs() {
 			return $.ajax({
 				type: "GET",
@@ -154,27 +165,57 @@ $(document).ready( function() {
 				curProof = r[p];
 				$('#availableProofs').html( $('#availableProofs').html() +
 					'<li class="list-group-item">' +
-							'<div class="pull-right">' +
-									'<div class="btn-group">' +
-											'<button class="btn btn-default btn-xs shadow-blue proof-load">' +
-													'<span class="glyphicon glyphicon-folder-open"></span>' +
-											'</button>' +
-											'<button class="btn btn-danger btn-xs shadow-red">' +
-													'<span class="glyphicon glyphicon-trash"></span>' +
-											'</button>' +
-									'</div>' +
+						'<div class="pull-right">' +
+							'<div class="btn-group">' +
+								'<button class="btn btn-default btn-xs shadow-blue proof-load">' +
+									'<span class="glyphicon glyphicon-folder-open"></span>' +
+								'</button>' +
+								'<button class="btn btn-danger btn-xs shadow-red proof-delete">' +
+									'<span class="glyphicon glyphicon-trash"></span>' +
+								'</button>' +
 							'</div>' +
-							'<strong>'+ curProof.title +'</strong> ' + curProof.description +
-					'</li>' +
-				'<input type="hidden" id="json" value=\''+ curProof.proof +'\'/>'
+						'</div>' +
+						'<strong>'+ curProof.title +'</strong> ' + curProof.description +
+						'<input type="hidden" id="json" value=\''+ curProof.proof +'\'>' +
+						'<input type="hidden" id="title" value="'+ curProof.title +'">' +
+					'</li>'
 				);
 			}
 
-			// when these get clicked load the proof
+			// when load get clicked load the proof
 			$('.proof-load').click( function( event ) {
-				var proofData = $(this).parent().parent().parent().parent().find('#json').val();
+				var listItem = $(this).parent().parent().parent();
+				var proofData = listItem.find('#json').val();
 				TheProof.LoadProof(proofData);
 				$("#loadModal").modal('toggle');
+			});
+
+			// when delete gets clicked delete the proof
+			$('.proof-delete').click( function( event ) {
+				var listItem = $(this).parent().parent().parent();
+				var proofTitle = listItem.find('#title').val();
+				if( confirm( "Are you sure you want to delete '"+proofTitle+"'?" )) {
+					// delete the proof
+					requestProofByTitle(proofTitle).done( function(r) {
+						if(r == 0) {
+							// someone messed something up, tried to delete a proof that
+							// doesn't exist
+							alert("something went horribly terribly wrong...");
+						} else {
+							// the proof exists, let's delete it!
+							D(proofTitle);
+							deleteProofByTitle(proofTitle).done( function(r) {
+								listItem.slideUp('fast', function() { $(this).remove(); });
+							});
+						}
+					})
+					.fail( function(x) {
+						D("we failed x:" + x);
+					});
+				} else {
+					// fix the button state!
+					this.blur();
+				}
 			});
 
 		})

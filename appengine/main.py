@@ -48,7 +48,6 @@ class SaveTheProof(webapp2.RequestHandler):
         user = users.get_current_user()
         if(user):
             title = self.request.get('title')
-            self.request.get('saveFormTitle')
             qry = Proofs.query(ancestor=userproofs_key(user.email()))
             qry2 = qry.filter(Proofs.title == title )
             exists = qry2.fetch(1);
@@ -66,7 +65,7 @@ class SaveTheProof(webapp2.RequestHandler):
             proofData.proof = self.request.get('proof')
             proofData.put()
 
-class LoadTheProof(webapp2.RequestHandler):
+class LoadProofs(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         if(user):
@@ -78,8 +77,21 @@ class LoadTheProof(webapp2.RequestHandler):
             self.response.headers['Content-Type'] = 'application/json'
             self.response.out.write(json.dumps(prooflist))
 
+class DeleteTheProof(webapp2.RequestHandler):
+
+    def get(self):
+        user = users.get_current_user()
+        if(user):
+            title = self.request.get('title')
+            qry = Proofs.query(ancestor=userproofs_key(user.email()))
+            qry2 = qry.filter(Proofs.title == title )
+            terminalProof = qry2.fetch(1)
+            tpKey = terminalProof[0].put();
+            tpKey.delete();
+
 app = webapp2.WSGIApplication([
     ('/', IndexHandler),
     ('/saveproof', SaveTheProof),
-    ('/loadproof', LoadTheProof)
+    ('/loadproof', LoadProofs),
+    ('/deleteproof', DeleteTheProof)
 ], debug=True)
