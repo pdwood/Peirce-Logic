@@ -94,9 +94,9 @@ body {
   margin-left: -5px;
   padding-bottom: 5px;
   padding-right: 5px;
-  -moz-box-shadow:    4px 4px 5px 2px #ccc;
-  -webkit-box-shadow: 4px 4px 5px 2px #ccc;
-  box-shadow:         4px 4px 5px 2px #ccc;
+  -moz-box-shadow:    4px 4px 0px 1px #ccc;
+  -webkit-box-shadow: 4px 4px 0px 1px #ccc;
+  box-shadow:         4px 4px 0px 1px #ccc;
 }
 
 .three-quarters-save {
