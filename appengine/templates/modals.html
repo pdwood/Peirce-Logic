@@ -31,12 +31,11 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title">Load A Proof</h4>
 			</div>
-			<div class="modal-body">
-				{% for proof in proofList %}
-				{{ proof }}
-				{% endfor %}
+			<div class="modal-body" id="availableProofs">
+				<!-- Here goes the proofs -->
 			</div>
 			<div class="modal-footer">
+				<div id="loadProofSpinner" class="three-quarters load-state"></div>
 				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 			</div><!--modal-footer-->
 		</div><!--modal-content-->
@@ -53,11 +52,9 @@
 			</div>
 			<div class="modal-body">
 				<div class="structs">
-					
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type = 
 				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 			</div><!--modal-footer-->
 		</div><!--modal-content-->

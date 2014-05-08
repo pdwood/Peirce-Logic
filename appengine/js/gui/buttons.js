@@ -31,7 +31,9 @@ $(document).ready( function() {
 		// tell people that we're trying to save
 		$("#saveFormSubmit").removeClass("btn-default");
 		$("#saveFormSubmit").addClass("btn-info");
-		$("#saveFormSubmit").html('Saving <div id="saveFormSubmitSpinner" class="three-quarters"></div>');
+		$("#saveFormSubmit").html('Saving <div id="saveFormSubmitSpinner"></div>');
+		$("#saveFormSubmitSpinner").addClass('three-quarters');
+		$("#saveFormSubmitSpinner").addClass('three-quarters-save');
 
 		// check to make sure the proof title doesn't already exist in the db
 		function checkProofExists() {
@@ -126,16 +128,58 @@ $(document).ready( function() {
 	/* ----------------------------------------------------------------------- */
 	/* Load Button                                                             */
 	/* ----------------------------------------------------------------------- */
-	$('.loadProof').click( function( event ) {
-		TheProof.LoadProof($(this).find('#jsonProof').val());
-    	$("#loadModal").modal('toggle');
+	$('#loadButton').click( function( event ) {
+		$('#loadProofSpinner').show();
+		function requestUserProofs() {
+			return $.ajax({
+				type: "GET",
+				url: "/loadproof",
+			});
+		}
+
+		requestUserProofs().done( function(r) {
+			$('#loadProofSpinner').hide();
+			// if there are no proofs
+			if(r.length === 0) {
+				$('#availableProofs').html('<h1> You have no saved proofs! </h1>');
+				return;
+			}
+
+			// proofs exist
+			// clear the html within the modal
+			$('#availableProofs').html('');
+
+			// loop over all proofs inserting them to html
+			for( var p = 0; p<r.length; ++p  ) {
+				curProof = r[p];
+				$('#availableProofs').html( $('#availableProofs').html()              +
+				'<div class="panel panel-default loadProof shadow">'                  +
+					'<div class="panel-body">'                                          +
+						'<h3>' + curProof.title + '</h3>'                                 +
+						'<blockquote>'                                                    +
+								'<p>' + curProof.description +'</p>'                          +
+						'</blockquote>'                                                   +
+						'<input type="hidden" id="json" value=\''+ curProof.proof +'\'/>' +
+					'</div>'                                                            +
+				'</div>'
+				);
+			}
+
+			// when these get clicked load the proof
+			$('.loadProof').click( function( event ) {
+				TheProof.LoadProof($(this).find('#json').val());
+				$("#loadModal").modal('toggle');
+			});
+
+		})
 	});
+
 
 	/* ----------------------------------------------------------------------- */
 	/* Derek's temp button                                                     */
 	/* ----------------------------------------------------------------------- */
 	$('#tempButton').click( function( event ) {
-    	TheProof.var_list();
+			TheProof.var_list();
 	});
 
 	/* ----------------------------------------------------------------------- */

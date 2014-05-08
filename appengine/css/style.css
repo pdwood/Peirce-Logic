@@ -99,11 +99,16 @@ body {
   box-shadow:         4px 4px 5px 2px #ccc;
 }
 
-.three-quarters {
-	height: 10px !important;
+.three-quarters-save {
 	width: 10px !important;
+	height: 10px !important;
 	border-width: 2px !important;
 	border-top-color: #FFF !important;
-	border-bottom-color: #FFF !important;
 	border-left-color: #FFF !important;
+	border-bottom-color: #FFF !important;
+}
+
+.load-state {
+	margin: 0 auto;
+	float: left;
 }
