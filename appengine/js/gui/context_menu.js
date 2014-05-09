@@ -5,8 +5,8 @@ function ContextHandler(R, Proof) {
 	this.paper = R;
 	this.proof = Proof;
 	this.selectedUINodes = new List();
-	this.prev_x = undefined;
-	this.prev_y = undefined;
+	this.prevX = undefined;
+	this.prevY = undefined;
 	this.context = undefined;
 	this.multiactive = false;
 	this.ShowMultiStatus();
@@ -78,15 +78,15 @@ ContextHandler.prototype.ActivateMultiContext = function() {
 	
 	// create context
 	if(this.selectedUINodes.length)
-		this.NewContextMulti(this.selectedUINodes,this.prev_x,this.prev_y);
+		this.NewContextMulti(this.selectedUINodes,this.prevX,this.prevY);
 	this.selectedUINodes = new List();
 };
 
 // single clicks in multi selects
 ContextHandler.prototype.SingleClickHandler = function(uinode,x,y,event) {
 	if (this.multiactive) {
-		this.prev_x = x;
-		this.prev_y = y;
+		this.prevX = x;
+		this.prevY = y;
 		this.toggleSelection(uinode);
 	} else {
 		if(event.which == 3 || event.type == "dblclick") { // right click and double click
