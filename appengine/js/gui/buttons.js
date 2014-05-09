@@ -56,7 +56,7 @@ $(document).ready( function() {
 
 		var Dtitle = $('#saveFormTitle').val();
 		requestProofByTitle(Dtitle).done( function(r) {
-			if(r === 0) {
+			if(r === '0') {
 				var Dtitle = $('#saveFormTitle').val();
 				var Ddescription = $('#saveFormDesc').val();
 				var Dproof = TheProof.SaveProof();
@@ -197,7 +197,7 @@ $(document).ready( function() {
 				if( confirm( 'Are you sure you want to delete "'+proofTitle+'"?' )) {
 					// delete the proof
 					requestProofByTitle(proofTitle).done( function(r) {
-						if(r === 0) {
+						if(r === '0') {
 							// someone messed something up, tried to delete a proof that
 							// doesn't exist
 							alert('something went horribly terribly wrong...');
