@@ -2,11 +2,11 @@
 // Inference rules for allowing inserting anything into a even cut creating odd leveled nodes
 
 function touchInsertionAttribute(tree) {
-	var ia = tree.getAttribute("insertion");
+	var ia = tree.getAttribute('insertion');
 	if(!ia) {
-		tree.addAttribute("insertion", {});
-		ia = tree.getAttribute("insertion");
-	}	
+		tree.addAttribute('insertion', {});
+		ia = tree.getAttribute('insertion');
+	}
 	return ia;
 }
 
@@ -30,23 +30,24 @@ function SetOriginalInsertionSet(tree, inode) {
 	ia.originalNodes = {};
 	inode.fmap(function(node) { ia.originalNodes[node.getIdentifier()] = true; });
 	delete ia.originalNodes[inode.getIdentifier()];
-}	
-	
+}
+
 function NodeInOriginalInsertionSet(tree, node) {
 	var onodes = GetOriginalInsertionSet(tree);
-	if(node.getIdentifier() in onodes)
+	if(node.getIdentifier() in onodes) {
 		return true;
+	}
 	return false;
-}	
+}
 
 function ClearInsertionAttributes(tree) {
-	tree.removeAttribute("insertion");
+	tree.removeAttribute('insertion');
 }
-	
+
 function ValidateInsertionStart(tree, nodes) {
 	return nodes.length === 1 &&  NodesAllHaveParent(nodes) && NodesAllOddLevel(nodes);
-}	
-	
+}
+
 function ApplyInsertionStart(tree, nodes) {
 	var diff = NewDiff();
 
@@ -54,13 +55,13 @@ function ApplyInsertionStart(tree, nodes) {
 	var inode = nodes.first(); // insertion node
 	SetInsertionNode(tree, inode);
 	SetOriginalInsertionSet(tree, inode);
-	
+
 	return {tree: tree, diff: diff};
 }
 
 function ApplyVisualInsertionStart(tree, nodes, diff, attrs) {
 	var inodeID = GetInsertionNode(tree).getIdentifier();
-	attrs[inodeID]["stroke-dasharray"] = "--";
+	attrs[inodeID]['stroke-dasharray'] = '--';
 	return {attrs: attrs};
 }
 
@@ -70,15 +71,16 @@ function ValidateInsertionEnd(tree, nodes) {
 
 function ApplyInsertionEnd(tree, nodes) {
 	var diff = NewDiff();
-	ClearInsertionAttributes(tree);	
+	ClearInsertionAttributes(tree);
 	return {tree: tree, diff: diff};
 }
 
 function ApplyVisualInsertionEnd(tree, nodes, diff, attrs) {
 	for(var id in attrs) {
 		var attr = attrs[id];
-		if("stroke-dasharray" in attr && attr["stroke-dasharray"] == "--")
-			attr["stroke-dasharray"] = "";
+		if('stroke-dasharray' in attr && attr['stroke-dasharray'] === '--') {
+			attr['stroke-dasharray'] = '';
+		}
 	}
 	return {attrs: attrs};
 }
@@ -93,9 +95,9 @@ function NodesInInsertionSubtree(tree,nodes) {
 			// find insertion ancesto
 			var p = node;
 			while(p) {
-				if(p.getIdentifier() == inode.getIdentifier()) {
+				if(p.getIdentifier() === inode.getIdentifier()) {
 					inInsertion = true;
-					break;				
+					break;
 				}
 				p = p.parent;
 			}
@@ -131,53 +133,10 @@ function ValidateNotOnInsertionRule(ruleValidator) {
 		var includesInsertionNode = false;
 		var inodeID = GetInsertionNode(tree).getIdentifier();
 		nodes.iterate(function(node) {
-			if(node.getIdentifier() == inodeID) {
+			if(node.getIdentifier() === inodeID) {
 				includesInsertionNode = true;
 			}
 		});
 		return !includesInsertionNode && ruleValidator(tree, nodes);
 	};
 }
-
-/*
-InferenceRule.prototype.insertion = function (proof, rule_name, nodes) {
-	var node = nodes.begin().val;
-
-	var osubtrees = new List();
-	node.subtrees.iterate(function (node) {
-		osubtrees.push_back(node.getIdentifier());
-	});
-	var oleaves = new List();
-	node.leaves.iterate(function (node) {
-		oleaves.push_back(node.getIdentifier());
-	});
-
-	data = {'Nodes':[node.getIdentifier()],
-			'OriginalSubtrees':osubtrees,
-			'OriginalLeaves':oleaves};
-
-	proof.addNode(rule_name+' Start',this.RuleToId(rule_name+' Start'),nodes,thunk,proof.LOGIC_MODES.INSERTION_MODE);
-};
-
-InferenceRule.prototype.insertion_for = function (mode) {
-	return function(inf){
-	return function(proof, nodes) {
-		inf.insertion(proof, mode, nodes);
-	};
-	}(this);
-};
-
-InferenceRule.prototype.insertion_thunk_enter = function(rule_name) {
-	return function(proofnode) {
-		var node = proofnode.plane.getChildByIdentifier(this.data.Nodes[0]);
-		node.shape.attr({'stroke-dasharray': '--'});
-	};
-};
-
-InferenceRule.prototype.insertion_thunk_exit = function(rule_name) {
-	return function(proofnode) {
-		var node = proofnode.plane.getChildByIdentifier(this.data.Nodes[0]);
-		node.shape.attr({'stroke-dasharray': ""});
-	};
-};
-*/

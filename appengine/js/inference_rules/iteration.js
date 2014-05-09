@@ -33,11 +33,11 @@ function shareAncestor(node_source, node_dest) {
 }
 
 function ValidateIteration(tree, nodes) {
-	if (nodes.length==2){
+	if( nodes.length === 2 ){
 		var sd = getSourceAndDestination(nodes);
 		var node_source = sd.source;
 		var node_dest = sd.dest;
-	
+
 		if (!node_dest.isLeaf()) {
 			// find out if from same ancestor root
 			if(shareAncestor(node_source, node_dest)) {
@@ -49,8 +49,9 @@ function ValidateIteration(tree, nodes) {
 }
 
 function ValidateInsertionIteration(tree, nodes) {
-	if(!ValidateIteration(tree,nodes))
+	if(!ValidateIteration(tree,nodes)) {
 		return false;
+	}
 
 	// validate destination node is not in orignal insertion set
 	// source node can be anywhere in insertion subtree
@@ -61,7 +62,7 @@ function ValidateInsertionIteration(tree, nodes) {
 
 function AddIteration(tree, nodes) {
 	var diff = NewDiff();
-	
+
 	var sd = getSourceAndDestination(nodes);
 	var source = sd.source;
 	var dest = sd.dest;
@@ -72,8 +73,7 @@ function AddIteration(tree, nodes) {
 	// add to destination
 	if (!sourceDup.isLeaf()) {
 		child = dest.takeNewSubtree(sourceDup);
-	}
-	else {		
+	} else {
 		child = dest.takeNewLeaf(sourceDup);
 	}
 	diff.additions = child.preOrderFlattenToIDs();
@@ -83,9 +83,11 @@ function AddIteration(tree, nodes) {
 function ApplyVisualIteration(tree,nodes,diff,attrs,params) {
 	var sd = getSourceAndDestination(nodes);
 	var source = sd.source;
-	
+
 	var point = PullPointFromParams(params);
-	if(!point) return null;
+	if(!point) {
+		return null;
+	}
 
 	// get all source points in an pre-order
 	var sourcePoints = [];
@@ -93,9 +95,11 @@ function ApplyVisualIteration(tree,nodes,diff,attrs,params) {
 		var attr = attrs[node.getIdentifier()];
 		sourcePoints.push(NewPoint(attr.x, attr.y));
 	});
+
 	// calculate shift to input point
-	var deltaPoint = NewPoint(point.x - sourcePoints[0].x, 
-							  point.y - sourcePoints[0].y);
+	var deltaPoint = NewPoint(point.x - sourcePoints[0].x,
+														point.y - sourcePoints[0].y);
+
 	// map source points across to input destination area
 	for(var i in sourcePoints) {
 		var id = diff.additions[i];
@@ -109,7 +113,7 @@ function ApplyVisualIteration(tree,nodes,diff,attrs,params) {
 }
 
 function ValidateDeiteration(tree, nodes) {
-	if (nodes.length==2) {
+	if( nodes.length === 2 ) {
 		var sd = getSourceAndDestination(nodes);
 		var node_source = sd.source;
 		var node_dest = sd.dest;
