@@ -26,8 +26,9 @@ function ApplyVisualDoubleCut(tree,nodes,diff,attrs,params) {
 }
 
 function validateNCut(n, tree, nodes) {
-	if(NodesAllHaveParent(nodes) && NodesAllSameParent(nodes))
+	if(NodesAllHaveParent(nodes) && NodesAllSameParent(nodes)) {
 		return true;
+	}
 	return false;
 }
 
@@ -68,7 +69,8 @@ function applyVisualNCut(n, tree, nodes, diff, attrs, params) {
 	// pull top most cut by deepest level
 	var parentNode;
 	var topLevel = -1;
-	for(var i in diff.additions) {
+	var i;
+	for(i in diff.additions) {
 		var node = tree.getChildByIdentifier(diff.additions[i]);
 		if(node.getLevel() > topLevel) {
 			topLevel = node.getLevel();
@@ -78,8 +80,11 @@ function applyVisualNCut(n, tree, nodes, diff, attrs, params) {
 
 	// setup added cuts
 	var point = ChildrenCentroidPoint(tree,parentNode,attrs);
-	if(!point) return null;
-	for(var i in diff.additions) {
+	if(!point) {
+		return null;
+	}
+
+	for(i in diff.additions) {
 		AddPointToID(point, diff.additions[i], attrs);
 	}
 
@@ -114,10 +119,11 @@ function ApplyVisualEmptyDoubleCut(tree,nodes,diff,attrs,params) {
 }
 
 function validateEmptyNCut(n, tree, nodes) {
-	if(nodes.length == 1) {
+	if(nodes.length === 1) {
 		var node = nodes.first();
-		if(!node.isLeaf())
+		if(!node.isLeaf()) {
 			return true;
+		}
 	}
 	return false;
 }
@@ -125,7 +131,7 @@ function validateEmptyNCut(n, tree, nodes) {
 
 function addEmptyNCut(n, tree, nodes) {
 	var diff = NewDiff();
-	
+
 	// add cuts
 	var p = nodes.first().addSubtree();
 	diff.additions.push(p);
@@ -141,12 +147,14 @@ function addEmptyNCut(n, tree, nodes) {
 
 function applyVisualEmptyNCut(n, tree, nodes, diff, attrs, params) {
 	var point = PullPointFromParams(params);
-	if(!point) return null;
+	if(!point) {
+		return null;
+	}
 
 	for(var i in diff.additions) {
 		AddPointToID(point, diff.additions[i], attrs);
 	}
-	
+
 	return {attrs: attrs};
 }
 
@@ -188,16 +196,18 @@ function ApplyVisualReverseDoubleCut(tree,nodes,diff,attrs,params) {
 function isEmptyReverseCut(n, nodes) {
 	var node = nodes.first();
 	// First try to move one cut deeper to allow for easier double cut removal
-	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2)
+	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2) {
 		node = node.subtrees.head.val;
+	}
 
-	if (nodes.length === 1 && !node.isLeaf() && node.subtrees.length == 0 && node.leaves.length == 0 && node.parent) 
+	if (nodes.length === 1 && !node.isLeaf() && node.subtrees.length === 0 && node.leaves.length === 0 && node.parent) {
 		return true;
+	}
 	return false;
 }
 
 function validateReverseNCut(n, tree, nodes) {
-	if(nodes.length == 0 || !((NodesAllHaveParent(nodes) && NodesAllSameParent(nodes)))) {
+	if(nodes.length === 0 || !((NodesAllHaveParent(nodes) && NodesAllSameParent(nodes)))) {
 		return false;
 	}
 	// validate nested n cuts
@@ -205,38 +215,46 @@ function validateReverseNCut(n, tree, nodes) {
 	var p;
 
 	// First try to move one cut deeper to allow for easier double cut removal
-	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2 && isEmptyReverseCut(n, nodes))
+	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2 && isEmptyReverseCut(n, nodes)) {
 		node = node.subtrees.head.val;
+	}
 
 	// if node is empty cut
 	var emptyCut = isEmptyReverseCut(n, nodes);
-	if (emptyCut)
+	if (emptyCut) {
 		p = node;
-	else // reverse cut from parent
+	} else {
+		// reverse cut from parent
 		p = node.parent;
+	}
 	n--;
 	// parent cannot be root
-	if(!p || (!p.parent && n<=0)) return false;
+	if(!p || (!p.parent && n<=0)) {
+		return false;
+	}
 	// go up cuts
-	while(n>0){
+	while(n>0) {
 		p = p.parent;
 		n--;
 		// check if just a cut with one cut inside it
-		if(!p || !(p.parent && !p.leaves.length && p.subtrees.length == 1))
+		if(!p || !(p.parent && !p.leaves.length && p.subtrees.length === 1)) {
 			return false;
+		}
 	}
 
 	// validate all children are chosen for inside reverse cut
 	p = nodes.first().parent;
-	if(emptyCut ||  p.subtrees.length + p.leaves.length === nodes.length)
+	if(emptyCut ||  p.subtrees.length + p.leaves.length === nodes.length) {
 		return true;
+	}
 	return false;
 }
 
 // validate reverse cut does not reach out of insertion node
 function validateInsertionReverseNCut(n, tree, nodes) {
-	if(!(ValidateInsertion(tree,nodes) && validateReverseNCut(n,tree,nodes)))
+	if(!(ValidateInsertion(tree,nodes) && validateReverseNCut(n,tree,nodes))) {
 		return false;
+	}
 
 	// collect all removed nodes
 	var node = nodes.first();
@@ -249,10 +267,11 @@ function validateInsertionReverseNCut(n, tree, nodes) {
 	// collect reverse cuts down
 	// if node is empty cut
 	var emptyCut = isEmptyReverseCut(n, nodes);
-	if (emptyCut)
+	if (emptyCut) {
 		tparent = node;
-	else // reverse cut from parent
+	} else {// reverse cut from parent
 		tparent = node.parent;
+	}
 	reverseCutCollect(tparent);
 	while(n>0) {
 		tparent = tparent.parent;
@@ -270,32 +289,35 @@ function addReverseNCut(n, tree, nodes) {
 	var tparent;
 
 	// First try to move one cut deeper to allow for easier double cut removal
-	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2 && isEmptyReverseCut(n, nodes))
+	if (node.leaves.length === 0 && node.subtrees.length === 1 && n === 2 && isEmptyReverseCut(n, nodes)) {
 		node = node.subtrees.head.val;
+	}
 
 	// delete a cut
 	var reverseCut = function(reversableCut) {
 		diff.deletions.push(reversableCut.getIdentifier());
 		var itr = reversableCut.parent.subtrees.contains(reversableCut);
-		reversableCut.parent.subtrees.erase(itr);		
+		reversableCut.parent.subtrees.erase(itr);
 		n--;
 	};
 
 	// reverse cuts down
 	// if node is empty cut
 	var emptyCut = isEmptyReverseCut(n, nodes);
-	if (emptyCut)
+	if (emptyCut) {
 		tparent = node;
-	else // reverse cut from parent
+	} else {
+		// reverse cut from parent
 		tparent = node.parent;
+	}
 	reverseCut(tparent);
 	while(n>0) {
 		tparent = tparent.parent;
 		reverseCut(tparent);
-	}	
+	}
 	// beginning of reversing cuts
 	var tgrandparent = tparent.parent;
-				
+
 	// change nodes' parent
 	if(!emptyCut) {
 		nodes.iterate(function(node) {
@@ -303,8 +325,7 @@ function addReverseNCut(n, tree, nodes) {
 			var newNode;
 			if(!node.isLeaf()) {
 				newNode = tgrandparent.takeNewSubtree(node);
-			}
-			else {
+			} else {
 				newNode = tgrandparent.takeNewLeaf(node);
 			}
 
