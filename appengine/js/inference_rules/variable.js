@@ -67,7 +67,9 @@ function UIGetVariableName() {
 	// 		variable_name = "EMPTY VARIABLE";
 	// 	}
 	// });
-	smoke.quiz("New Variable/Existing Variable", function(e){
+	
+
+	/*smoke.quiz("New Variable/Existing Variable", function(e){
 		if (e == "New"){
 			variable_name = smoke.prompt("Enter Variable Name", function(e) {
 				if (e) {
@@ -97,6 +99,34 @@ function UIGetVariableName() {
 		button_1: "New",
 		button_2: "Existing",
 		button_cancel: "Cancel"
+	});*/
+
+	bootbox.dialog({
+		title: 'Add Variable',
+		message: 'New Variable or Existing Variable?',
+		buttons: {
+			'New': function() {
+				bootbox.prompt('Enter new variable name', function(e) {
+					if (e === null) {
+						variable_name = "UNKNOWN VARIABLE";
+					}
+					else {
+						variable_name = "" + e;
+						variable_name = variable_name.replace(/^\s+|\s+$/g,"");
+					}
+					
+				});
+				
+			},
+			'Existing': function() {
+				var list = TheProof.var_list();
+				for (i in list) {
+					D(list[i]);
+				}
+				
+			},
+			'Close': function() {}
+		}
 	});
 	D(ReplaceWhitespace(variable_name));
 	return ReplaceWhitespace(variable_name);
