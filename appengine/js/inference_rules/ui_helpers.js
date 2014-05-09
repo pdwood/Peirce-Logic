@@ -6,15 +6,16 @@ function NewPoint(x, y) {
 }
 
 function PullPointFromParams(params) {
-	if(params && "point" in params && "x" in params.point && "y" in params.point) {
+	if(params && 'point' in params && 'x' in params.point && 'y' in params.point) {
 		return NewPoint(params.point.x, params.point.y);
 	}
 	return null;
 }
 
 function AddPointToID(point, id, attrs) {
-	if(!(id in attrs))
+	if(!(id in attrs)) {
 		attrs[id] = {};
+	}
 	attrs[id].x = point.x;
 	attrs[id].y = point.y;
 	return attrs;
@@ -23,17 +24,19 @@ function AddPointToID(point, id, attrs) {
 function AddAttrs(ids, attrs) {
 	for(var i in ids) {
 		var id = ids[i];
-		if(!(id in attrs))
+		if(!(id in attrs)) {
 			attrs[id] = {};
+		}
 	}
 }
 
 function DeleteAttrs(ids, attrs) {
 	for(var i in ids) {
 		var id = ids[i];
-		if(id in attrs)
+		if(id in attrs) {
 			delete attrs[id];
-	}	
+		}
+	}
 }
 
 function ShiftAttrs(ids, attrs) {
@@ -42,7 +45,7 @@ function ShiftAttrs(ids, attrs) {
 
 		var prevID = idc[0];
 		id = idc[1];
-		
+
 		if(prevID in attrs) {
 			var attr = attrs[prevID];
 			delete attrs[prevID];

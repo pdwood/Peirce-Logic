@@ -71,38 +71,45 @@ function NewDiff() {
 // changes diff made of nodes into diff made of node ids
 function NodeDiffToIdDiff(diff) {
 	var idiff = NewDiff();
+	var i;
 	// additions:[Node] -> [ids]
-	for(var i in diff.additions) {
+	for(i in diff.additions) {
 		var a = diff.additions[i];
-		if(IsString(a)) // ignore ids
+		if(IsString(a)) {
+			 // ignore ids
 			idiff.additions.push(a);
-		else
+		} else {
 			idiff.additions.push(a.getIdentifier());
+		}
 	}
 	// deletions:[Node] -> [ids]
-	for(var i in diff.deletions) {
+	for(i in diff.deletions) {
 		var d = diff.deletions[i];
-		if(IsString(d)) // ignore ids
+		if(IsString(d)) {
+			// ignore ids
 			idiff.deletions.push(d);
-		else
+		} else {
 			idiff.deletions.push(d.getIdentifier());
+		}
 	}
 	// changes: [[oldid,newNode]] [[oldid,newid]]
-	for(var i in diff.changes) {
+	for(i in diff.changes) {
 		var c = diff.changes[i];
-		if(IsString(c[1])) // ignore new ids
+		if(IsString(c[1])) {
+			// ignore new ids
 			idiff.changes.push(c);
-		else
+		} else {
 			idiff.changes.push([c[0], c[1].getIdentifier()]);
+		}
 	}
 	return idiff;
-} 
+}
 
 // update attrs with diff information
 function UpdateAttrsWithDiff(attrs, diff) {
 	// remove attrs
 	DeleteAttrs(diff.deletions, attrs);
-	
+
 	// shift attrs
 	ShiftAttrs(diff.changes, attrs);
 
