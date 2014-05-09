@@ -13,27 +13,32 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 	var level = null;
 	var parent = null;
 	var iteration_nodes = null;
+	var name;
+	var mode_name;
 	nodes.iterate(function(node) {
-		if(level == 0) {
+		if(level === 0) {
 			level = (node.getLevel())%2;
-			if(level == 1)
+			if(level === 1) {
 				all_even_level = false;
-			else
+			} else {
 				all_odd_level = false;
+			}
 		}
-		else if((node.getLevel())%2!=level){
+		else if((node.getLevel())%2 !== level) {
 			all_even_level = false;
 			all_odd_level = false;
 		}
 		if(!parent) {
 			parent = node.parent;
 		}
-		else if (!(node.parent === parent)) {
+		else if(node.parent !== parent) {
 			all_same_parent = false;
 		}
-		if(!parent) all_have_parent = false;
+		if(!parent) {
+			all_have_parent = false;
+		}
 	});
-	if (nodes.length==2){
+	if (nodes.length===2) {
 		var node1 = nodes.begin().val;
 		var node2 = nodes.begin().next.val;
 		var node_source;
@@ -58,8 +63,9 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 				ancestor = ancestor.parent;
 			}
 			if(share_ancestor) {
-				if(!node_dest.isLeaf())
+				if(!node_dest.isLeaf()) {
 					iterable = true;
+				}
 				iteration_nodes = new List();
 				iteration_nodes.push_back(node_source);
 				iteration_nodes.push_back(node_dest);
@@ -87,9 +93,10 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 	}
 
 
-	if(current_mode === logic_modes.PREMISE_MODE || current_mode === logic_modes.INSERTION_MODE
-		|| current_mode === logic_modes.GOAL_MODE) {
-		var mode_name = 'Construction: ';
+	if(current_mode === logic_modes.PREMISE_MODE ||
+		 current_mode === logic_modes.INSERTION_MODE ||
+		 current_mode === logic_modes.GOAL_MODE) {
+		mode_name = 'Construction: ';
 		var out_of_plane = false;
 		var in_orig_set = false;
 		var ok_in_orig_set = null;
@@ -105,19 +112,22 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 					contains_insertion_plane = true;
 					return;
 				}
-				if((thk.data.OriginalSubtrees.contains(node.getIdentifier())
-					|| thk.data.OriginalLeaves.contains(node.getIdentifier()))
-					&& node !== ok_in_orig_set)
+				if((thk.data.OriginalSubtrees.contains(node.getIdentifier()) ||
+						thk.data.OriginalLeaves.contains(node.getIdentifier())) &&
+						node !== ok_in_orig_set) {
 					in_orig_set = true;
+				}
 
 				var p = node.parent;
 				while(p!==null) {
-					if(p.getIdentifier()===thk.data.Node)
+					if(p.getIdentifier()===thk.data.Node) {
 						return;
-					if((thk.data.OriginalSubtrees.contains(p.getIdentifier())
-						|| thk.data.OriginalLeaves.contains(p.getIdentifier()))
-						&& p !== ok_in_orig_set)
+					}
+					if((thk.data.OriginalSubtrees.contains(p.getIdentifier()) ||
+							thk.data.OriginalLeaves.contains(p.getIdentifier())) &&
+							p !== ok_in_orig_set) {
 						in_orig_set = true;
+					}
 					p = p.parent;
 				}
 				out_of_plane = true;
@@ -126,89 +136,87 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 
 		}
 		if(!out_of_plane && !in_orig_set) {
-			if(nodes.length==1) {
+			if(nodes.length===1) {
 				node = nodes.begin().val;
 				if(!node.isLeaf()) {
-					//var name = mode_name+'PL Statement';
-					//methods[name] = this.PL_statement_for(name);
-					var name = mode_name+'Variable';
+					name = mode_name+'Variable';
 					methods[name] = this.variable_for(name);
-					var name = mode_name+'Empty Cut';
+					name = mode_name+'Empty Cut';
 					methods[name] = this.empty_n_cut_for(1,name);
-					var name = mode_name+'Empty Double Cut';
+					name = mode_name+'Empty Double Cut';
 					methods[name] = this.empty_n_cut_for(2,name);
 				}
 			}
-			else if (nodes.length==2 && iteration_nodes && !contains_insertion_plane) {
+			else if (nodes.length===2 && iteration_nodes && !contains_insertion_plane) {
 				if(iterable) {
-					var name = mode_name+'Iteration';
+					name = mode_name+'Iteration';
 					methods[name] = this.iteration_for(iteration_nodes,name);
 				}
 				if(deiterable) {
-					var name = mode_name+'Deiteration';
+					name = mode_name+'Deiteration';
 					methods[name] = this.deiteration_for(iteration_nodes,name);
 				}
 			}
 			if(all_same_parent && all_have_parent && !ok_in_orig_set && !contains_insertion_plane) {
-				var name = mode_name+'Cut';
+				name = mode_name+'Cut';
 				methods[name] = this.n_cut_for(1,name);
-				var name = mode_name+'Double Cut';
+				name = mode_name+'Double Cut';
 				methods[name] = this.n_cut_for(2,name);
 				if(this.validate_reverse_n_cut(1,nodes)) {
-					var name = mode_name+'Reverse Cut';
+					name = mode_name+'Reverse Cut';
 					methods[name] = this.reverse_n_cut_for(1,name);
 				}
 				if(this.validate_reverse_n_cut(2,nodes) &&
 					(current_mode !== logic_modes.INSERTION_MODE ||
 						nodes.begin().val.parent.parent.getIdentifier()!==this.thunk.data.Node)) {
-					var name = mode_name+'Reverse Double Cut';
+					name = mode_name+'Reverse Double Cut';
 					methods[name] = this.reverse_n_cut_for(2,name);
 				}
 			}
 			if(all_have_parent && !ok_in_orig_set && !contains_insertion_plane) {
-				var name = mode_name+'Erasure';
+				name = mode_name+'Erasure';
 				methods[name] = this.erasure_for(name);
 			}
 		}
 	}
 
 
-	if(current_mode == logic_modes.PROOF_MODE) {
-		var mode_name = 'Proof: ';
-		if(nodes.length==1) {
+	if(current_mode === logic_modes.PROOF_MODE) {
+		mode_name = 'Proof: ';
+		if(nodes.length===1) {
 			node = nodes.begin().val;
 			if(!node.isLeaf()) {
-				var name = mode_name+'Empty Double Cut';
+				name = mode_name+'Empty Double Cut';
 				methods[name] = this.empty_n_cut_for(2,name);
 			}
 		}
 		if(all_same_parent && all_have_parent) {
-			var name = mode_name+'Double Cut';
+			name = mode_name+'Double Cut';
 			methods[name] = this.n_cut_for(2,name);
 			if(this.validate_reverse_n_cut(2,nodes)) {
-				var name = mode_name+'Reverse Double Cut';
+				name = mode_name+'Reverse Double Cut';
 				methods[name] = this.reverse_n_cut_for(2,name);
 			}
 		}
-		if (nodes.length==2 && iteration_nodes) {
+		if (nodes.length===2 && iteration_nodes) {
 			if(iterable) {
-				var name = mode_name+'Iteration';
+				name = mode_name+'Iteration';
 				methods[name] = this.iteration_for(iteration_nodes,name);
 			}
 			if(deiterable) {
-				var name = mode_name+'Deiteration';
+				name = mode_name+'Deiteration';
 				methods[name] = this.deiteration_for(iteration_nodes,name);
 			}
 		}
-		if(nodes.length==1) {
+		if(nodes.length===1) {
 			node = nodes.begin().val;
 			if(all_odd_level && !node.isLeaf()) {
-				var name = mode_name+'Insertion';
+				name = mode_name+'Insertion';
 				methods[name] = this.insertion_for(name);
 			}
 		}
 		if(all_odd_level && all_have_parent) {
-			var name = mode_name+'Erasure';
+			name = mode_name+'Erasure';
 			methods[name] = this.erasure_for(name);
 		}
 	}
@@ -216,7 +224,7 @@ InferenceRule.prototype.AvailableRules = function(proof,nodes) {
 };
 
 function NodesAllEvenLevel(nodes) {
-	for(var itr=nodes.begin(); itr != nodes.end(); itr = itr.next) {
+	for(var itr=nodes.begin(); itr !== nodes.end(); itr = itr.next) {
 		var node = itr.val;
 		if((node.getLevel())%2 === 1) {
 			return false;
@@ -226,7 +234,7 @@ function NodesAllEvenLevel(nodes) {
 }
 
 function NodesAllOddLevel(nodes) {
-	for(var itr=nodes.begin(); itr != nodes.end(); itr = itr.next) {
+	for(var itr=nodes.begin(); itr !== nodes.end(); itr = itr.next) {
 		var node = itr.val;
 		if((node.getLevel())%2 === 0) {
 			return false;
@@ -237,26 +245,27 @@ function NodesAllOddLevel(nodes) {
 
 function NodesAllSameLevel(nodes) {
 	var level = null;
-	for(var itr=nodes.begin(); itr != nodes.end(); itr = itr.next) {
+	for(var itr=nodes.begin(); itr !== nodes.end(); itr = itr.next) {
 		if(level === null) {
 			level = node.getLevel();
 			continue;
 		}
 		var node = itr.val;
-		if(node.getLevel() != level)
+		if(node.getLevel() !== level) {
 			return false;
+		}
 	}
 	return true;
 }
 
 function NodesAllSameParent(nodes) {
 	var parent = null;
-	for(var itr=nodes.begin(); itr != nodes.end(); itr = itr.next) {
+	for(var itr=nodes.begin(); itr !== nodes.end(); itr = itr.next) {
 		if(!parent) {
 			parent = node.parent;
 			continue;
 		}
-		if (!(node.parent === parent)) {
+		if(node.parent !== parent) {
 			return false;
 		}
 	}
@@ -264,7 +273,7 @@ function NodesAllSameParent(nodes) {
 }
 
 function NodesAllHaveParent(nodes) {
-	for(var itr=nodes.begin(); itr != nodes.end(); itr = itr.next) {
+	for(var itr=nodes.begin(); itr !== nodes.end(); itr = itr.next) {
 		if(!node.parent) {
 			return false;
 		}
