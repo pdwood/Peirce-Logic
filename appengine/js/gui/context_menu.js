@@ -66,8 +66,7 @@ ContextHandler.prototype.ShowMultiStatus = function() {
 		document.getElementById('MultiSelectStatus').innerHTML = '<button id="MultiSelectStatusButton" class="btn navbar-btn btn-info">Multi-Select On</button>';
 	} else {
 		document.getElementById('MultiSelectStatus').innerHTML = '<button id="MultiSelectStatusButton" class="btn navbar-btn btn-default">Multi-Select Off</button>';
-	}	
-	var self = this;
+	}
 	document.getElementById('MultiSelectStatusButton').onclick = this.ToggleMultiActive();
 };
 
@@ -75,10 +74,12 @@ ContextHandler.prototype.ActivateMultiContext = function() {
 	this.selectedUINodes.iterate( function (uinode) {
 		uinode.setSelected(false);
 	});
-	
+
 	// create context
-	if(this.selectedUINodes.length)
+	if(this.selectedUINodes.length) {
 		this.NewContextMulti(this.selectedUINodes,this.prevX,this.prevY);
+	}
+
 	this.selectedUINodes = new List();
 };
 
@@ -89,7 +90,7 @@ ContextHandler.prototype.SingleClickHandler = function(uinode,x,y,event) {
 		this.prevY = y;
 		this.toggleSelection(uinode);
 	} else {
-		if(event.which == 3 || event.type == "dblclick") { // right click and double click
+		if(event.which === 3 || event.type === 'dblclick') { // right click and double click
 			this.NewContext(uinode,x,y);
 		}
 	}
@@ -98,7 +99,9 @@ ContextHandler.prototype.SingleClickHandler = function(uinode,x,y,event) {
 
 ContextHandler.prototype.toggleSelection = function(uinode) {
 	// Can't select the top level
-	if(!uinode.node.parent) return;
+	if(!uinode.node.parent) {
+		return;
+	}
 	// toggle visual on or off
 	if(this.selectedUINodes.contains(uinode)) {
 		uinode.setSelected(false);
@@ -109,10 +112,12 @@ ContextHandler.prototype.toggleSelection = function(uinode) {
 
 	// remove or add uinode
 	var listItr = this.selectedUINodes.contains(uinode);
-	if(!listItr)
+	if(!listItr) {
 		this.selectedUINodes.push_back(uinode);
-	else 
+	}
+	else {
 		this.selectedUINodes.erase(listItr);
+	}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +127,8 @@ function Context(R,Proof,nodes,x,y) {
 	this.paper = R;
 	this.proof = Proof;
 	this.nodes = nodes || null;
-	this.x = x; this.y = y;
+	this.x = x;
+	this.y = y;
 
 	this.menu_items = this.paper.set();
 	this.items = {};
@@ -140,7 +146,7 @@ Context.prototype.addItem = function(name,func) {
 };
 
 Context.prototype.setup = function() {
-	var valid_rules = ValidateInferenceRules(this.rules,this.nodes);
+	var valid_rules = new ValidateInferenceRules(this.rules,this.nodes);
 	for(var k in valid_rules) {
 		this.addItem(k,valid_rules[k]);
 	}
@@ -149,7 +155,10 @@ Context.prototype.setup = function() {
 // render context menu
 Context.prototype.show = function() {
 	var n = this.num_items; //shorthand variable
-	if (n===0) return; //return for no items
+	//return for no items
+	if (n===0) {
+		return;
+	}
 	//get longest menu item name length
 	var max_length = 0;
 	for(var x in this.items) {
@@ -166,16 +175,27 @@ Context.prototype.show = function() {
 	//set correct initial x and y values
 	//fit overflow from width
 	var ox;
-	if(this.x+offset+width+tol > this.paper._viewBox[0] + this.paper._viewBox[2])
+	if(this.x+offset+width+tol > this.paper._viewBox[0] + this.paper._viewBox[2]) {
 		ox = this.x-(width+tol)+offset; // offset to the right if past right edge
-	else
+	} else {
 		ox = this.x+offset;
+	}
 	//fit overflow from height
 	var oy;
-	if(this.y+offset+partition*n+tol > this.paper._viewBox[1] + this.paper._viewBox[3] - this.paper.canvas.offsetTop)
-		oy = this.y-(partition*n+tol)+offset; // offset up if past the bottom edge
-	else
+	if(this.y+offset+partition*n+tol > this.paper._viewBox[1] + this.paper._viewBox[3] - this.paper.canvas.offsetTop) {
+		// offset up if past the bottom edge
+		oy = this.y-(partition*n+tol)+offset;
+	} else {
 		oy = this.y+offset;
+	}
+
+	menu_click = function(self_ref, ruleName, nodes, ex, ey) {
+		return function() {
+			var visualParams = {point: {x: ex, y: ey}};
+			self_ref.proof.useRuleOnCurrentStep(ruleName, nodes, null, visualParams);
+			self_ref.close();
+		};
+	};
 
 	var c=0; //item counter
 	for(x in this.items) {
@@ -184,28 +204,20 @@ Context.prototype.show = function() {
 		//construct menu box
 		menu_item.push(
 			this.paper.rect(ox, y, width, partition)
-			.attr({stroke:"#000",fill: "#aabbcc", "stroke-width": 1, "text":"asdf"})
+			.attr({stroke:'#000',fill: '#aabbcc', 'stroke-width': 1, 'text':'asdf'})
 		);
 		//construct menu text
 		menu_item.push(
 			this.paper.text((ox+ox+width)/2,
 							(y+y+partition)/2,
 							x)
-			.attr({"font-size":font_size})
+			.attr({'font-size':font_size})
 		);
-		
+
 		var self = this;
 		//set up menu button click function
 		menu_item.click(
-			//closure that creates function that executes button function at mouse event
-			//then closes menu
-			(function(ruleName, nodes, ex, ey) {
-				return function() { 
-					var visualParams = {point: {x: ex, y: ey}};
-					self.proof.useRuleOnCurrentStep(ruleName, nodes, null, visualParams);
-					self.close();
-				};
-			})(x, this.nodes, this.x, this.y)
+			menu_click(self, x, this.nodes, this.x, this.y)
 		);
 
 		this.menu_items.push(menu_item); //push button into menu_items set
