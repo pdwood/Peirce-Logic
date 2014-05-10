@@ -225,7 +225,7 @@ $(document).ready( function() {
 	/* Derek's temp button                                                     */
 	/* ----------------------------------------------------------------------- */
 	$('#tempButton').click( function() {
-		TheProof.var_list();
+		//TheProof.var_list();
 	});
 
 	/* ----------------------------------------------------------------------- */
