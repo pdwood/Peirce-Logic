@@ -276,10 +276,10 @@ Proof.prototype.applyInferenceRule = function(mode, currTree, currAttrs, ruleNam
 	currNodes.iterate(function(node) {
 		nodes.push_back(dtree.getChildByIdentifier(node.getIdentifier()));
 	});
-	
+
 	// apply rule
 	var ruleState = rule.applyRule(dtree, nodes, currRuleParams);
-	if(!(ruleState || ruleState.tree || ruleState.diff))
+	if(!ruleState || !ruleState.tree || !ruleState.diff)
 		return null;
 	var tree = ruleState.tree;
 	var diff = ruleState.diff;
