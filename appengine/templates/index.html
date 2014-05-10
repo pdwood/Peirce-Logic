@@ -15,7 +15,7 @@
 				<span class="icon-bar"></span>
 			</button>
 			<div class="collapse navbar-collapse">
-				<ul class="nav navbar-nav">
+				<ul class="nav navbar-nav navbar-left">
 					<li>
 						<div class="btn-group" id="FileOptions">
 							<button id="newButton" type="button" class="btn navbar-btn btn-success">
@@ -53,12 +53,12 @@
 						<span id="MultiSelectStatus"></span>
 					</li>
 				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<button id="goalbutton" type="button" class="btn btn-danger navbar-btn" disabled=true value="goGoal">See Goal</button>
+					<button id="tourbutton" type="button" class="btn btn-primary navbar-btn">Take the tour!</button>
+					<span id="login">{{greeting}}</span>
+				</ul>
 			</div>
-			<ul class="nav navbar-nav navbar-right">
-				<button id="goalbutton" type="button" class="btn btn-danger navbar-btn" disabled=true value="goGoal">See Goal</button>
-				<button id="tourbutton" type="button" class="btn btn-primary navbar-btn">Take the tour!</button>
-				<span id="login">{{greeting}}</span>
-			</ul>
 		</div>    <!-- End of navbar-container -->
 	</div>
 	<div id="paper"></div>
