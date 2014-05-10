@@ -53,7 +53,7 @@ List.prototype.push_front = function(x) {
 };
 
 List.prototype.pop_front = function() {
-	if(this.head === null) return null;
+	if(this.head === null) { return null; }
 	if(this.head.next === null) {
 		this.tail = null;
 	} else {
@@ -67,11 +67,11 @@ List.prototype.pop_front = function() {
 
 //returns pointer to next in list
 List.prototype.erase = function(p) {
-	if(p === null) return null;
-	if(p.next !== null) p.next.prev = p.prev;
-	if(p.prev !== null) p.prev.next = p.next;
-	if(this.head == p) this.head = p.next;
-	if(this.tail == p) this.tail = p.prev;
+	if(p === null) { return null; }
+	if(p.next !== null) { p.next.prev = p.prev; }
+	if(p.prev !== null) { p.prev.next = p.next; }
+	if(this.head === p) { this.head = p.next; }
+	if(this.tail === p) { this.tail = p.prev; }
 	this.length--;
 	return p.next;
 };
@@ -93,10 +93,13 @@ List.prototype.insert = function(p, x) {
 
 List.prototype.contains = function(value) {
 	var itr = this.skipUntil(function(x) {
-		return(x === value);
+		return (x === value);
 	});
-	if(itr == this.end()) return false;
-	else return itr;
+	if(itr === this.end()) {
+		return false;
+	} else {
+		return itr;
+	}
 };
 
 List.prototype.first = function() {
@@ -137,7 +140,7 @@ List.prototype.append = function(l) {
 //iterate applicator
 List.prototype.iterate = function(iterate_func) {
 	var itr = this.begin();
-	while(itr != this.end()) {
+	while(itr !== this.end()) {
 		iterate_func(itr.val);
 		itr = itr.next;
 	}
@@ -146,8 +149,8 @@ List.prototype.iterate = function(iterate_func) {
 //iterate until condtion is true, return location or end
 List.prototype.skipUntil = function(cond_func) {
 	var itr = this.begin();
-	while(itr != this.end()) {
-		if(cond_func(itr.val)) break;
+	while(itr !== this.end()) {
+		if(cond_func(itr.val)) { break; }
 		itr = itr.next;
 	}
 	return itr;
@@ -156,26 +159,25 @@ List.prototype.skipUntil = function(cond_func) {
 
 //merge sort function, pass the less then function, should presurve pointers to list (though it will change the order)
 List.prototype.sort = function(less_then_func) {
-	if(this.length === 0) return;
+	if(this.length === 0)  { return; }
 
 	var merge_queue = new List();
 	var itr = this.head;
 
 	//break list for merge sort and do the first step
-	while(itr != this.end()) {
-		if(itr.next == this.end()) {
+	while(itr !== this.end()) {
+		if(itr.next === this.end()) {
 			itr.prev = itr.next = null;
 			merge_queue.push_back(itr);
 			break;
 		}
+		var p = itr.next.next;
 		if(less_then_func(itr.val, itr.next.val)) {
 			merge_queue.push_back(itr);
 			itr.prev = null;
-			var p = itr.next.next;
 			itr.next.next = null;
 			itr = p;
 		} else {
-			var p = itr.next.next;
 			itr.prev = itr.next;
 			itr.next.next = itr;
 			itr.next.prev = null;
@@ -185,11 +187,11 @@ List.prototype.sort = function(less_then_func) {
 		}
 	}
 	//merge sort the list
-	while(merge_queue.length != 1) {
+	while(merge_queue.length !== 1) {
 		var merge_itr = merge_queue.head;
 		var temp_queue = new List();
-		while(merge_itr != merge_queue.end()) {
-			if(merge_itr.next == merge_queue.end()) {
+		while(merge_itr !== merge_queue.end()) {
+			if(merge_itr.next === merge_queue.end()) {
 				temp_queue.push_back(merge_itr.val);
 				break;
 			}
@@ -233,6 +235,6 @@ List.prototype.sort = function(less_then_func) {
 	}
 	//fix the head and tail of the sorted list
 	this.head = merge_queue.head.val;
-	for(itr = this.head; itr.next != this.end(); itr = itr.next) {}
+	for(itr = this.head; itr.next !== this.end(); itr = itr.next) {}
 	this.tail = itr;
 };
