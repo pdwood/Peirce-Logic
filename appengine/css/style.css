@@ -19,10 +19,6 @@ body {
 	-ms-touch-action: none !important;
 }
 
-.username {
-	color: #00FF00;
-}
-
 @media(max-width:767px) {
 	body {
 		padding-right: 0px;
@@ -110,4 +106,9 @@ body {
 .load-state {
 	margin: 0 auto;
 	float: left;
+}
+
+.no-padding {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
 }

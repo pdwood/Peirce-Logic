@@ -55,8 +55,27 @@
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<button id="goalbutton" type="button" class="btn btn-danger navbar-btn" disabled=true value="goGoal">See Goal</button>
-					<button id="tourbutton" type="button" class="btn btn-primary navbar-btn">Take the tour!</button>
-					<span id="login">{{greeting}}</span>
+					<div class="btn-group" id="rightButts">
+						<div class="btn-group no-padding" id="infoButt">
+							<button type="button" class="btn navbar-btn btn-default dropdown-toggle" data-toggle="dropdown" id="helpButt">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</button>
+							<ul class="dropdown-menu" role="menu">
+								<li><a id="tourbutton" href="#">Take the tour!</a></li>
+							</ul>
+						</div>
+						<div class="btn-group no-padding" id="cogButt">
+							<button type="button" class="btn navbar-btn btn-default dropdown-toggle" data-toggle="dropdown" id="settingsButt">
+								<span class="glyphicon glyphicon-cog"></span>
+							</button>
+							<ul class="dropdown-menu" role="menu">
+								{% if username %}
+									<li><a href="#">{{username}}</a></li>
+								{% endif %}
+								<li>{{logButt}}</li>
+							</ul>
+						</div>
+					</div>
 				</ul>
 			</div>
 		</div>    <!-- End of navbar-container -->

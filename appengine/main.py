@@ -29,15 +29,18 @@ class IndexHandler(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         if user:
-            greeting = ('Welcome, <a href="#" class="username">%s!</a> (<a href="%s">Sign out</a>)' %
-                       (user.nickname(), users.create_logout_url('/')))
+            logButt = ('<a href="%s">Sign out</a>' %
+                       users.create_logout_url('/'))
+            username = user.nickname()
         else:
-            greeting = ('<a href="%s">Sign in or register</a>.' %
+            logButt = ('<a href="%s">Sign in</a>' %
                        users.create_login_url('/'))
+            username = None
 
         template_values = {
             "user": user,
-            "greeting": greeting
+            "logButt": logButt,
+            "username": username
         }
         template = jinja_environment.get_template('templates/index.html')
         self.response.out.write(template.render(template_values))
