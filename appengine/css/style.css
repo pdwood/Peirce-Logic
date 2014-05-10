@@ -13,21 +13,21 @@ svg:not(:root) {
 }
 
 body {
-    background: url(../img/patternlight.png);
+	background: url(../img/patternlight.png);
 	padding-top: 51px;
 	/* stop native surface actions */
 	-ms-touch-action: none !important;
 }
 
 .username {
-    color: #00FF00;
+	color: #00FF00;
 }
 
 @media(max-width:767px) {
-    body {
-        padding-right: 0px;
-        padding-left: 0px;
-    }
+	body {
+		padding-right: 0px;
+		padding-left: 0px;
+	}
 
 }
 
@@ -47,35 +47,22 @@ body {
 	margin-right:15px;
 }
 
-/* #play-buttons { */
-/*     position: absolute; */
-/*     z-index: 2; */
-/* } */
-
 #ModeLink {
-    font-size: 16px;
-    color: white;
-    margin-top: 0px;
-    -webkit-border-radius: 1px;
-    -moz-border-radius: 1px;
-    border-radius: 1px;
-    text-align: center;
-    -moz-user-select: none;
-    -webkit-user-select: none;
+	font-size: 16px;
+	color: white;
+	margin-top: 0px;
+	-webkit-border-radius: 1px;
+	-moz-border-radius: 1px;
+	border-radius: 1px;
+	text-align: center;
+	-moz-user-select: none;
+	-webkit-user-select: none;
 	cursor: default;
 }
 
-/* #MultiSelectStatus { */
-/* 	display: inline-block; */
-/* } */
-
-/* #FileOptions, #proofplayer { */
-/* 	margin-top:4px; */
-/* } */
-
 .navbar {
-    background: url(../img/patterndark.png);
-    margin-bottom: 0px;
+	background: rgba(248,248,248,.9);
+	margin-bottom: 0px;
 	position: absolute;
 }
 
