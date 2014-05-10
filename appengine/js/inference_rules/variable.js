@@ -71,7 +71,6 @@ function UIGetVariableName() {
 
 	// clear whitespace
 	variable_name = ReplaceWhitespace(variable_name);
-	D(variable_name);
 	return variable_name;
 
 //	bootbox.dialog({
