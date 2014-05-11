@@ -109,6 +109,13 @@ body {
 	padding-right: 0 !important;
 }
 
+#goalAlert {
+	position: fixed;
+	left: 109px;
+	top: 53px;
+	z-index: 1;
+}
+
 .bottom-butts {
 	margin: auto;
 	vertical-align: middle;

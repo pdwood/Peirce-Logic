@@ -575,7 +575,13 @@ Proof.prototype.automated_check = function(pnode) {
 	var eq = gnode.nodeTree.equals(pnode.nodeTree);
 	//gnode.plane.compressTree();
 	if(eq) {
-		alert('Goal has been reached!');
+		$('#goalAlert').html(
+			"<div class='alert alert-success alert-dismissable'>" +
+				"<button type='button' class='close' data-dismiss='alert'>&times;</button>" +
+					"<strong>The Goal has been reached!</strong>" +
+				"</button>" +
+			"</div>"
+		);
 	}
 	//gnode.deconstructUI();
 };
