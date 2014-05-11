@@ -12,8 +12,9 @@ window.onload = function() {
 	Proof.SetupConstants();
 	PLANE_VOFFSET = 0; // used to position things onto main plane
 	BOOTSTRAP_HEIGHT = $('.navbar').outerHeight(); // header height
+	BOTTOM_BUTT_HEIGHT = $('.bottom-butts').outerHeight(); // header height
 	PLANE_VOFFSET += 50;
-	MODE_BUTTON_HEIGHT = 22; // height of mode status button
+	MODE_BUTTON_HEIGHT = 32; // height of mode status button
 	TIMELINE_HEIGHT = 100;
 	DEFAULT_PLANE_WIDTH = 5000;
 	DEFAULT_PLANE_HEIGHT = 5000;
@@ -21,7 +22,7 @@ window.onload = function() {
 	DEFAULT_CHILD_HEIGHT = 50;
 	DEFAULT_CURVATURE = 20;
 	PLANE_CANVAS_WIDTH = function() { return $(window).width(); };
-	PLANE_CANVAS_HEIGHT = function() { return $(window).height() -BOOTSTRAP_HEIGHT -MODE_BUTTON_HEIGHT -TIMELINE_HEIGHT; };
+	PLANE_CANVAS_HEIGHT = function() { return $(window).height() -BOOTSTRAP_HEIGHT -MODE_BUTTON_HEIGHT -TIMELINE_HEIGHT -BOTTOM_BUTT_HEIGHT; };
 	TIMELINE_CANVAS_WIDTH = PLANE_CANVAS_WIDTH;
 	TIMELINE_CANVAS_HEIGHT = function() { return TIMELINE_HEIGHT; };
 
