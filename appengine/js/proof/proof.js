@@ -575,7 +575,7 @@ Proof.prototype.automated_check = function(pnode) {
 	var eq = gnode.nodeTree.equals(pnode.nodeTree);
 	//gnode.plane.compressTree();
 	if(eq) {
-		smoke.alert('Reached Goal');
+		alert('Goal has been reached!');
 	}
 	//gnode.deconstructUI();
 };
