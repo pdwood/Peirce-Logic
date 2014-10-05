@@ -1,16 +1,20 @@
 {
-	"name": "Peirce-Logic",
-	"version": "0.0.0",
-	"devDependencies": {
-		"grunt": "~0.4.4",
-		"grunt-contrib-jshint": "~0.7.1",
-		"grunt-contrib-watch": "~0.5.2",
-		"coffee-script": ">= 1.7",
-		"time-grunt": "~0.2.1",
-		"jshint-stylish": "~0.1.3",
-		"load-grunt-tasks": "~0.2.0"
+  "name": "Peirce-Logic",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/CurryBoy/Peirce-Logic.git"
 	},
-	"engines": {
-		"node": ">=0.8.0"
-	}
+  "devDependencies": {
+    "coffee-script": ">= 1.7",
+    "grunt": "~0.4.4",
+    "grunt-contrib-jshint": "~0.7.1",
+    "grunt-contrib-watch": "~0.5.2",
+    "grunt-gae": "^0.2.4",
+    "jshint-stylish": "~0.1.3",
+    "load-grunt-tasks": "~0.2.0",
+    "time-grunt": "~0.2.1"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  }
 }

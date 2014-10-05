@@ -5,8 +5,8 @@ Past attempts at software dealing with Existential Graphs have not proven to be 
 
 What are existensial graphs?
 ---
-The following is a quick summary of what Existential Graphs are by Bram:  
-An Existential Graphs is an alternate logic proof system created by Charles Saunders Peirce. An interesting feature of Existential Graphs is that the nature of proofs in a subtly different way as compared to traditional systems. In traditional formal logic, a proof is a sequence of statements, that one writes after (or under) each other. However, in Existential Graphs, all of the inference rules of the system require one to either add or remove parts to or from a single graphical notation. Thus, a proof in Existential Graphs is the successive transformation of one graph, representing the given information, to another, representing the inferred information. Indeed, one transforms, rather than rewrites.  
+The following is a quick summary of what Existential Graphs are by Bram:
+An Existential Graphs is an alternate logic proof system created by Charles Saunders Peirce. An interesting feature of Existential Graphs is that the nature of proofs in a subtly different way as compared to traditional systems. In traditional formal logic, a proof is a sequence of statements, that one writes after (or under) each other. However, in Existential Graphs, all of the inference rules of the system require one to either add or remove parts to or from a single graphical notation. Thus, a proof in Existential Graphs is the successive transformation of one graph, representing the given information, to another, representing the inferred information. Indeed, one transforms, rather than rewrites.
 **Crudely put: a proof in Existential Graphs is a movie!**
 
 Try it out
@@ -25,7 +25,9 @@ npm install
 # If you don't have grunt
 npm install -g grunt-cli
 
-grunt jshint:all
+# To run peirce logic on port localhost:8080
+grunt
+
 ```
 
 License

@@ -15,3 +15,13 @@ module.exports = (grunt) ->
 				reporter: require("jshint-stylish")
 
 			all: ["appengine/js/**/*.js"]
+
+		gae:
+			run_sync: {
+				action: 'run'
+			}
+			options: {
+				path: 'appengine'
+			}
+
+	grunt.registerTask 'default', ['gae']
