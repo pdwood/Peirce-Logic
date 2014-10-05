@@ -111,7 +111,10 @@ $(document).ready( function() {
 	}
 
 	// overwrite save
-	$('#overwriteFormSubmit').click( function() { saveFormSubmission(true) });
+	$('#overwriteFormSubmit').click( function() {
+		this.remove()
+		saveFormSubmission(true)
+	});
 	$('#saveFormSubmit').click( function() { saveFormSubmission(false) });
 
 	/* ----------------------------------------------------------------------- */
