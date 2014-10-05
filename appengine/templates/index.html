@@ -56,13 +56,13 @@
 								<span class="glyphicon glyphicon-cog"></span>
 							</button>
 							<ul class="dropdown-menu" role="menu">
-								{% if username %}
-									<li><a href="#">{{username}}</a></li>
-								{% endif %}
 								<li>{{logButt}}</li>
 							</ul>
 						</div>
 					</div>
+				{% if username %}
+					<a href="#">{{username}}</a>
+				{% endif %}
 				</ul>
 			</div>
 		</div>    <!-- End of navbar-container -->
