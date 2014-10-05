@@ -40,10 +40,12 @@ $(document).ready( function() {
 		$('#saveFormSubmit').html('Save Proof');
 		$('#saveFormSubmit').removeClass('btn-success');
 		$('#saveFormSubmit').addClass('btn-primary');
+		$('#overwriteFormSubmit').addClass('hidden')
 	});
 
+
 	// run these before submission
-	$('#saveFormSubmit').click( function() {
+	var saveFormSubmission = function(overwrite) {
 
 		// tell people that we're trying to save
 		$('#saveFormSubmit').removeClass('btn-default');
@@ -55,8 +57,14 @@ $(document).ready( function() {
 		// check to make sure the proof title doesn't already exist in the db
 
 		var Dtitle = $('#saveFormTitle').val();
+
+		if( overwrite ) {
+			deleteProofByTitle( Dtitle );
+		}
+
+		// this proof saving is pretty bad... it's just a temporary thing
 		requestProofByTitle(Dtitle).done( function(r) {
-			if(r === '0') {
+			if(r === '0' || overwrite) {
 				var Dtitle = $('#saveFormTitle').val();
 				var Ddescription = $('#saveFormDesc').val();
 				var Dproof = TheProof.SaveProof();
@@ -77,6 +85,10 @@ $(document).ready( function() {
 				}, 750);
 
 			} else {
+				// reveal overwrite proof butt
+				if( $('#overwriteFormSubmit').is(':hidden') ) {
+					$('#overwriteFormSubmit').removeClass('hidden')
+				}
 				$('#saveFormInputGroup').addClass('has-error');
 				$('#saveFormTitle').focus();
 				var tipProps = {title: 'This proof already exists!', placement:'left'};
@@ -96,7 +108,11 @@ $(document).ready( function() {
 		.fail( function(x) {
 			D('we failed x:' + x);
 		});
-	});
+	}
+
+	// overwrite save
+	$('#overwriteFormSubmit').click( function() { saveFormSubmission(true) });
+	$('#saveFormSubmit').click( function() { saveFormSubmission(false) });
 
 	/* ----------------------------------------------------------------------- */
 	/* Next and Previous buttons                                               */
