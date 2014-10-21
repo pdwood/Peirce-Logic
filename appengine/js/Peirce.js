@@ -64,4 +64,7 @@ window.onload = function() {
 		branches.draw.call(Timeline);
 		R.setSize(PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
 	});
+
+	// start hammer
+	initHammer();
 };
