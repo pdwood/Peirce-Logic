@@ -29,6 +29,17 @@ window.onload = function() {
 	// main raphael paper
 	R = new Raphael('paper', PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
 
+	// Determine if we're a touch device or not
+	TOUCH_ENABLED = function() {
+		try {
+			document.createEvent("TouchEvent");
+			return true;
+		}
+		catch(e) {
+			return false;
+		}
+	}();
+
 	// ui minimap
 	minimap = new Minimap(R);
 
