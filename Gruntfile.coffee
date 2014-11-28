@@ -22,6 +22,9 @@ module.exports = (grunt) ->
 			}
 			options: {
 				path: 'appengine'
+				args: {
+					host: '0.0.0.0'
+				}
 			}
 
 	grunt.registerTask 'default', ['gae']
