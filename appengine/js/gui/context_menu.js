@@ -93,6 +93,9 @@ ContextHandler.prototype.SingleClickHandler = function(uinode,x,y,event) {
 		if(event.which === 3 || event.type === 'dblclick') { // right click and double click
 			this.NewContext(uinode,x,y);
 		}
+		else if( event.type === 'doubletap' ) {
+			this.NewContext(uinode,x,y);
+		}
 	}
 };
 
