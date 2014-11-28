@@ -16,9 +16,8 @@ function initHammer() {
 function touchContext(ev) {
 	D("Open up context menu");
 	root = TheProof.current.uiTree.uinodes[0]
-	D(root)
-	//root.clicked()
-	D(ev.type)
-	ContextMenu.SingleClickHandler(root, 50, 50, ev)
-	//event.initMouseEvent({type:"dblclick", screenX:50, screenY:50});
+	coords = mouse_to_svg_coordinates(root.paper, ev)
+	x = coords.x
+	y = coords.y
+	ContextMenu.SingleClickHandler(root, x,y, ev)
 }

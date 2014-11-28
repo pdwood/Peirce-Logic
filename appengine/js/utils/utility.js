@@ -36,12 +36,19 @@ function mouse_to_svg_coordinates(raphaelObj,mouseEvent) {
 		_scaleY = paper.height / viewBox[3];
 
 		if (element.raphael || element.parentElement.raphael) {
-			if (jQuery.browser.chrome)  { _x = mouseEvent.clientX; _y = mouseEvent.clientY; } // Chrome
-			if (jQuery.browser.mozilla) { _x = mouseEvent.layerX;  _y = mouseEvent.layerY;  } // Firefox
-			if (jQuery.browser.msie)    { _x = mouseEvent.x;       _y = mouseEvent.y;       } // IE
-			if (jQuery.browser.opera)   { // Opera
-				_x = mouseEvent.pageX - parent.position().left;
-				_y = mouseEvent.pageY - parent.position().top;
+			if ( TOUCH_ENABLED ) {
+				if ( mouseEvent.type === "doubletap" ) {
+					_x = mouseEvent.pointers[0].clientX
+					_y = mouseEvent.pointers[0].clientY
+				}
+			} else {
+				if (jQuery.browser.chrome)  { _x = mouseEvent.clientX; _y = mouseEvent.clientY; } // Chrome
+				if (jQuery.browser.mozilla) { _x = mouseEvent.layerX;  _y = mouseEvent.layerY;  } // Firefox
+				if (jQuery.browser.msie)    { _x = mouseEvent.x;       _y = mouseEvent.y;       } // IE
+				if (jQuery.browser.opera)   { // Opera
+					_x = mouseEvent.pageX - parent.position().left;
+					_y = mouseEvent.pageY - parent.position().top;
+				}
 			}
 
 			_absoluteX = _x + parent.offset().left;
