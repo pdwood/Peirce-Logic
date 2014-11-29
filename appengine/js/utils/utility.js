@@ -37,10 +37,8 @@ function mouse_to_svg_coordinates(raphaelObj,mouseEvent) {
 
 		if (element.raphael || element.parentElement.raphael) {
 			if ( TOUCH_ENABLED ) {
-				if ( mouseEvent.type === "doubletap" ) {
-					_x = mouseEvent.pointers[0].clientX
-					_y = mouseEvent.pointers[0].clientY
-				}
+				_x = mouseEvent.clientX
+				_y = mouseEvent.clientY
 			} else {
 				if (jQuery.browser.chrome)  { _x = mouseEvent.clientX; _y = mouseEvent.clientY; } // Chrome
 				if (jQuery.browser.mozilla) { _x = mouseEvent.layerX;  _y = mouseEvent.layerY;  } // Firefox

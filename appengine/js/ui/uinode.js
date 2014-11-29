@@ -130,7 +130,7 @@ UINode.prototype.clicked = function() {
 	return function(event) {
 		ContextMenu.CloseContext();
 		var point = self.getMousePoint(event);
-		ContextMenu.SingleClickHandler(self, point.x, point.y, event);    
+		ContextMenu.SingleClickHandler(self, point.x, point.y, event);
 	};
 }
 

@@ -4,6 +4,7 @@ function initHammer() {
 	if( !TOUCH_ENABLED ) {
 		return
 	}
+	return
 
 	// Paper
 	(function(){
@@ -14,6 +15,7 @@ function initHammer() {
 }
 
 function touchContext(ev) {
+	D(ev)
 	D("Open up context menu");
 	root = TheProof.current.uiTree.uinodes[0]
 	coords = mouse_to_svg_coordinates(root.paper, ev)

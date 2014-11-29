@@ -5,25 +5,23 @@
 Level.prototype = Object.create(UINode.prototype);
 
 function Level(R, node, nodeDict) {
-    this.superClass = Object.getPrototypeOf(Level.prototype);	
+    this.superClass = Object.getPrototypeOf(Level.prototype);
     this.superClass.constructor.call(this,R,node,nodeDict);
 }
 
 Level.prototype.createShape = function() {
 	this.removeShape();
 	this.shape = this.paper.rect(0,0,1,1);
-	
     if(this.node.parent) { // cuts
 		//mouseover effects
         this.shape.mouseover(function () {
         //    this.attr({"fill-opacity": 0.2});
         });
 		this.shape.mouseout(function () {
-		//	this.attr({"fill-opacity": 0.0}); 
+		//	this.attr({"fill-opacity": 0.0});
         });
-		
 		this.setDragHandlers(this.onDragMove,this.onDragStart,this.onDragEnd);
-	}    
+	}
 
 	this.shape.parent = this;
 	this.shape.mousedown(this.clicked());
@@ -45,12 +43,12 @@ Level.prototype.defaultAttr = function() {
             width: DEFAULT_PLANE_WIDTH || 5000,
             height: DEFAULT_PLANE_HEIGHT || 5000,
 			fill: evenFill,
-			stroke: evenFill, 
+			stroke: evenFill,
 			"fill-opacity": 0.1
 		};
     } else { // cut
         //color spectrum based on level
-		var color = 0; 
+		var color = 0;
         Raphael.getColor.reset();
 		for(var x =1; x<=this.node.getLevel()+1;x++){
 			color = Raphael.getColor();
