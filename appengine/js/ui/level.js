@@ -86,7 +86,6 @@ Level.prototype.setSelected = function(flag) {
 };
 
 Level.prototype.getMousePoint = function(event) {
-	//D(event);
 	var coords = mouse_to_svg_coordinates(this.paper,event);
 	var ex = 200;
 	var ey = 200;
@@ -186,14 +185,25 @@ Level.prototype.dragStart = function() {
 Level.prototype.dragMove = function(dx, dy, noCollision) {
 	var dpoint; // delta point for movement
 
-	if(!noCollision) {
-		// find maximum delta within collision
-		dpoint = this.collisionDelta(this.ox,this.oy,dx,dy);
+	if( dx instanceof TouchEvent ) {
+		dpoint = {
+			x: dx.touches[0].clientX,
+			y: dx.touches[0].clientY
+		}
+		dpoint = this.collisionDelta(this.ox, this.oy, dpoint.x, dpoint.y);
 	} else {
-		dpoint = {x: dx, y: dy};
+		if(!noCollision) {
+			// find maximum delta within collision
+			dpoint = this.collisionDelta(this.ox,this.oy,dx,dy);
+		} else {
+			dpoint = {x: dx, y: dy};
+		}
 	}
-	var point = {x: dpoint.x+this.ox,
-				 y: dpoint.y+this.oy};
+	var point = {
+		x: dpoint.x+this.ox,
+		y: dpoint.y+this.oy
+	};
+
 	this.setShapeAttr(point);
 
     //shift children

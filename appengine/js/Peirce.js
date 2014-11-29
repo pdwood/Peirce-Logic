@@ -29,6 +29,9 @@ window.onload = function() {
 	// main raphael paper
 	R = new Raphael('paper', PLANE_CANVAS_WIDTH(), PLANE_CANVAS_HEIGHT());
 
+	// TOUCH
+	lastTouchTime = Date.now()
+
 	// Determine if we're a touch device or not
 	TOUCH_ENABLED = function() {
 		try {

@@ -135,10 +135,8 @@ UINode.prototype.clicked = function() {
 }
 
 UINode.prototype.setDragHandlers = function(dragMove, dragStart, dragEnd) {
+	//this.shape.touchmove(dragMove);
 	this.shape.drag(dragMove, dragStart, dragEnd);
-	this.shape.touchmove(dragMove);
-	this.shape.touchstart(dragStart);
-	this.shape.touchend(dragEnd);
 }
 
 UINode.prototype.drag = function(dx,dy) {

@@ -47,7 +47,6 @@ function Minimap(R) {
 	this.minimap.touchmove(this.move);
 	this.minimap.touchstart(this.start);
 	this.minimap.touchend(this.end);
-	this.minimap.dblclick(this.minimapClick);
 }
 
 Minimap.prototype.minimapClick = function(event) {

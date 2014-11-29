@@ -56,7 +56,7 @@ Variable.prototype.setSelected = function(flag) {
 
 Variable.prototype.getMousePoint = function(event) {
 	var coords = mouse_to_svg_coordinates(this.paper,event);
-	var ex = 200; 
+	var ex = 200;
 	var ey = 200;
 	if(jQuery.browser.chrome) {
 		ex = coords.x;
@@ -90,11 +90,19 @@ Variable.prototype.dragStart = function() {
 
 Variable.prototype.dragMove = function(dx, dy, noCollision) {
 	var dpoint; // delta point for movement
-	if(!noCollision) {
-		// find maximum delta within collision
-		dpoint = this.collisionDelta(this.ox, this.oy, dx,dy);
+	if( dx instanceof TouchEvent ) {
+		dpoint = {
+			x: dx.touches[0].clientX,
+			y: dx.touches[0].clientY
+		}
+		dpoint = this.collisionDelta(this.ox, this.oy, dpoint.x, dpoint.y);
 	} else {
-		dpoint = {x: dx, y: dy};
+		if(!noCollision) {
+			// find maximum delta within collision
+			dpoint = this.collisionDelta(this.ox, this.oy, dx,dy);
+		} else {
+			dpoint = {x: dx, y: dy};
+		}
 	}
 	dpoint.x += this.ox;
 	dpoint.y += this.oy;
@@ -112,27 +120,21 @@ Variable.prototype.dragEnd = function() {
 // Collision logic
 
 Variable.prototype.collisionDelta = function(ox, oy, dx, dy) {
+	//alert(dx + " " + dy + " " + ox + " " + oy )
 	var delta = {x: dx, y: dy};
 	var bbox = this.shape.getBBox();
-	bbox = {x: ox-bbox.width/2, 
+	bbox = {x: ox-bbox.width/2,
 			x2: ox+bbox.width/2,
-			y: oy-bbox.height/2, 
+			y: oy-bbox.height/2,
 			y2:	oy+bbox.height/2};
 	var uiparent = this.getUINode(this.node.parent);
 
 	// parent collision filter
-	var pbbox = {x: uiparent.ox, 
+	var pbbox = {x: uiparent.ox,
 				 x2: uiparent.ox+uiparent.shape.getBBox().width,
-				 y: uiparent.oy, 
+				 y: uiparent.oy,
 				 y2: uiparent.oy+uiparent.shape.getBBox().height};
-	// if delta movement out of parent with slack
-	//	var bslack = 0;
-	// if((delta.x > 0 && !(bbox.x2+delta.x+bslack <= pbbox.x2)) ||
-	//    (delta.x < 0 && !(pbbox.x <= bbox.x+delta.x-bslack)) ||
-	//    (delta.y > 0 && !(bbox.y2+delta.y+bslack <= pbbox.y2)) ||
-	//    (delta.y < 0 && !(pbbox.y <= bbox.y+delta.y-bslack)))
-		delta = uiparent.collisionDelta(pbbox.x, pbbox.y, delta.x, delta.y);
-	
+	delta = uiparent.collisionDelta(pbbox.x, pbbox.y, delta.x, delta.y);
 	// global bounds filter
 	delta = uiparent.globalCollisionDelta(bbox,delta);
 

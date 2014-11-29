@@ -37,8 +37,13 @@ function mouse_to_svg_coordinates(raphaelObj,mouseEvent) {
 
 		if (element.raphael || element.parentElement.raphael) {
 			if ( TOUCH_ENABLED ) {
-				_x = mouseEvent.clientX
-				_y = mouseEvent.clientY
+				if( mouseEvent instanceof TouchEvent ) {
+					_x = mouseEvent.touches[0].clientX
+					_y = mouseEvent.touches[0].clientY
+				} else {
+					_x = mouseEvent.clientX
+					_y = mouseEvent.clientY
+				}
 			} else {
 				if (jQuery.browser.chrome)  { _x = mouseEvent.clientX; _y = mouseEvent.clientY; } // Chrome
 				if (jQuery.browser.mozilla) { _x = mouseEvent.layerX;  _y = mouseEvent.layerY;  } // Firefox
