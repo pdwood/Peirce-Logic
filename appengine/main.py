@@ -12,7 +12,6 @@ from google.appengine.api import users
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
-
 def userproofs_key(email=None):
     return ndb.Key('userproofs', email)
 
